@@ -1,0 +1,13 @@
+## macOS
+.DS_Store
+._*
+
+## Others
+**/*.swp
+*.out
+**/*.pdf
+
+## Latex
+**/*.aux
+**/*.log
+**/*.toc
