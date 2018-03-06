@@ -4,10 +4,11 @@ compiler:
     - gcc
 before_script:
     - sudo apt-get install freeglut3-dev
-    - mkdir build
-    - cmake src/ -DCMAKE_SOURCE_DIR="src" -DCMAKE_BINARY_DIR="build"
 script:
-    - cd build/Generator
+    - mkdir build
+    - cd build
+    - cmake ../src
+    - cd Generator
     - make
     - cd ../Engine
     - make
