@@ -3,6 +3,7 @@ compiler:
     - clang
     - gcc
 before_script:
+    - apt-get install freeglut3-dev
     - mkdir build
     - cd build
     - cmake ../src
@@ -11,3 +12,4 @@ script:
     - make
     - cd build/Engine
     - make
+-sudo: false

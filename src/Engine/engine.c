@@ -10,14 +10,18 @@
 
 #ifdef __APPLE__
 #include <GLUT/glut.h>
+#elif __linux__
+#include <unistd.h>
+#include <GL/glut.h>
 #else
+#include<io.h>
 #include <GL/glut.h>
 #endif
 
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
-#include <unistd.h>
+
 #include <fcntl.h>
 #include <string.h>
 #include <stdlib.h>
