@@ -11,3 +11,6 @@
 **/*.aux
 **/*.log
 **/*.toc
+
+## Build
+build/**
