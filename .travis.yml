@@ -7,7 +7,5 @@ before_script:
     - mkdir build
     - cmake src/ -DCMAKE_SOURCE_DIR="src" -DCMAKE_BINARY_DIR="build"
 script:
-    - cd build/Generator
-    - make
-    - cd ../Engine
+    - cd build
     - make
