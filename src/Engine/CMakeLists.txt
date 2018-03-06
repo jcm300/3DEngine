@@ -11,8 +11,6 @@ endif(NOT GLUT_FOUND)
 
 IF(UNIX)
     SET(MY_MATH_LIB m)
-ELSE(UNIX)
-    SET(MY_MATH_LIB)
 ENDIF(UNIX)
 
 find_package(OpenGL REQUIRED)
