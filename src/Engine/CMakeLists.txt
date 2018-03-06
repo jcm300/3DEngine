@@ -10,7 +10,11 @@ if(NOT GLUT_FOUND)
 endif(NOT GLUT_FOUND)
 
 IF(UNIX)
+
     SET(MATH_LIB m)
+=======
+    SET(MY_MATH_LIB m)
+
 ENDIF(UNIX)
 
 find_package(OpenGL REQUIRED)
