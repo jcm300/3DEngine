@@ -7,6 +7,7 @@ before_script:
     - cd build
     - cmake ..
 script:
+    - cd build/Generator
     - make
-    - cd ../bin
-    - ./Simple
+    - cd build/Engine
+    - make
