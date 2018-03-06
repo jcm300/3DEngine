@@ -5,10 +5,9 @@ compiler:
 before_script:
     - sudo apt-get install freeglut3-dev
     - mkdir build
-    - cd build
-    - cmake ../src
+    - cmake src/
 script:
     - cd build/Generator
     - make
-    - cd build/Engine
+    - cd ../Engine
     - make

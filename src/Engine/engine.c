@@ -10,6 +10,7 @@
 
 #ifdef __APPLE__
 #include <GLUT/glut.h>
+#include <unistd.h>
 #elif __linux__
 #include <unistd.h>
 #include <GL/glut.h>
