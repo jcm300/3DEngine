@@ -9,6 +9,10 @@ if(NOT GLUT_FOUND)
     message(ERROR " GLUT not found!")
 endif(NOT GLUT_FOUND)
 
+IF(UNIX)
+    SET(MATH_LIB m)
+ENDIF(UNIX)
+
 find_package(OpenGL REQUIRED)
 include_directories(${OpenGL_INCLUDE_DIRS})
 link_directories(${OpenGL_LIBRARY_DIRS})
@@ -19,4 +23,4 @@ endif(NOT OPENGL_FOUND)
 
 add_executable(engine engine.c)
 
-target_link_libraries(engine ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} )
+target_link_libraries(engine ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${MATH_LIB})
