@@ -19,4 +19,4 @@ endif(NOT OPENGL_FOUND)
 
 add_executable(engine engine.c)
 
-target_link_libraries(engine ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} )
+target_link_libraries(engine ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} m)

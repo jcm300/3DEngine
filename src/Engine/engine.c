@@ -8,6 +8,7 @@
  * @author Simão Barbosa
  */
 
+#include <stdlib.h>
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #include <unistd.h>
@@ -22,10 +23,8 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
-
 #include <fcntl.h>
 #include <string.h>
-#include <stdlib.h>
 
 float radius = 10.0f;
 float alfa = M_PI/4;
