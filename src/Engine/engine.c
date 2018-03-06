@@ -7,14 +7,15 @@
  * @author Miguel Quaresma
  * @author Simão Barbosa
  */
-
 #include <stdlib.h>
+
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #include <unistd.h>
 #elif __linux__
 #include <unistd.h>
 #include <GL/glut.h>
+
 #else
 #include<io.h>
 #include <GL/glut.h>
@@ -50,13 +51,13 @@ void changeSize(int w, int h) {
 
 }
 
-ssize_t readln (int fildes, void * buf, size_t nbyte){
+long readln (int fildes, void * buf, size_t nbyte){
 	int i,x;
 	char* s = buf;
 	for (i=0; i<nbyte && (x=read(fildes,&s[i],1))>0 && s[i]!='\n';i++);
 	if (s[i]=='\n') i++;
 	return i;
-}
+} 
 
 void drawObject() {
 
