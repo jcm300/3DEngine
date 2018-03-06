@@ -1,0 +1,4 @@
+<scene>
+<model file=”box.txt” /><model file=”box.txt” />
+<model file=”pyramid.txt” /><model file=”pyramid.txt” />
+</scene>
