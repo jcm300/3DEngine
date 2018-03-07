@@ -164,7 +164,6 @@ int generateCone(){
 
 }
 
-/*
 //Converts a float to an array of chars
 char *ftoa(float fl){
     char *c=(char*)calloc(20,sizeof(char));
@@ -193,4 +192,3 @@ char *ftoa(float fl){
     }while(fl+intPart>=0.0f);
     return c;
 }
-*/
