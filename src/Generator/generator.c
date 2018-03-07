@@ -25,6 +25,7 @@ int writeConfig(int, char**);
 int generatePlane(int, char*,char*);
 char* ftoa(float);
 int generateBox(int, char*, char*, char*, char*);
+int generateCone(int, char*, char*, char*, char*);
 
 int main(int argc, char *argv[]){
 
