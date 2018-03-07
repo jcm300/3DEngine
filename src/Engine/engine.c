@@ -26,12 +26,85 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 
 float radius = 10.0f;
 float alfa = M_PI/4;
 float beta = M_PI/4;
 float change = 0.025;
 float changeR = 0.2;
+char ** xmlFile;
+
+long readln (int fildes, void * buf, size_t nbyte){
+	int i,x;
+	char* s = buf;
+	for (i=0; i<nbyte && (x=read(fildes,&s[i],1))>0 && s[i]!='\n';i++);
+	if (s[i]=='\n') i++;
+	return i;
+}
+
+void drawModel(xmlChar * file) {
+
+	int fd,x;
+	char buffer[20];
+	int coord[3];
+	char* aux;
+
+	glColor3f(1,0,0);
+
+	glBegin(GL_TRIANGLES);
+
+		fd = open(file,O_RDONLY);
+
+        if(fd>0){
+		    while ((x=readln(fd,buffer,20))>0){
+
+			    aux = strtok(buffer," ");
+			    coord[0] = atoi(aux);
+			    aux = strtok (NULL, " ");
+			    coord[1] = atoi(aux);
+			    aux = strtok (NULL, " ");
+			    coord[2] = atoi(aux);
+
+			    glVertex3f(coord[0], coord[1], coord[2]);
+            }
+        }
+
+	glEnd();
+
+}
+
+void parseNodes(xmlNodePtr cur){
+    
+    while(cur){
+        if(!xmlStrcmp(cur->name,(const xmlChar*)"model")){
+            drawModel(xmlGetProp(cur,(const xmlChar*)"file"));
+        }
+        cur = cur -> next;
+    }
+}
+
+void xmlParser(char * file){
+
+    xmlDocPtr doc;
+    xmlNodePtr cur;
+
+    doc = xmlParseFile(file);
+    if(!doc) fprintf(stderr, "Couldn't parse xml file\n");
+    else{
+        cur = xmlDocGetRootElement(doc);
+        if(!cur) fprintf(stderr, "Empty xml file\n");
+        else{
+            if(!xmlStrcmp(cur->name,(const xmlChar*)"scene")){
+                cur = cur -> xmlChildrenNode;
+                parseNodes(cur);
+            }else fprintf(stderr, "Don't recognize sintax\n");   
+        }
+    }
+    //xmlFreeDoc(doc);
+    //xmlFreeNode(cur);
+}
 
 void changeSize(int w, int h) {
 
@@ -48,44 +121,6 @@ void changeSize(int w, int h) {
 	gluPerspective(45.0f ,ratio, 1.0f ,1000.0f);
 
 	glMatrixMode(GL_MODELVIEW);
-
-}
-
-long readln (int fildes, void * buf, size_t nbyte){
-	int i,x;
-	char* s = buf;
-	for (i=0; i<nbyte && (x=read(fildes,&s[i],1))>0 && s[i]!='\n';i++);
-	if (s[i]=='\n') i++;
-	return i;
-} 
-
-void drawObject() {
-
-	int fd,x;
-	char buffer[20];
-	int coord[3];
-	char* aux;
-
-	glColor3f(1,0,0);
-
-	glBegin(GL_TRIANGLES);
-
-		fd = open("box.txt",O_RDONLY);
-
-		while ((x=readln(fd,buffer,20))>0){
-
-			aux = strtok(buffer," ");
-			coord[0] = atoi(aux);
-			aux = strtok (NULL, " ");
-			coord[1] = atoi(aux);
-			aux = strtok (NULL, " ");
-			coord[2] = atoi(aux);
-
-			glVertex3f(coord[0], coord[1], coord[2]);
-
-		}
-
-	glEnd();
 
 }
 
@@ -128,7 +163,7 @@ void renderScene(void) {
 	// drawing instructions
 	drawXYZ();
 
-	drawObject();
+	xmlParser(*xmlFile);
 
 	// End of Frame
 	glutSwapBuffers();
@@ -171,23 +206,26 @@ void processSpecialKeys(int key, int xx, int yy) {
 
 
 int main(int argc, char **argv) {
-
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DEPTH|GLUT_DOUBLE|GLUT_RGBA);
-	glutInitWindowPosition(100,100);
-	glutInitWindowSize(800,800);
-	glutCreateWindow("3DEngine");
+    if(argc>1){
+        xmlFile = argv+1;
+	    
+        glutInit(&argc, argv);
+	    glutInitDisplayMode(GLUT_DEPTH|GLUT_DOUBLE|GLUT_RGBA);
+	    glutInitWindowPosition(100,100);
+	    glutInitWindowSize(800,800);
+	    glutCreateWindow("3DEngine");
 		
-	glutDisplayFunc(renderScene);
-	glutReshapeFunc(changeSize);
+	    glutDisplayFunc(renderScene);
+	    glutReshapeFunc(changeSize);
 	
-	glutKeyboardFunc(processKeys);
-	glutSpecialFunc(processSpecialKeys);
+	    glutKeyboardFunc(processKeys);
+	    glutSpecialFunc(processSpecialKeys);
 
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+	    glEnable(GL_DEPTH_TEST);
+	    glEnable(GL_CULL_FACE);
 	
-	glutMainLoop();
+	    glutMainLoop();
+    }else fprintf(stderr, "Wrong number of arguments.\n");
 	
-	return 1;
+    return 1;
 }
