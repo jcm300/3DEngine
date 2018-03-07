@@ -85,28 +85,28 @@ void faceXZ(int fd, char* array, float x, float y, float z){
     else printLine(fd,array,x,y,-z);
 }
 
-void faceYZ(int fd, char* array, float x, float y, float z){
-    printLine(fd,array,x, -y, -z);
-    if (x>0) printLine(fd,array,x, y, -z);
-    else printLine(fd,array,x, -y, z);
-    printLine(fd,array,x, y, z);
+void faceYZ(int fd, char* array, float x, float y1, float y2, float z){
+    printLine(fd,array,x, y1, -z);
+    if (x>0) printLine(fd,array,x, y2, -z);
+    else printLine(fd,array,x, y1, z);
+    printLine(fd,array,x, y2, z);
     
-    printLine(fd,array,x, -y, -z);
-    printLine(fd,array,x, y, z);
-    if (x>0) printLine(fd,array,x, -y, z);
-    else printLine(fd,array,x, y, -z);
+    printLine(fd,array,x, y1, -z);
+    printLine(fd,array,x, y2, z);
+    if (x>0) printLine(fd,array,x, y1, z);
+    else printLine(fd,array,x, y2, -z);
 }
 
-void faceXY(int fd, char* array, float x, float y, float z){
-	printLine(fd,array,x, -y, z);
-    if (z>0) printLine(fd,array,x, y, z);
-    else printLine(fd,array,-x,-y, z);
-    printLine(fd,array,-x, y, z);
+void faceXY(int fd, char* array, float x, float y1, float y2, float z){
+	printLine(fd,array,x, y1, z);
+    if (z>0) printLine(fd,array,x, y2, z);
+    else printLine(fd,array,-x,y1, z);
+    printLine(fd,array,-x, y2, z);
     
-    printLine(fd,array,x, -y, z);
-    printLine(fd,array,-x, y, z);
-    if (z>0) printLine(fd,array,-x, -y, z);
-    else printLine(fd,array,x, y, z);
+    printLine(fd,array,x, y1, z);
+    printLine(fd,array,-x, y2, z);
+    if (z>0) printLine(fd,array,-x, y1, z);
+    else printLine(fd,array,x, y2, z);
 }
 
 int generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
@@ -114,17 +114,23 @@ int generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
     float y = (float) atof(yy);
     float z = (float) atof(zz);
     float d = (float) atof(dd);
+    float var = y/d;
     x/=2.0f;
     y/=2.0f;
     z/=2.0f;
     char array[100];
+    float y1 = -y;
+    float y2 = y1 + var;
 
 	faceXZ(fd,array,x,-y,z);
 	faceXZ(fd,array,x,y,z);
-	faceYZ(fd,array,-x,y,z);
-	faceYZ(fd,array,x,y,z);
-	faceXY(fd,array,x,y,z);
-	faceXY(fd,array,x,y,-z);
+
+	for (int i=0;i<d;i++,y1+=var,y2+=var){
+        faceYZ(fd,array,-x,y1,y2,z);
+        faceYZ(fd,array,x,y1,y2,z);
+        faceXY(fd,array,x,y1,y2,z);
+		faceXY(fd,array,x,y1,y2,-z);
+    }
 }
 
 int generateSphere(){
