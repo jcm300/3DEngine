@@ -69,7 +69,22 @@ int generatePlane(int fd, char *l, char *c){
 }
 
 void printLine(int fd, char* array, float x, float y, float z){
-	printLine(fd,array,x, y, z);
+	sprintf(array, "%f %f %f\n", x, y, z);
+    write(fd,array,strlen(array));
+}
+
+
+void faceXZ(int fd, char* array, float x, float y, float z, int dir){
+	printLine(fd,array,-x,y,z);
+    if (dir==1) printLine(fd,array,x,y,z);
+    else printLine(fd,array,x,y,-z); 
+    if (dir==1) printLine(fd,array,x,y,-z);
+    else printLine(fd,array,x,y,z); //
+    printLine(fd,array,-x,y,z);
+    if (dir==1) printLine(fd,array,x,y,-z);
+    else printLine(fd,array,-x,y,-z);
+    if (dir==1) printLine(fd,array,-x,y,-z); //
+    else printLine(fd,array,x,y,-z);
 }
 
 int generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
@@ -82,19 +97,8 @@ int generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
     char array[100];
     char *no;
 
-    printLine(fd,array,-x,0.f,z);
-    printLine(fd,array,x, 0.f, -z);
-    printLine(fd,array,x, 0.f, z);
-    printLine(fd,array,-x, 0.f, z);
-    printLine(fd,array,-x, 0.f, -z);
-    printLine(fd,array,x, 0.f, -z);
-
-    printLine(fd,array,-x, y, z);
-    printLine(fd,array,x, y, z);
-    printLine(fd,array,x, y, -z);
-    printLine(fd,array,-x, y, z);
-    printLine(fd,array,x, y, -z);
-    printLine(fd,array,-x, y, -z);
+	faceXZ(fd,array,x,0,z,-1);
+	faceXZ(fd,array,x,y,z,1);
 
     printLine(fd,array,-x, 0.f, -z);
     printLine(fd,array,-x, 0.f, z);
@@ -103,19 +107,19 @@ int generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
     printLine(fd,array,-x, y, -z);
     printLine(fd,array,-x, 0.f, -z);
 
-    printLine(fd,array,-x, 0.f, -z);
-    printLine(fd,array,-x, y, -z);
-    printLine(fd,array,x, 0.f, -z);
-    printLine(fd,array,x, 0.f, -z);
-    printLine(fd,array,-x, y, -z);
-    printLine(fd,array,x, y, -z);
-
     printLine(fd,array,x, y, z);
     printLine(fd,array,x, 0.f, z);
     printLine(fd,array,x, 0.f, -z);
     printLine(fd,array,x, 0.f, -z);
     printLine(fd,array,x, y, -z);
     printLine(fd,array,x, y, z);
+
+    printLine(fd,array,-x, 0.f, -z);
+    printLine(fd,array,-x, y, -z);
+    printLine(fd,array,x, 0.f, -z);
+    printLine(fd,array,x, 0.f, -z);
+    printLine(fd,array,-x, y, -z);
+    printLine(fd,array,x, y, -z);
 
     printLine(fd,array,x, 0.f, z);
     printLine(fd,array,-x, y, z);
