@@ -74,41 +74,38 @@ void printLine(int fd, char* array, float x, float y, float z){
 }
 
 void faceXZ(int fd, char* array, float x, float y, float z, int dir){
-	printLine(fd,array,-x,y,z);
-    if (dir==1) printLine(fd,array,x,y,z);
-    else printLine(fd,array,x,y,-z); 
+	printLine(fd,array,x,y,z);
     if (dir==1) printLine(fd,array,x,y,-z);
-    else printLine(fd,array,x,y,z);
-    printLine(fd,array,-x,y,z);
-    if (dir==1) printLine(fd,array,x,y,-z);
-    else printLine(fd,array,-x,y,-z);
-    if (dir==1) printLine(fd,array,-x,y,-z);
+    else printLine(fd,array,-x,y,z); 
+    printLine(fd,array,-x,y,-z);
+    
+    printLine(fd,array,x,y,z);
+    printLine(fd,array,-x,y,-z);
+    if (dir==1) printLine(fd,array,-x,y,z);
     else printLine(fd,array,x,y,-z);
 }
 
 void faceYZ(int fd, char* array, float x, float y, float z, int dir){
-    printLine(fd,array,x, y, z);
-    if (dir==1) printLine(fd,array,x, -y, z);
-    else printLine(fd,array,x, -y, -z);
-    if (dir==1) printLine(fd,array,x, -y, -z);
-    else printLine(fd,array,x, -y, z);
     printLine(fd,array,x, -y, -z);
     if (dir==1) printLine(fd,array,x, y, -z);
-    else printLine(fd,array,x, y, z);
-    if (dir==1) printLine(fd,array,x, y, z);
+    else printLine(fd,array,x, -y, z);
+    printLine(fd,array,x, y, z);
+    
+    printLine(fd,array,x, -y, -z);
+    printLine(fd,array,x, y, z);
+    if (dir==1) printLine(fd,array,x, -y, z);
     else printLine(fd,array,x, y, -z);
 }
 
 void faceXY(int fd, char* array, float x, float y, float z, int dir){
 	printLine(fd,array,x, -y, z);
-    if (dir==1) printLine(fd,array,-x, y, z);
-    else  printLine(fd,array,-x,-y, z);
-    if (dir==1) printLine(fd,array,-x, -y, z);
-    else printLine(fd,array,-x, y, z);
-    printLine(fd,array,x, -y, z);
     if (dir==1) printLine(fd,array,x, y, z);
-    else printLine(fd,array,-x, y, z);
-    if (dir==1) printLine(fd,array,-x, y, z);
+    else printLine(fd,array,-x,-y, z);
+    printLine(fd,array,-x, y, z);
+    
+    printLine(fd,array,x, -y, z);
+    printLine(fd,array,-x, y, z);
+    if (dir==1) printLine(fd,array,-x, -y, z);
     else printLine(fd,array,x, y, z);
 }
 
