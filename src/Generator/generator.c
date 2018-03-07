@@ -68,6 +68,10 @@ int generatePlane(int fd, char *l, char *c){
 
 }
 
+void printLine(int fd, char* array, float x, float y, float z){
+	printLine(fd,array,x, y, z);
+}
+
 int generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
     float x = (float) atof(xx);
     float y = (float) atof(yy);
@@ -78,85 +82,47 @@ int generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
     char array[100];
     char *no;
 
-    //no=ftoa(-x);
-    //write(fd,no,strlen(no));
-    sprintf(array, "%f %f %f\n", -x, 0.f, z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", x, 0.f, -z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", x, 0.f, z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", -x, 0.f, z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", -x, 0.f, -z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", x, 0.f, -z);
-    write(fd,array,strlen(array));
+    printLine(fd,array,-x,0.f,z);
+    printLine(fd,array,x, 0.f, -z);
+    printLine(fd,array,x, 0.f, z);
+    printLine(fd,array,-x, 0.f, z);
+    printLine(fd,array,-x, 0.f, -z);
+    printLine(fd,array,x, 0.f, -z);
 
-    sprintf(array, "%f %f %f\n", -x, y, z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", x, y, z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", x, y, -z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", -x, y, z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", x, y, -z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", -x, y, -z);
-    write(fd,array,strlen(array));
+    printLine(fd,array,-x, y, z);
+    printLine(fd,array,x, y, z);
+    printLine(fd,array,x, y, -z);
+    printLine(fd,array,-x, y, z);
+    printLine(fd,array,x, y, -z);
+    printLine(fd,array,-x, y, -z);
 
-    sprintf(array, "%f %f %f\n", -x, 0.f, -z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", -x, 0.f, z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", -x, y, z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", -x, y, z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", -x, y, -z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", -x, 0.f, -z);
-    write(fd,array,strlen(array));
+    printLine(fd,array,-x, 0.f, -z);
+    printLine(fd,array,-x, 0.f, z);
+    printLine(fd,array,-x, y, z);
+    printLine(fd,array,-x, y, z);
+    printLine(fd,array,-x, y, -z);
+    printLine(fd,array,-x, 0.f, -z);
 
-    sprintf(array, "%f %f %f\n", -x, 0.f, -z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", -x, y, -z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", x, 0.f, -z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", x, 0.f, -z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", -x, y, -z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", x, y, -z);
-    write(fd,array,strlen(array));
+    printLine(fd,array,-x, 0.f, -z);
+    printLine(fd,array,-x, y, -z);
+    printLine(fd,array,x, 0.f, -z);
+    printLine(fd,array,x, 0.f, -z);
+    printLine(fd,array,-x, y, -z);
+    printLine(fd,array,x, y, -z);
 
-    sprintf(array, "%f %f %f\n", x, y, z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", x, 0.f, z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", x, 0.f, -z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", x, 0.f, -z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", x, y, -z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", x, y, z);
-    write(fd,array,strlen(array));
+    printLine(fd,array,x, y, z);
+    printLine(fd,array,x, 0.f, z);
+    printLine(fd,array,x, 0.f, -z);
+    printLine(fd,array,x, 0.f, -z);
+    printLine(fd,array,x, y, -z);
+    printLine(fd,array,x, y, z);
 
-    sprintf(array, "%f %f %f\n", x, 0.f, z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", -x, y, z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", -x, 0.f, z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", x, 0.f, z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", x, y, z);
-    write(fd,array,strlen(array));
-    sprintf(array, "%f %f %f\n", -x, y, z);
-    write(fd,array,strlen(array));
+    printLine(fd,array,x, 0.f, z);
+    printLine(fd,array,-x, y, z);
+    printLine(fd,array,-x, 0.f, z);
+    printLine(fd,array,x, 0.f, z);
+    printLine(fd,array,x, y, z);
+    printLine(fd,array,-x, y, z);
 }
 
 int generateSphere(){
