@@ -47,8 +47,8 @@ long readln (int fildes, void * buf, size_t nbyte){
 void drawModel(xmlChar * file) {
 
 	int fd,x;
-	char buffer[20];
-	int coord[3];
+	char buffer[100];
+	float coord[3];
 	char* aux;
 
 	glColor3f(1,0,0);
@@ -58,25 +58,23 @@ void drawModel(xmlChar * file) {
 		fd = open(file,O_RDONLY);
 
         if(fd>0){
-		    while ((x=readln(fd,buffer,20))>0){
+		    while ((x=readln(fd,buffer,100))>0){
 
 			    aux = strtok(buffer," ");
-			    coord[0] = atoi(aux);
+			    coord[0] = atof(aux);
 			    aux = strtok (NULL, " ");
-			    coord[1] = atoi(aux);
+			    coord[1] = atof(aux);
 			    aux = strtok (NULL, " ");
-			    coord[2] = atoi(aux);
+			    coord[2] = atof(aux);
 
 			    glVertex3f(coord[0], coord[1], coord[2]);
             }
         }
 
 	glEnd();
-
 }
 
 void parseNodes(xmlNodePtr cur){
-    
     while(cur){
         if(!xmlStrcmp(cur->name,(const xmlChar*)"model")){
             drawModel(xmlGetProp(cur,(const xmlChar*)"file"));
@@ -86,7 +84,6 @@ void parseNodes(xmlNodePtr cur){
 }
 
 void xmlParser(char * file){
-
     xmlDocPtr doc;
     xmlNodePtr cur;
 

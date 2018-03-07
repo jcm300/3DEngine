@@ -76,7 +76,10 @@ int generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
     x/=2.0f;
     z/=2.0f;
     char array[100];
+    char *no;
 
+    //no=ftoa(-x);
+    //write(fd,no,strlen(no));
     sprintf(array, "%f %f %f\n", -x, 0.f, z);
     write(fd,array,strlen(array));
     sprintf(array, "%f %f %f\n", x, 0.f, -z);
