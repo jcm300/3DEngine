@@ -50,7 +50,7 @@ int writeConfig(int nParams, char **params){
 
                 break;
             case 'c': //cone
-
+				generateCone(fd,params[1],params[2],params[3],params[4]);
                 break;
             default:
                 fprintf(stderr,"Primitive not recognized\n");
@@ -137,8 +137,30 @@ int generateSphere(){
 
 }
 
-int generateCone(){
 
+int generateCone(int fd, char *radiuss , char *heights, char *slicess, char *stackss){
+    float radius = (float) atof(radiuss);
+    float height = (float) atof(heights);
+    float slices = (float) atof(slicess);
+    float stacks = (float) atof(stackss);
+    char array[100];
+    int s = 0;
+   	float angle = (2*M_PI)/10;
+    float angleV = 0;
+
+    while(s<slices){
+            
+            printLine(fd,array,0,0,0);
+            printLine(fd,array,radius*sin(angleV+angle),0,radius*cos(angleV+angle));
+            printLine(fd,array,radius*sin(angleV),0,radius*cos(angleV));
+
+        	printLine(fd,array,0,height,0);
+      	    printLine(fd,array,radius*sin(angleV),0,radius*cos(angleV));
+            printLine(fd,array,radius*sin(angleV+angle),0,radius*cos(angleV+angle));
+
+            angleV+=angle;
+            s++;
+    }
 }
 
 //Converts a float to an array of chars
