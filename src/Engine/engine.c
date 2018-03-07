@@ -50,8 +50,9 @@ void drawModel(xmlChar * file) {
 	char buffer[100];
 	float coord[3];
 	char* aux;
+	float color = 0.20;
 
-	glColor3f(1,0,0);
+	//glColor3f(1,0,0);
 
 	glBegin(GL_TRIANGLES);
 
@@ -67,7 +68,12 @@ void drawModel(xmlChar * file) {
 			    aux = strtok (NULL, " ");
 			    coord[2] = atof(aux);
 
+			    glColor3f(color,0,0);
+			    
 			    glVertex3f(coord[0], coord[1], coord[2]);
+
+			    color += 0.20;
+			    if (color == 1.00) color = 0.20;
             }
         }
 
