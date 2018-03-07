@@ -5,13 +5,10 @@ include_directories(${GLUT_INCLUDE_DIR})
 link_directories(${GLUT_LIBRARY_DIRS})
 add_definitions(${GLUT_DEFINITIONS})
 
+
 if(NOT GLUT_FOUND)
     message(ERROR " GLUT not found!")
 endif(NOT GLUT_FOUND)
-
-IF(UNIX)
-    SET(MATH_LIB m)
-ENDIF(UNIX)
 
 find_package(OpenGL REQUIRED)
 include_directories(${OpenGL_INCLUDE_DIRS})
@@ -21,6 +18,17 @@ if(NOT OPENGL_FOUND)
     message(ERROR " OPENGL not found!")
 endif(NOT OPENGL_FOUND)
 
-add_executable(engine engine.c)
+find_package(LibXml2 REQUIRED)
+include_directories(${LIBXML2_INCLUDE_DIR})
+link_directories(${LIBXML2_LIBRARIES})
+add_definitions(${LIBXML2_DEFINITIONS})
+if(NOT LIBXML2_FOUND)
+    message(ERROR " LibXML2 not found!")
+endif(NOT LIBXML2_FOUND)
 
-target_link_libraries(engine ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${MATH_LIB})
+if(UNIX)
+    set(MATH_LIB m)
+endif(UNIX)
+
+add_executable(engine engine.c)
+target_link_libraries(engine ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${LIBXML2_LIBRARIES} ${MATH_LIB})
