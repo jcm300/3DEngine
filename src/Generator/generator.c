@@ -125,8 +125,8 @@ int generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
 
 	faceXZ(fd,array,x,-y,z);
 	faceXZ(fd,array,x,y,z);
-
-	for (int i=0;i<d;i++,y1+=var,y2+=var){
+    int i;
+	for (i=0;i<d;i++,y1+=var,y2+=var){
         faceYZ(fd,array,-x,y1,y2,z);
         faceYZ(fd,array,x,y1,y2,z);
         faceXY(fd,array,x,y1,y2,z);
@@ -139,6 +139,8 @@ int generateSphere(){
 }
 
 
+
+
 int generateCone(int fd, char *radiuss , char *heights, char *slicess, char *stackss){
     float radius = (float) atof(radiuss);
     float height = (float) atof(heights);
@@ -146,24 +148,38 @@ int generateCone(int fd, char *radiuss , char *heights, char *slicess, char *sta
     float stacks = (float) atof(stackss);
     char array[100];
     int s = 0;
-   	float angle = (2*M_PI)/10;
+    int st =0;
+    float angle = (2*M_PI)/slices;
     float angleV = 0;
+    float height_stacks = height/stacks;
+    float radius_stacks = radius/stacks;
+    while (st<stacks) {
+         while(s<slices){
 
-    while(s<slices){
-            
-            printLine(fd,array,0,0,0);
-            printLine(fd,array,radius*sin(angleV+angle),0,radius*cos(angleV+angle));
-            printLine(fd,array,radius*sin(angleV),0,radius*cos(angleV));
 
-        	printLine(fd,array,0,height,0);
-      	    printLine(fd,array,radius*sin(angleV),0,radius*cos(angleV));
-            printLine(fd,array,radius*sin(angleV+angle),0,radius*cos(angleV+angle));
+                printLine(fd,array,0,height_stacks,0);
+                printLine(fd,array,radius_stacks*sin(angleV+angle),height_stacks,radius_stacks*cos(angleV+angle));
+                printLine(fd,array,radius_stacks*sin(angleV),height_stacks,radius_stacks*cos(angleV));
 
-            angleV+=angle;
-            s++;
+                if (height_stacks== height/stacks) {
+                    printLine(fd,array,0,0,0);
+                    printLine(fd,array,radius*sin(angleV+angle),0,radius*cos(angleV+angle));
+                    printLine(fd,array,radius*sin(angleV),0,radius*cos(angleV));
+
+                   // printLine(fd,array,0,height,0);
+                   // printLine(fd,array,radius*sin(angleV),0,radius*cos(angleV));
+                  //  printLine(fd,array,radius*sin(angleV+angle),0,radius*cos(angleV+angle));
+                }
+                angleV+=angle;
+                s++;
+         }
+         radius_stacks+=radius_stacks;
+         height_stacks+= height_stacks;
+         st++;
     }
-}
+            
 
+}
 //Converts a float to an array of chars
 char *ftoa(float fl){
     char *c=(char*)calloc(20,sizeof(char));
