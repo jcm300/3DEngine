@@ -8,20 +8,14 @@
  * @author Simão Barbosa
  */
 
-#ifdef __WIN32__
-    #include<io.h>
-#else 
-    #include<unistd.h>
-#endif
 #define _USE_MATH_DEFINES
 #include<math.h>
-
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h> 
 #include<sys/fcntl.h>
 #include<sys/unistd.h>
-
+#include<unistd.h>
 
 int writeConfig(int, char**);
 int generatePlane(int, char*,char*);
