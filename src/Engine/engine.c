@@ -9,14 +9,10 @@
  */
 #include <stdlib.h>
 
-#ifdef __APPLE__
-#include <GLUT/glut.h>
-#include <unistd.h>
-#elif __linux__
+#ifdef __linux__
 #include <unistd.h>
 #include <GL/glew.h>
 #include <GL/glut.h>
-
 #else
 #include<io.h>
 #include <GL/glut.h>
@@ -55,40 +51,42 @@ long readln (int fildes, void * buf, size_t nbyte){
 
 void parseModel(xmlChar * file, Points *models) {
 
-	int fd,x,i=0;
+	int fd,x,i=0,j=0;
 	char buffer[100];
 	float coord[3];
 	char* aux;
-    
-    *models = (Points)malloc(sizeof(struct modelPoints));
-    (*models)->size = ;
-    (*models)->points = realloc((*models)->points,(*models)->size);
-    (*models)->next = NULL;
+        
     fd = open(file,O_RDONLY);
 
     if(fd>0){
-        while ((x=readln(fd,buffer,100))>0){
-
-    	    aux = strtok(buffer," ");
-	        coord[0] = atof(aux);
-		    aux = strtok (NULL, " ");
-		    coord[1] = atof(aux);
-		    aux = strtok (NULL, " ");
-		    coord[2] = atof(aux);
-
-		    (*models)->points[i++]=coord[0];
-            (*models)->points[i++]=coord[1];
-            (*models)->points[i++]=coord[2];
+        x=readln(fd,buffer,100);
+        if(x>0){
+            Points auxM=(Points)malloc(sizeof(struct modelPoints));
+            buffer[x-1]=0;
+            auxM->size=atoi(buffer)*3;
+            auxM->points = (float*)malloc(sizeof(float)*auxM->size);
+            auxM->next = NULL;
+            while(j++<auxM->size && (x=readln(fd,buffer,100))>0){
+                aux = strtok(buffer," ");
+                coord[0] = atof(aux);
+                aux = strtok (NULL, " ");
+                coord[1] = atof(aux);
+                aux = strtok (NULL, " ");
+                coord[2] = atof(aux);
+                auxM->points[i++]=coord[0];
+                auxM->points[i++]=coord[1];
+                auxM->points[i++]=coord[2];
+            }
+            auxM->next=*models;
+            *models=auxM;
         }
     }
 }
 
 void parseNodes(xmlNodePtr cur, Points *models){ 
     while(cur){
-        if(!xmlStrcmp(cur->name,(const xmlChar*)"model")){
+        if(!xmlStrcmp(cur->name,(const xmlChar*)"model"))
             parseModel(xmlGetProp(cur,(const xmlChar*)"file"),models);
-            models = &((*models) -> next);
-        }
         cur = cur -> next;
     }
 }
@@ -105,7 +103,8 @@ void xmlParser(char * file){
         else{
             if(!xmlStrcmp(cur->name,(const xmlChar*)"scene")){
                 cur = cur -> xmlChildrenNode;
-                models = (Points *)malloc(sizeof(Points *));
+                models=(Points *)malloc(sizeof(void*));
+                *models=NULL;
                 parseNodes(cur,models);
             }else fprintf(stderr, "Don't recognize sintax\n");   
         }
@@ -158,10 +157,11 @@ void drawXYZ(){
 }
 
 void drawModels(){
-    while(models){
-        glBufferData(GL_ARRAY_BUFFER,((*models)->size)*sizeof(float),(*models)->points,GL_STATIC_DRAW);
-        glDrawArrays(GL_TRIANGLES,0,(*models)->size);
-        models = &((*models)->next);
+    Points auxM=*models;
+    while(auxM){
+        glBufferData(GL_ARRAY_BUFFER,(auxM->size)*sizeof(float),auxM->points,GL_STATIC_DRAW);
+        glDrawArrays(GL_TRIANGLES,0,auxM->size);
+        auxM = auxM->next;
     }
 }
 

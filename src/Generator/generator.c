@@ -13,10 +13,12 @@
 #else 
     #include<unistd.h>
 #endif
-#include<stdio.h>
+#define _USE_MATH_DEFINES
 #include<math.h>
+
+#include<stdio.h>
 #include<stdlib.h>
-#include<string.h>
+#include<string.h> 
 #include<sys/fcntl.h>
 #include<sys/unistd.h>
 
@@ -26,6 +28,9 @@ int generatePlane(int, char*,char*);
 char* ftoa(float);
 int generateBox(int, char*, char*, char*, char*);
 int generateCone(int, char*, char*, char*, char*);
+int generateSphere(int, char *, char *, char *);
+void printLine(int, char*, float, float, float);
+void genSlice(int, int, float, float, float);
 
 int main(int argc, char *argv[]){
 
@@ -38,11 +43,11 @@ int main(int argc, char *argv[]){
 
 int writeConfig(int nParams, char **params){
     char *fileName=params[nParams-1];
-    int fd=open(fileName,O_CREAT | O_WRONLY,9999);
+    int fd=open(fileName,O_CREAT | O_WRONLY,0777);
     if(fd!=-1){
         switch(**params){
             case 'p': //plane
-                generatePlane(fd,params[2],params[3]);
+                generatePlane(fd,params[1],params[2]);
                 break;
             case 'b': //box
             	if (nParams==6)
@@ -55,7 +60,7 @@ int writeConfig(int nParams, char **params){
 					fprintf(stderr,"Incorrect box parameters\n");
                 break;
             case 's': //sphere
-
+                generateSphere(fd,params[1],params[2],params[3]);
                 break;
             case 'c': //cone
 				generateCone(fd,params[1],params[2],params[3],params[4]);
@@ -70,14 +75,21 @@ int writeConfig(int nParams, char **params){
 }
 
 int generatePlane(int fd, char *l, char *c){
-    float li=atof(l),ci=atof(c);
-    li/=2.0f; 
-    ci/=2.0f; 
-
+    float lf=atof(l),cf=atof(c);
+    char arr[70];
+    lf/=2.0f; 
+    cf/=2.0f; 
+    write(fd,"6\n",2);
+    printLine(fd,arr,-lf,0.f,-cf);
+    printLine(fd,arr,-lf,0.f,cf);
+    printLine(fd,arr,lf,0.f,cf);
+    printLine(fd,arr,-lf,0.f,-cf);
+    printLine(fd,arr,lf,0.f,cf);
+    printLine(fd,arr,lf,0.f,-cf);
 }
 
 void printLine(int fd, char* array, float x, float y, float z){
-	sprintf(array, "%f %f %f\n", x, y, z);
+    sprintf(array, "%f %f %f\n", x, y, z);
     write(fd,array,strlen(array));
 }
 
@@ -126,14 +138,15 @@ int generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
     x/=2.0f;
     y/=2.0f;
     z/=2.0f;
-    char array[100];
+    char array[70];
     float y1 = -y;
     float y2 = y1 + var;
+    int i;
 
 	faceXZ(fd,array,x,-y,z);
 	faceXZ(fd,array,x,y,z);
-    int i;
-	for (i=0;i<d;i++,y1+=var,y2+=var){
+
+	for(i=0;i<d;i++,y1+=var,y2+=var){
         faceYZ(fd,array,-x,y1,y2,z);
         faceYZ(fd,array,x,y1,y2,z);
         faceXY(fd,array,x,y1,y2,z);
@@ -141,8 +154,26 @@ int generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
     }
 }
 
-int generateSphere(){
-
+int generateSphere(int fd, char *rds, char *slc, char *stks){
+    int slices=atoi(slc), stacks=atoi(stks)/2,i;
+    float radius=atof(rds),curRadius=radius,curHeight=0.f;
+    float step=radius/stacks;
+   	float angle = (2*M_PI)/slices;
+    float sliceSide=2*curRadius*sin(angle/2);
+    
+    for(i=0;i<stacks;i++){
+        genSlice(fd,slices,curRadius,curHeight,angle);
+        curRadius-=step;
+        curHeight+=step;
+    }
+    
+    curHeight=-step;
+    curRadius=radius-step;
+    for(i=1;i<stacks;i++){
+        genSlice(fd,slices,curRadius,curHeight,angle);
+        curRadius-=step;
+        curHeight-=step;
+    }
 }
 
 
@@ -162,8 +193,6 @@ int generateCone(int fd, char *radiuss , char *heights, char *slicess, char *sta
     float radius_stacks = radius/stacks;
     while (st<stacks) {
          while(s<slices){
-
-
                 printLine(fd,array,0,height_stacks,0);
                 printLine(fd,array,radius_stacks*sin(angleV+angle),height_stacks,radius_stacks*cos(angleV+angle));
                 printLine(fd,array,radius_stacks*sin(angleV),height_stacks,radius_stacks*cos(angleV));
@@ -184,34 +213,47 @@ int generateCone(int fd, char *radiuss , char *heights, char *slicess, char *sta
          height_stacks+= height_stacks;
          st++;
     }
-            
+}
+
+void genSlice(int fd, int sliceCount, float radius, float y, float angle){
+    char array[70];
+    int i;
+    float curAngle;
+
+    for(i=0,curAngle=0.f;i<sliceCount;i++,curAngle+=angle){
+        printLine(fd,array,0.f,y,0.f);
+        printLine(fd,array,radius*sin(curAngle+angle),y,radius*cos(curAngle+angle));
+        printLine(fd,array,radius*sin(curAngle),y,radius*cos(curAngle));
+    }
 
 }
+
 //Converts a float to an array of chars
 char *ftoa(float fl){
     char *c=(char*)calloc(20,sizeof(char));
-    int i=0;
-    float intPart=0.f, back=fl;
-    if(fl<=0.f){
-        fl*=-1;
-        *(c+i)='-';
-        i++;
-    }
-    while(back>=1.f){
-        intPart+=fmod(back,10.f);
-        back/=10.f;
-    }
+    int i=0,temp=(int)fl,dec=5;
+    
     //fl is now the decimal part
-    fl-=intPart;
+    fl-=temp;
     do{
-        if(intPart>=1.f){
-            *(c+i)=48+fmod(intPart,10.f);
-            intPart/=10.f;
-        }else{
-            fl*=10.f;
-            *(c+i)=48+fmod(fl,10);
-        }
+        *(c+i)=48+temp%10;
+        temp/=10;
         i ++;
-    }while(fl+intPart>=0.0f);
+    }while(temp>0 && i<18);
+    if(i==0){
+        *(c+i)='0';
+        i ++;
+    }
+    *(c+i)='.';
+    i ++;
+    temp=(int)fl*1000000;
+    do{
+        *(c+i+dec)=48+temp%10;
+        temp/=10;
+        dec --;
+    }while(dec>=0 && temp>0);
+    if(dec==5)
+        *(c+i)='0';
+
     return c;
 }
