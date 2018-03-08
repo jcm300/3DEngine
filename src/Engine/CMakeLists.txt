@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 
+find_package(GLEW REQUIRED)                                                                                                                                              
+include_directories(${GLEW_INCLUDE_DIRS})
+link_libraries(${GLEW_LIBRARIES})
+
 find_package(GLUT REQUIRED)
 include_directories(${GLUT_INCLUDE_DIR})
 link_directories(${GLUT_LIBRARY_DIRS})

@@ -14,6 +14,7 @@
 #include <unistd.h>
 #elif __linux__
 #include <unistd.h>
+#include <GL/glew.h>
 #include <GL/glut.h>
 
 #else
@@ -29,61 +30,64 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+//linked array, each element store all points of one model
+typedef struct modelPoints {
+     float *points;
+     int size;
+     struct modelPoints *next;
+}*Points;
+
 float radius = 10.0f;
 float alfa = M_PI/4;
 float beta = M_PI/4;
 float change = 0.025;
 float changeR = 0.2;
-char ** xmlFile;
+GLuint buffers[1];
+Points *models; 
 
 long readln (int fildes, void * buf, size_t nbyte){
 	int i,x;
-	char* s = buf;
+	char* s = (char *) buf;
 	for (i=0; i<nbyte && (x=read(fildes,&s[i],1))>0 && s[i]!='\n';i++);
 	if (s[i]=='\n') i++;
 	return i;
 }
 
-void drawModel(xmlChar * file) {
+void parseModel(xmlChar * file, Points *models) {
 
-	int fd,x;
+	int fd,x,i=0;
 	char buffer[100];
 	float coord[3];
 	char* aux;
-	float color = 0.20;
+    
+    *models = (Points)malloc(sizeof(struct modelPoints));
+    (*models)->size = ;
+    (*models)->points = realloc((*models)->points,(*models)->size);
+    (*models)->next = NULL;
+    fd = open(file,O_RDONLY);
 
-	//glColor3f(1,0,0);
+    if(fd>0){
+        while ((x=readln(fd,buffer,100))>0){
 
-	glBegin(GL_TRIANGLES);
+    	    aux = strtok(buffer," ");
+	        coord[0] = atof(aux);
+		    aux = strtok (NULL, " ");
+		    coord[1] = atof(aux);
+		    aux = strtok (NULL, " ");
+		    coord[2] = atof(aux);
 
-		fd = open(file,O_RDONLY);
-
-        if(fd>0){
-		    while ((x=readln(fd,buffer,100))>0){
-
-			    aux = strtok(buffer," ");
-			    coord[0] = atof(aux);
-			    aux = strtok (NULL, " ");
-			    coord[1] = atof(aux);
-			    aux = strtok (NULL, " ");
-			    coord[2] = atof(aux);
-
-			    glColor3f(color,0,0);
-			    
-			    glVertex3f(coord[0], coord[1], coord[2]);
-
-			    color += 0.20;
-			    if (color == 1.00) color = 0.20;
-            }
+		    (*models)->points[i++]=coord[0];
+            (*models)->points[i++]=coord[1];
+            (*models)->points[i++]=coord[2];
         }
-
-	glEnd();
+    }
 }
 
-void parseNodes(xmlNodePtr cur){
+void parseNodes(xmlNodePtr cur, Points *models){ 
     while(cur){
         if(!xmlStrcmp(cur->name,(const xmlChar*)"model")){
-            drawModel(xmlGetProp(cur,(const xmlChar*)"file"));
+            parseModel(xmlGetProp(cur,(const xmlChar*)"file"),models);
+            models = &((*models) -> next);
         }
         cur = cur -> next;
     }
@@ -101,7 +105,8 @@ void xmlParser(char * file){
         else{
             if(!xmlStrcmp(cur->name,(const xmlChar*)"scene")){
                 cur = cur -> xmlChildrenNode;
-                parseNodes(cur);
+                models = (Points *)malloc(sizeof(Points *));
+                parseNodes(cur,models);
             }else fprintf(stderr, "Don't recognize sintax\n");   
         }
     }
@@ -152,6 +157,14 @@ void drawXYZ(){
 
 }
 
+void drawModels(){
+    while(models){
+        glBufferData(GL_ARRAY_BUFFER,((*models)->size)*sizeof(float),(*models)->points,GL_STATIC_DRAW);
+        glDrawArrays(GL_TRIANGLES,0,(*models)->size);
+        models = &((*models)->next);
+    }
+}
+
 
 void renderScene(void) {
 
@@ -166,7 +179,7 @@ void renderScene(void) {
 	// drawing instructions
 	drawXYZ();
 
-	xmlParser(*xmlFile);
+    drawModels();
 
 	// End of Frame
 	glutSwapBuffers();
@@ -210,7 +223,7 @@ void processSpecialKeys(int key, int xx, int yy) {
 
 int main(int argc, char **argv) {
     if(argc>1){
-        xmlFile = argv+1;
+        xmlParser(argv[1]);
 	    
         glutInit(&argc, argv);
 	    glutInitDisplayMode(GLUT_DEPTH|GLUT_DOUBLE|GLUT_RGBA);
@@ -223,10 +236,19 @@ int main(int argc, char **argv) {
 	
 	    glutKeyboardFunc(processKeys);
 	    glutSpecialFunc(processSpecialKeys);
+        
+        #ifndef __APPLE__
+            glewInit();
+        #endif
 
 	    glEnable(GL_DEPTH_TEST);
 	    glEnable(GL_CULL_FACE);
-	
+        glEnableClientState(GL_VERTEX_ARRAY);
+
+        glGenBuffers(1,buffers);
+        glBindBuffer(GL_ARRAY_BUFFER,buffers[0]);
+        glVertexPointer(3,GL_FLOAT,0,0);
+
 	    glutMainLoop();
     }else fprintf(stderr, "Wrong number of arguments.\n");
 	
