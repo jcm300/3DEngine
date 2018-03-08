@@ -7,19 +7,16 @@
  * @author Miguel Quaresma
  * @author Simão Barbosa
  */
-#include <stdlib.h>
 
 #ifdef __linux__
 #include <unistd.h>
 #include <GL/glew.h>
 #include <GL/glut.h>
-#else
-#include<io.h>
-#include <GL/glut.h>
 #endif
 
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
