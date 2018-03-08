@@ -45,7 +45,14 @@ int writeConfig(int nParams, char **params){
                 generatePlane(fd,params[2],params[3]);
                 break;
             case 'b': //box
-                generateBox(fd,params[1],params[2],params[3],params[4]);
+            	if (nParams==6)
+					generateBox(fd,params[1],params[2],params[3],params[4]);
+				else if (nParams==5){
+					char* noDivision = "1";
+					generateBox(fd,params[1],params[2],params[3],noDivision);
+				}
+				else 
+					fprintf(stderr,"Incorrect box parameters\n");
                 break;
             case 's': //sphere
 
