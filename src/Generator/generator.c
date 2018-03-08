@@ -133,7 +133,7 @@ int generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
     float x = (float) atof(xx);
     float y = (float) atof(yy);
     float z = (float) atof(zz);
-    float d = (float) atof(dd);
+    int d = atoi(dd);
     float var = y/d;
     x/=2.0f;
     y/=2.0f;
@@ -142,6 +142,9 @@ int generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
     float y1 = -y;
     float y2 = y1 + var;
     int i;
+
+    sprintf(array,"%d\n",(2 + 4 * d) * 6);
+    write(fd,array,strlen(array));
 
 	faceXZ(fd,array,x,-y,z);
 	faceXZ(fd,array,x,y,z);
