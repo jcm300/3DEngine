@@ -87,16 +87,16 @@ void printLine(int fd, char* array, float x, float y, float z){
     write(fd,array,strlen(array));
 }
 
-void faceXZ(int fd, char* array, float x, float y, float z){
-	printLine(fd,array,x,y,z);
-    if (y>0) printLine(fd,array,x,y,-z);
-    else printLine(fd,array,-x,y,z); 
-    printLine(fd,array,-x,y,-z);
+void faceXZ(int fd, char* array, float x1, float x2, float y, float z){
+	printLine(fd,array,x2,y,z);
+    if (y>0) printLine(fd,array,x2,y,-z);
+    else printLine(fd,array,x1,y,z); 
+    printLine(fd,array,x1,y,-z);
     
-    printLine(fd,array,x,y,z);
-    printLine(fd,array,-x,y,-z);
-    if (y>0) printLine(fd,array,-x,y,z);
-    else printLine(fd,array,x,y,-z);
+    printLine(fd,array,x2,y,z);
+    printLine(fd,array,x1,y,-z);
+    if (y>0) printLine(fd,array,x1,y,z);
+    else printLine(fd,array,x2,y,-z);
 }
 
 void faceYZ(int fd, char* array, float x, float y1, float y2, float z){
@@ -128,24 +128,28 @@ int generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
     float y = (float) atof(yy);
     float z = (float) atof(zz);
     int d = atoi(dd);
-    float var = y/d;
+    float var_y = y/d;
+    float var_x = x/d;
     x/=2.0f;
     y/=2.0f;
     z/=2.0f;
     char array[70];
     float y1 = -y;
-    float y2 = y1 + var;
+    float y2 = y1 + var_y;
+    float x1 = -x;
+    float x2 = x1 + var_x;
     int i;
 
-    sprintf(array,"%d\n",(2 + 4 * d) * 6);
+    sprintf(array,"%d\n",(2 * d + 4 * d) * 6);
     write(fd,array,strlen(array));
 
-	faceXZ(fd,array,x,-y,z);
-	faceXZ(fd,array,x,y,z);
-
-	for(i=0;i<d;i++,y1+=var,y2+=var){
+	for(i=0;i<d;i++,y1+=var_y,y2+=var_y,x1+=var_x,x2+=var_x){
+		faceXZ(fd,array,x1,x2,-y,z);
+		faceXZ(fd,array,x1,x2,y,z);
+        
         faceYZ(fd,array,-x,y1,y2,z);
         faceYZ(fd,array,x,y1,y2,z);
+        
         faceXY(fd,array,x,y1,y2,z);
 		faceXY(fd,array,x,y1,y2,-z);
     }
