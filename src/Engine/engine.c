@@ -158,6 +158,7 @@ void drawXYZ(){
 
 void drawModels(){
     Points auxM=*models;
+    glColor3f(1.0,1.0,1.0); //white color
     while(auxM){
         glBufferData(GL_ARRAY_BUFFER,(auxM->size)*sizeof(float),auxM->points,GL_STATIC_DRAW);
         glDrawArrays(GL_TRIANGLES,0,auxM->size);
@@ -244,6 +245,7 @@ int main(int argc, char **argv) {
 	    glEnable(GL_DEPTH_TEST);
 	    glEnable(GL_CULL_FACE);
         glEnableClientState(GL_VERTEX_ARRAY);
+        glPolygonMode(GL_FRONT, GL_LINE);
 
         glGenBuffers(1,buffers);
         glBindBuffer(GL_ARRAY_BUFFER,buffers[0]);
