@@ -184,35 +184,86 @@ int generateCone(int fd, char *radiuss , char *heights, char *slicess, char *sta
     float height = (float) atof(heights);
     float slices = (float) atof(slicess);
     float stacks = (float) atof(stackss);
-    char array[100];
+
+    int numVert =  slices*stacks*6 + slices *6 ;
+    char str[150];
+    sprintf(str, "%d\n", numVert);
+    write(fd,str,strlen(str));
+
+    char array[5000];
     int s = 0;
     int st =0;
     float angle = (2*M_PI)/slices;
     float angleV = 0;
-    float height_stacks = height/stacks;
-    float radius_stacks = radius/stacks;
+
+    float i_heig =height/stacks;
+    float i_radi = radius/stacks;
+
+
+    float height_top = i_heig;
+    float radius_top = radius- i_radi;
+    float height_bot = 0;
+    float radius_bot = radius;
+
     while (st<stacks) {
          while(s<slices){
-                printLine(fd,array,0,height_stacks,0);
-                printLine(fd,array,radius_stacks*sin(angleV+angle),height_stacks,radius_stacks*cos(angleV+angle));
-                printLine(fd,array,radius_stacks*sin(angleV),height_stacks,radius_stacks*cos(angleV));
-
-                if (height_stacks== height/stacks) {
-                    printLine(fd,array,0,0,0);
-                    printLine(fd,array,radius*sin(angleV+angle),0,radius*cos(angleV+angle));
-                    printLine(fd,array,radius*sin(angleV),0,radius*cos(angleV));
-
-                   // printLine(fd,array,0,height,0);
-                   // printLine(fd,array,radius*sin(angleV),0,radius*cos(angleV));
-                  //  printLine(fd,array,radius*sin(angleV+angle),0,radius*cos(angleV+angle));
-                }
+/*
+                //base cima
+                printLine(fd,array,radius_top*sin(angleV),height_top,radius_top*cos(angleV));
+                printLine(fd,array,radius_top*sin(angleV+angle),height_top,radius_top*cos(angleV+angle));
+                printLine(fd,array,0,height_top,0);
+                
+                //base baixo
+                printLine(fd,array,0,height_bot,0);
+                printLine(fd,array,radius_bot*sin(angleV+angle),height_bot,radius_bot*cos(angleV+angle));
+                printLine(fd,array,radius_bot*sin(angleV),height_bot,radius_bot*cos(angleV));
+*/
+                //triangulo diagonal esq
+                printLine(fd,array,radius_top*sin(angleV),height_top,radius_top*cos(angleV));
+                printLine(fd,array,radius_bot*sin(angleV),height_bot,radius_bot*cos(angleV));
+                printLine(fd,array,radius_top*sin(angleV+angle),height_top,radius_top*cos(angleV+angle));
+                
+                //triangulo diagonal dir
+                printLine(fd,array,radius_top*sin(angleV+angle),height_top,radius_top*cos(angleV+angle));
+                printLine(fd,array,radius_bot*sin(angleV),height_bot,radius_bot*cos(angleV));
+                printLine(fd,array,radius_bot*sin(angleV+angle),height_bot,radius_bot*cos(angleV+angle));
                 angleV+=angle;
                 s++;
          }
-         radius_stacks+=radius_stacks;
-         height_stacks+= height_stacks;
+         radius_bot-=i_radi;
+         height_bot+= i_heig;
+         radius_top-=i_radi;
+         height_top+= i_heig;
          st++;
+         s=0;
     }
+
+    angle = (2*M_PI)/slices;
+    angleV = 0;
+    s=0;
+    height_bot=height - i_heig;
+    height_top= height;
+    radius_bot+=i_radi;
+    radius_top=0;
+    
+    while(s<slices){
+
+                //base baixo
+                printLine(fd,array,0,0,0);
+                printLine(fd,array,radius*sin(angleV+angle),0,radius*cos(angleV+angle));
+                printLine(fd,array,radius*sin(angleV),0,radius*cos(angleV));
+
+                //bico cima
+                printLine(fd,array,radius_top*sin(angleV+angle),height_top,radius_top*cos(angleV+angle));
+                printLine(fd,array,radius_bot*sin(angleV),height_bot,radius_bot*cos(angleV));
+                printLine(fd,array,radius_bot*sin(angleV+angle),height_bot,radius_bot*cos(angleV+angle));
+                
+                angleV+=angle;
+                s++;
+    }
+
+
+
 }
 
 void genSlice(int fd, int sliceCount, float radius, float y, float angle){
