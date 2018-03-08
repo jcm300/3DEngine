@@ -45,29 +45,36 @@ int writeConfig(int nParams, char **params){
     char *fileName=params[nParams-1];
     int fd=open(fileName,O_CREAT | O_WRONLY,0777);
     if(fd!=-1){
-        switch(**params){
-            case 'p': //plane
+        if (strcmp(params[0],"plane") == 0){ //plane
+            if (nParams==4)
                 generatePlane(fd,params[1],params[2]);
-                break;
-            case 'b': //box
-            	if (nParams==6)
-					generateBox(fd,params[1],params[2],params[3],params[4]);
-				else if (nParams==5){
-					char* noDivision = "1";
-					generateBox(fd,params[1],params[2],params[3],noDivision);
-				}
-				else 
-					fprintf(stderr,"Incorrect box parameters\n");
-                break;
-            case 's': //sphere
+            else
+                fprintf(stderr,"Incorrect plane parameters\n");
+        }
+        else if (strcmp(params[0],"box") == 0){ //box
+         	if (nParams==6)
+		      	generateBox(fd,params[1],params[2],params[3],params[4]);
+			else if (nParams==5){
+				char* noDivision = "1";
+				generateBox(fd,params[1],params[2],params[3],noDivision);
+			}
+			else 
+				fprintf(stderr,"Incorrect box parameters\n");
+        }
+        else if (strcmp(params[0],"sphere") == 0){ //sphere
+            if (nParams==5)
                 generateSphere(fd,params[1],params[2],params[3]);
-                break;
-            case 'c': //cone
-				generateCone(fd,params[1],params[2],params[3],params[4]);
-                break;
-            default:
-                fprintf(stderr,"Primitive not recognized\n");
-                break;
+            else
+                fprintf(stderr,"Incorrect sphere parameters\n");
+        }
+        else if (strcmp(params[0],"cone") == 0){ //cone
+            if (nParams==6)
+		        generateCone(fd,params[1],params[2],params[3],params[4]);
+            else 
+                fprintf(stderr,"Incorrect cone parameters\n");
+        }
+        else{
+            fprintf(stderr,"Primitive not recognized\n");
         }
         close(fd);
     }
