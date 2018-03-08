@@ -66,6 +66,7 @@ void parseModel(xmlChar * file, Points *models) {
             auxM->size=atoi(buffer)*3;
             auxM->points = (float*)malloc(sizeof(float)*auxM->size);
             auxM->next = NULL;
+            *models=auxM;
             while(j++<auxM->size && (x=readln(fd,buffer,100))>0){
                 aux = strtok(buffer," ");
                 coord[0] = atof(aux);
@@ -77,8 +78,7 @@ void parseModel(xmlChar * file, Points *models) {
                 auxM->points[i++]=coord[1];
                 auxM->points[i++]=coord[2];
             }
-            auxM->next=*models;
-            *models=auxM;
+            models = &((*models)->next);
         }
     }
 }
@@ -222,7 +222,7 @@ void processSpecialKeys(int key, int xx, int yy) {
 
 
 int main(int argc, char **argv) {
-    if(argc>1){
+    if(argc==2){
         xmlParser(argv[1]);
 	    
         glutInit(&argc, argv);
