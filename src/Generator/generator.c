@@ -40,36 +40,23 @@ int writeConfig(int nParams, char **params){
     int fd=open(fileName,O_CREAT | O_WRONLY,0777);
     if(fd!=-1){
         if (strcmp(params[0],"plane") == 0){ //plane
-            if (nParams==4)
-                generatePlane(fd,params[1],params[2]);
-            else
-                fprintf(stderr,"Incorrect plane parameters\n");
+            if (nParams==4) generatePlane(fd,params[1],params[2]);
+            else fprintf(stderr,"Incorrect plane parameters\n");
         }
         else if (strcmp(params[0],"box") == 0){ //box
-         	if (nParams==6)
-		      	generateBox(fd,params[1],params[2],params[3],params[4]);
-			else if (nParams==5){
-				char* noDivision = "1";
-				generateBox(fd,params[1],params[2],params[3],noDivision);
-			}
-			else 
-				fprintf(stderr,"Incorrect box parameters\n");
+         	if (nParams==6) generateBox(fd,params[1],params[2],params[3],params[4]);
+			else if (nParams==5) generateBox(fd,params[1],params[2],params[3],"1"); //without stacks
+			else fprintf(stderr,"Incorrect box parameters\n");
         }
         else if (strcmp(params[0],"sphere") == 0){ //sphere
-            if (nParams==5)
-                generateSphere(fd,params[1],params[2],params[3]);
-            else
-                fprintf(stderr,"Incorrect sphere parameters\n");
+            if (nParams==5) generateSphere(fd,params[1],params[2],params[3]);
+            else fprintf(stderr,"Incorrect sphere parameters\n");
         }
         else if (strcmp(params[0],"cone") == 0){ //cone
-            if (nParams==6)
-		        generateCone(fd,params[1],params[2],params[3],params[4]);
-            else 
-                fprintf(stderr,"Incorrect cone parameters\n");
+            if (nParams==6) generateCone(fd,params[1],params[2],params[3],params[4]);
+            else fprintf(stderr,"Incorrect cone parameters\n");
         }
-        else{
-            fprintf(stderr,"Primitive not recognized\n");
-        }
+        else fprintf(stderr,"Primitive not recognized\n");
         close(fd);
     }
     return 1;
