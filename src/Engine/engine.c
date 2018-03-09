@@ -36,6 +36,7 @@ float beta = M_PI/4;
 float change = 0.025;
 float changeR = 0.2;
 GLuint buffers[1];
+GLenum mode = GL_FILL;
 Points *models; 
 
 long readln (int fildes, void * buf, size_t nbyte){
@@ -173,6 +174,8 @@ void renderScene(void) {
 	gluLookAt(radius * cos(beta) * sin(alfa), radius * sin(beta), radius * cos(beta) * cos(alfa), 
 		      0.0,0.0,0.0,
 			  0.0f,1.0f,0.0f);
+    
+    glPolygonMode(GL_FRONT, mode); //change mode
 
 	// drawing instructions
 	drawXYZ();
@@ -194,7 +197,12 @@ void processKeys(unsigned char c, int xx, int yy) {
 		case 's':
 			radius += changeR;
 			break;
-	}
+        case 'm':
+            if(mode==GL_FILL) mode = GL_LINE;
+            else if(mode==GL_LINE) mode = GL_POINT;
+            else if(mode==GL_POINT) mode = GL_FILL;
+	        break;
+    }
 	glutPostRedisplay();
 }
 
@@ -242,7 +250,6 @@ int main(int argc, char **argv) {
 	    glEnable(GL_DEPTH_TEST);
 	    glEnable(GL_CULL_FACE);
         glEnableClientState(GL_VERTEX_ARRAY);
-        glPolygonMode(GL_FRONT, GL_LINE);
 
         glGenBuffers(1,buffers);
         glBindBuffer(GL_ARRAY_BUFFER,buffers[0]);
