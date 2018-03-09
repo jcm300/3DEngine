@@ -21,10 +21,50 @@
 \newpage
 
 \section{Introdução}
+Este documento serve de documentação à implementação do generator bem como engine desenvolvido com o intuito de no futuro ser possivel a construção de sistemas planetários virtualmente e graficamente.
 
 \section{Generator}
 
+\subsection{Plano (Plane)}
+
+\subsection{Caixa (Box)}
+
+\subsection{Esfera (Sphere)}
+
+\subsection{Cone (Cone)}
+
 \section{Engine}
+Em termos de bibliotecas no engine, são utilizadas as seguintes:
+\begin{itemize}
+    \item Libxml2: parser XML utilizado devido à sua alta utilização bem como simplicidade
+    \item OpenGL: Usado para desenhar sendo a sua utilizão justificada devido a ser open-source e devido à presença de boa documentação
+    \item Glut: Biblioteca de "colagem" entre OpenGL e SO
+    \item Glew: necessário para a utilização de VBO's
+\end{itemize}
+Portanto, com recurso ao mesmo (libxml2) obtivemos do ficheiro XML e pela ordem apresentada no mesmo, os ficheiros em que cada um possui pontos referentes a um poliedro/poligono, sendo este ficheiros possiveis de ser gerados pelo generator atrás referido. 
+Para guardar estes pontos é utilizado uma estrutura (Points) que é uma lista ligada, sendo cada elemento constituido por:
+\begin{itemize}
+    \item Um array com todas as coordenadas dos pontos disponibilizados por determinado ficheiro
+    \item O numero de pontos que essas coordenadas "geram"
+    \item Um apontador para a próxima estrutura (ficheiro seguinte)
+\end{itemize}
+De modo a desenhar os pontos correspondentes aos presentes nos ficheiros e agora também nos arrays, é usado VBO's facilitando e melhorando a performance. As figuras são desenhadas por um conjunto de triangulos, e como tal a cada 3 pontos é desenhado um. 
+Foi também implementado, recorrendo a coordenadas polares, a posibilidade de mover a camera:
+\begin{itemize}
+    \item Rodar horizontalmente à esquerda -> tecla seta esquerda
+    \item rodar horizontalmente à direita -> tecla seta direita
+    \item rodar verticalmente para cima -> tecla seta cima
+    \item rodar verticalmente para baixo -> tecla seta baixo
+    \item aproximar -> tecla 'w'
+    \item afastar -> tecla 's'
+\end{itemize}
+Para além disso, carregando na tecla 'm' é alterado consecutivamente o modo de display dos poligonos, alternando entre FILL (a cheio), LINE (em linhas) e POINT (apenas pontos).
+
+\section{Glossário}
+
+\subsection{Coordenadas Polares}
+
+\subsection{VBO's}
 
 \section{Conclusão}
 
