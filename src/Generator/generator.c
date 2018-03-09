@@ -175,6 +175,9 @@ int generateSphere(int fd, char *rds, char *slc, char *stks){
     float step=radius/stacks;
    	float angle = (2*M_PI)/slices;
     float sliceSide=2*curRadius*sin(angle/2);
+    char array[70];
+    sprintf(array,"%f\n", slices*stacks*6);
+    write(fd,array,strlen(array));
     
     for(i=0;i<stacks;i++){
         genWalls(fd,slices,radius,curRadius,curHeight,angle,step,1);
