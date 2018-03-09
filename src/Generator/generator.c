@@ -17,6 +17,11 @@
 #include<sys/unistd.h>
 #include<unistd.h>
 
+typedef struct point{
+    float x,y,z;    
+}Point;
+
+
 int writeConfig(int, char**);
 int generatePlane(int, char*,char*);
 char* ftoa(float);
@@ -24,7 +29,9 @@ int generateBox(int, char*, char*, char*, char*);
 int generateCone(int, char*, char*, char*, char*);
 int generateSphere(int, char *, char *, char *);
 void printLine(int, char*, float, float, float);
-void genSlice(int, int, float, float, float);
+void genSlice(int, int,float,float, float, float,int);
+void genWalls(int,int,float,float,float,float,float,int);
+Point normalize(Point,float);
 
 int main(int argc, char *argv[]){
 
@@ -170,15 +177,15 @@ int generateSphere(int fd, char *rds, char *slc, char *stks){
     float sliceSide=2*curRadius*sin(angle/2);
     
     for(i=0;i<stacks;i++){
-        genSlice(fd,slices,curRadius,curHeight,angle);
+        genWalls(fd,slices,radius,curRadius,curHeight,angle,step,1);
         curRadius-=step;
         curHeight+=step;
     }
     
     curHeight=-step;
     curRadius=radius-step;
-    for(i=1;i<stacks;i++){
-        genSlice(fd,slices,curRadius,curHeight,angle);
+    for(i=1;i<=stacks;i++){
+        genWalls(fd,slices,radius,curRadius,curHeight,angle,step,0);
         curRadius-=step;
         curHeight-=step;
     }
@@ -274,17 +281,67 @@ int generateCone(int fd, char *radiuss , char *heights, char *slicess, char *sta
 
 }
 
-void genSlice(int fd, int sliceCount, float radius, float y, float angle){
+void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, float angle, float delta, int top){
     char array[70];
     int i;
     float curAngle;
+    float nextStackY=delta+y, nextRadius=curRadius-delta;
+    Point curP;
+    
+    if(!top) nextRadius=curRadius+delta;
 
     for(i=0,curAngle=0.f;i<sliceCount;i++,curAngle+=angle){
-        printLine(fd,array,0.f,y,0.f);
-        printLine(fd,array,radius*sin(curAngle+angle),y,radius*cos(curAngle+angle));
-        printLine(fd,array,radius*sin(curAngle),y,radius*cos(curAngle));
+        curP.x=nextRadius*sin(curAngle);
+        curP.y=nextStackY;
+        curP.z=nextRadius*cos(curAngle);
+        curP=normalize(curP,radius);
+        printLine(fd,array,curP.x,curP.y,curP.z);
+
+        curP.x=curRadius*sin(curAngle);
+        curP.y=y;
+        curP.z=curRadius*cos(curAngle);
+        curP=normalize(curP,radius);
+        printLine(fd,array,curP.x,curP.y,curP.z);
+
+        curP.x=curRadius*sin(curAngle+angle);
+        curP.y=y;
+        curP.z=curRadius*cos(curAngle+angle);
+        curP=normalize(curP,radius);
+        printLine(fd,array,curP.x,curP.y,curP.z);
+
+        curP.x=nextRadius*sin(curAngle);
+        curP.y=nextStackY;
+        curP.z=nextRadius*cos(curAngle);
+        curP=normalize(curP,radius);
+        printLine(fd,array,curP.x,curP.y,curP.z);
+
+        curP.x=curRadius*sin(curAngle+angle);
+        curP.y=y;
+        curP.z=curRadius*cos(curAngle+angle);
+        curP=normalize(curP,radius);
+        printLine(fd,array,curP.x,curP.y,curP.z);
+
+        curP.x=nextRadius*sin(curAngle+angle);
+        curP.y=nextStackY;
+        curP.z=nextRadius*cos(curAngle+angle);
+        curP=normalize(curP,radius);
+        printLine(fd,array,curP.x,curP.y,curP.z);
     }
 
+}
+
+
+Point normalize(Point cur,float radius){
+    Point normPoint;     
+    float dist=sqrt(cur.x*cur.x+cur.y*cur.y+cur.z*cur.z);
+    float dx,dy,dz;
+    dx=(cur.x*radius)/dist;
+    dy=(cur.y*radius)/dist;
+    dz=(cur.z*radius)/dist;
+    normPoint.x=dx;
+    normPoint.y=dy;
+    normPoint.z=dz;
+    return normPoint;
 }
 
 //Converts a float to an array of chars
