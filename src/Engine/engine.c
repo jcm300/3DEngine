@@ -47,9 +47,9 @@ long readln (int fildes, void * buf, size_t nbyte){
 	return i;
 }
 
-void parseModel(xmlChar * file, Points *models) {
+int parseModel(xmlChar * file, Points *m) {
 
-	int fd,x,i=0,j=0;
+	int fd,x,i=0,j=0,ret=0;
 	char buffer[100];
 	float coord[3];
 	char* aux;
@@ -64,7 +64,6 @@ void parseModel(xmlChar * file, Points *models) {
             auxM->size=atoi(buffer)*3;
             auxM->points = (float*)malloc(sizeof(float)*auxM->size);
             auxM->next = NULL;
-            *models=auxM;
             while(j++<auxM->size && (x=readln(fd,buffer,100))>0){
                 aux = strtok(buffer," ");
                 coord[0] = atof(aux);
@@ -76,15 +75,18 @@ void parseModel(xmlChar * file, Points *models) {
                 auxM->points[i++]=coord[1];
                 auxM->points[i++]=coord[2];
             }
-            models = &((*models)->next);
+            *m=auxM;
+            ret = 1;
         }
     }
+    return ret;
 }
 
-void parseNodes(xmlNodePtr cur, Points *models){ 
+void parseNodes(xmlNodePtr cur, Points *ml){
+    Points * m=ml;
     while(cur){
         if(!xmlStrcmp(cur->name,(const xmlChar*)"model"))
-            parseModel(xmlGetProp(cur,(const xmlChar*)"file"),models);
+            if(parseModel(xmlGetProp(cur,(const xmlChar*)"file"),m)) m = &((*m)->next);
         cur = cur -> next;
     }
 }
