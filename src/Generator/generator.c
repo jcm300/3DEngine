@@ -189,7 +189,7 @@ int generateCone(int fd, char *radiuss , char *heights, char *slicess, char *sta
     float height = (float) atof(heights);
     float slices = (float) atof(slicess);
     float stacks = (float) atof(stackss);
-    int numVert =  slices*stacks*6 + slices *3;
+    int numVert =  slices*stacks*6 + slices *3,i;
     char array[65];
     float curAngle=0.f;
     float deltaAngle = (2*M_PI)/slices;
@@ -201,12 +201,12 @@ int generateCone(int fd, char *radiuss , char *heights, char *slicess, char *sta
     sprintf(array, "%d\n", numVert);
     write(fd,array,strlen(array));
     
-    for(int i=0;i<stacks;i++,curHeight+=deltaH, curRadius-=deltaR){
+    for(i=0;i<stacks;i++,curHeight+=deltaH, curRadius-=deltaR){
         genWalls(fd,slices,radius,curRadius,curHeight,deltaAngle,deltaR,deltaH);
     }
     
     //base
-    for(int i=0;i<slices;i++,curAngle+=deltaAngle){
+    for(i=0;i<slices;i++,curAngle+=deltaAngle){
         printLine(fd,array,0.f,0.f,0.f);
         printLine(fd,array,radius*sin(curAngle+deltaAngle),0.f,radius*cos(curAngle+deltaAngle));
         printLine(fd,array,radius*sin(curAngle),0.f,radius*cos(curAngle));         

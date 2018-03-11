@@ -2,6 +2,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{fancyvrb}
+\usepackage{amsmath}
 
 \begin{document}
 
@@ -21,51 +23,224 @@
 \newpage
 
 \section{Introdução}
-Este documento serve de documentação à implementação do generator bem como engine desenvolvido com o intuito de no futuro ser possivel a construção de sistemas planetários virtualmente e graficamente.
+Este documento serve de documentação à implementação do generator bem como engine desenvolvidos com o intuito de no futuro ser possível a construção de sistemas planetários virtualmente e graficamente.
+
+\newpage
 
 \section{Generator}
 
+O Generator é o programa responsável por criar os ficheiros pretendidos pelo utilizador, estes contêm os pontos necessários para o Engine conseguir interpretar e "desenhar" os modelos pretendidos.
+O programa está construído de forma a poder responder a pedidos relacionados com 4 objetos:
+\begin{itemize}
+    \item Um plano em XZ, que recebe como parâmetros x e z
+        \begin{verbatim}
+exº : ./generator plane 2 4 plane.3d
+        \end{verbatim}
+    \item Uma caixa, que recebe como parâmetros x, y, z e opcionalmente o número de divisões da mesma
+        \begin{verbatim}
+exº : ./generator box 2 3 2 box.3d
+exº : ./generator box 2 3 2 5 box.3d
+        \end{verbatim}
+    \item Uma esfera, que recebe o raio, o número de slices e de stacks como parâmetros
+        \begin{verbatim}
+exº : ./generator sphere 3 10 20 sphere.3d
+        \end{verbatim}
+    \item Um cone, que recebe o seu raio e altura, bem como o número de slices e stacks como parâmetros
+        \begin{verbatim}
+exº : ./generator cone 2 4 10 20 cone.3d
+        \end{verbatim}
+\end{itemize}
+Para além disto, optamos por também seguir a sugestão do enunciado e imprimir na primeira linha dos ficheiros (que contém os pontos a desenhar) o número de pontos que este contém. Isto permitirá alocar o espaço necessário aos \textit{arrays} usados para VBO's por forma a aumentar a performance do motor.
+
 \subsection{Plano (Plane)}
+
+O plano é o modelo mais simples das opções apresentadas, sabendo logo de partida que recebendo apenas os seus dois parâmetros (x e z) apenas é necessário desenhar 2 triângulos para representar o mesmo, ou seja, apenas necessitámos de preencher o ficheiro desejado com 6 pontos, de modo a ser tratado de forma pretendida pelo Engine.
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[height=7cm]{plane.png}
+\caption{Resultado obtido passando o ficheiro gerado pelo Generator com os parâmetros x=2 e z=4 ao Engine}
+\end{figure}
 
 \subsection{Caixa (Box)}
 
+Na caixa foi feita a assunção de que o seu centro se encontra na origem do gráfico ou seja, no ponto com coordenadas (0,0,0).
+Tendo isto em conta, é-nos útil dividir os parâmetros recebidos das dimensões pretendidas por 2, sendo assim utilizados esses mesmos valores para cada um dos pontos positivos e negativos do eixo em causa.
+Interpretamos as divisões opcionais da caixa (d) como sendo utilizadas para dividir as faces laterais da caixa em d divisões (no eixo y), e também em d divisões nas faces inferiores e superiores (no eixo x).
+Tendo uma caixa 6 faces, e considerando que cada face é um paralelogramo cujos lados formam um ângulo de 90º entre si, é fácil calcular qual o número de pontos necessários a imprimir para ser possível desenhar o modelo:
+\begin{itemize}
+    \item 1 paralelogramo cujos lados formam um ângulo de 90º entre si é desenhado recorrendo a 2 triângulos
+    \item 1 triângulo é desenhado recorrendo a 3 pontos
+    \item Logo, cada paralelogramo cujos lados formam um ângulo de 90º entre si necessita de 6 pontos
+    \item Com a componente opcional das divisões, cada face passa assim a ter d paralelogramos cujos lados formam um ângulo de 90º entre si.
+    \item Ou seja, nº de pontos total = (2 * d + 4 * d) * 6
+\end{itemize}
+O processo com as divisões é simples, por exemplo, nas faces laterais da caixa, declaramos 2 variáveis y1 e y2 (sendo neste caso as divisões feitas no eixo y), começamos por calcular a variação em altura que cada divisão tem (var\_y = y/d) e atribuímos os valores:
+\begin{itemize}
+    \item y1 = -y;
+    \item y2 = -y + var\_y;
+\end{itemize}
+A partir daqui e com a utilização de um ciclo com a inicialização da uma variável i a 0 e enquanto a mesma for menor que o número de divisões pretendidas d, utilizamos as funções criadas por nós para obter os pontos dos paralelogramos cujos lados formam um ângulo de 90º entre si/divisões das faces da caixa progressivamente (neste caso, faceYZ() e faceXY()), incrementando o valor de i, e aumentando em var\_y os valores de y1 e y2 no fim de cada iteração.
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[height=7cm]{box.png}
+\caption{Resultado obtido passando o ficheiro gerado pelo Generator com os parâmetros correspondentes a uma box com 5 divisões ao Engine}
+\end{figure}
+
 \subsection{Esfera (Sphere)}
+A esfera é o modelo mais complexo dos envolvidos. Neste modelo, mais uma vez, o centro foi colocado na origem. O número de vértices necessários para a esfera é calculado da seguinte maneira:
+\begin{enumerate}
+    \item a esfera é formada por y \textit{stacks}
+    \item cada \textit{stack} é formada por x \textit{slices}
+    \item cada \textit{slice} possui 2 triângulos que formam a parede que liga à \textit{stack} superior
+    \item cada triângulo tem 3 pontos
+    \item nro. total de pontos=6*x*y
+\end{enumerate}
+
+De notar que no código desenvolvido o número de \textit{stacks} é dividido por dois (metade para a parte superior, metade para a parte inferior) e, como tal, o cálculo é efetuado com 12*\textit{stacks}*\textit{slices}.
+
+
+Inicialmente são calculados os pontos que formam a metade superior da esfera, usando para isso a função \texttt{genWalls}. Visto tratar-se de uma esfera procedemos à normalização dos pontos antes de os escrevermos no ficheiro de configuração. A normalização tem como objetivo manter a distância dos triângulos a serem desenhados em relação à origem (\textbf{i.e} centro da esfera) igual ao raio mantendo, no entanto, o ângulo entre estes.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=4cm]{beforeNorm.png}
+    \caption{Pré-normalização}
+\end{figure}
+
+\begin{Verbatim}[fontsize=\small]    
+    float dist=sqrt(cur.x*cur.x+cur.y*cur.y+cur.z*cur.z);
+    float dx,dy,dz;
+    dx=(cur.x*radius)/dist;
+    dy=(cur.y*radius)/dist;
+    dz=(cur.z*radius)/dist;
+    normPoint.x=dx;
+    normPoint.y=dy;
+    normPoint.z=dz;
+    return normPoint;
+\end{Verbatim}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=4cm]{afterNorm.png}
+    \caption{Pós-normalização}
+\end{figure}
+
+Este mesmo processo é depois aplicado à metade inferior da esfera, permitindo assim a obtenção de uma esfera completa. Uma particularidade desta figura é o facto de não ser necessário calcular os pontos correspondentes a cada uma das \textit{stacks} já que estas não são visíveis do exterior, como tal apenas são calculados os pontos referentes às paredes.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=7cm]{sphereFinal.png}
+    \caption{Resultado obtido usando como parâmetros 1 50 50}
+\end{figure}
 
 \subsection{Cone (Cone)}
+O cone, tal como a esfera, é um dos modelos mais complexos, tanto em termos de cálculo dos pontos necessários como também da quantidade dos mesmos. No caso do cone, o centro da base foi colocado na origem do referencial. O número de pontos necessário à configuração do modelo do cone é calculado da seguinte maneira:
+\begin{enumerate}
+    \item o número de pontos da superfície lateral é calculado da mesma maneira que o número de pontos usados para a esfera(6*\textit{stacks}*\textit{slices})
+    \item a base é constituída por s \textit{slices}
+    \item cada \textit{slice} (da base) é constituída por 3 pontos
+    \item nro. total de pontos=3*\textit{slices} + 6*\textit{stacks}*\textit{slices}
+\end{enumerate}
+
+Tal como na esfera, a função genWalls é usada para calcular os pontos que compõem a superfície lateral do cone no entanto, visto que no cone não existe a noção de raio, não é necessário normalizar os pontos. Isto é conseguido através do parâmetro \texttt{deltaH} que corresponde à variação no eixo dos yy entre \textit{stacks} consecutivas e que, no caso da esfera, é igual ao valor de deltaR (variação do raio entre \textit{stacks} consecutivas) sendo por isso passado um valor menor(se se tratar da metade superior) ou igual(se se tratar da metade inferior) a 0 neste último caso permitindo assim a seguinte condição:
+
+\begin{Verbatim}
+    else if(top>0.f) nextStackY=y+top;
+    ...
+    if(top<=0.f)curP=normalize(curP,radius);
+\end{Verbatim}
+
+Por fim é gerada a base do cone que consiste em gerar uma aproximação a um círculo constituído por s \textit{slices}, sendo cada uma delas um triângulo.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=7cm]{coneFinal.png}
+    \caption{Resultado obtido usando como parâmetros 2 2 100 100} 
+\end{figure}
+
+\newpage
 
 \section{Engine}
-Em termos de bibliotecas no engine, são utilizadas as seguintes:
+Em termos de bibliotecas, no engine são utilizadas as seguintes:
 \begin{itemize}
-    \item Libxml2: parser XML utilizado devido à sua alta utilização bem como simplicidade
-    \item OpenGL: Usado para desenhar sendo a sua utilizão justificada devido a ser open-source e devido à presença de boa documentação
+    \item Libxml2: Parser XML utilizado devido à sua alta utilização bem como simplicidade
+    \item OpenGL: Usado para desenhar sendo a sua utilização justificada por ser open-source e devido à presença de boa documentação
     \item Glut: Biblioteca de "colagem" entre OpenGL e SO
-    \item Glew: necessário para a utilização de VBO's
+    \item Glew: Necessário para a utilização de VBO's
 \end{itemize}
-Portanto, com recurso ao mesmo (libxml2) obtivemos do ficheiro XML e pela ordem apresentada no mesmo, os ficheiros em que cada um possui pontos referentes a um poliedro/poligono, sendo este ficheiros possiveis de ser gerados pelo generator atrás referido. 
-Para guardar estes pontos é utilizado uma estrutura (Points) que é uma lista ligada, sendo cada elemento constituido por:
+Portanto, com recurso ao mesmo (libxml2) obtivemos do ficheiro XML e pela ordem apresentada no mesmo, os ficheiros em que cada um possui pontos referentes a um poliedro/polígono, sendo este ficheiros possíveis de ser gerados pelo generator atrás referido. 
+Para guardar estes pontos é utilizado uma estrutura (Points) que é uma lista ligada, sendo cada elemento constituído por:
 \begin{itemize}
     \item Um array com todas as coordenadas dos pontos disponibilizados por determinado ficheiro
-    \item O numero de pontos que essas coordenadas "geram"
+    \item O número de pontos que essas coordenadas "geram"
     \item Um apontador para a próxima estrutura (ficheiro seguinte)
 \end{itemize}
-De modo a desenhar os pontos correspondentes aos presentes nos ficheiros e agora também nos arrays, é usado VBO's facilitando e melhorando a performance. As figuras são desenhadas por um conjunto de triangulos, e como tal a cada 3 pontos é desenhado um. 
-Foi também implementado, recorrendo a coordenadas polares, a posibilidade de mover a camera:
+De modo a desenhar os pontos correspondentes aos presentes nos ficheiros e agora também nos arrays, é usado VBO's facilitando e melhorando a performance. As figuras são desenhadas por um conjunto de triângulos, e, como tal, a cada 3 pontos é desenhado um. 
+Foi também implementado, recorrendo a coordenadas polares, a possibilidade de mover a câmara:
 \begin{itemize}
-    \item Rodar horizontalmente à esquerda -> tecla seta esquerda
-    \item rodar horizontalmente à direita -> tecla seta direita
-    \item rodar verticalmente para cima -> tecla seta cima
-    \item rodar verticalmente para baixo -> tecla seta baixo
-    \item aproximar -> tecla 'w'
-    \item afastar -> tecla 's'
+    \item Rodar horizontalmente à esquerda: tecla seta esquerda
+    \item Rodar horizontalmente à direita: tecla seta direita
+    \item Rodar verticalmente para cima: tecla seta cima
+    \item Rodar verticalmente para baixo: tecla seta baixo
+    \item Aproximar: tecla 'w'
+    \item Afastar: tecla 's'
 \end{itemize}
-Para além disso, carregando na tecla 'm' é alterado consecutivamente o modo de display dos poligonos, alternando entre FILL (a cheio), LINE (em linhas) e POINT (apenas pontos).
+Para além disso, carregando na tecla 'm' é alterado consecutivamente o modo de display dos polígonos, alternando entre FILL (a cheio), LINE (em linhas) e POINT (apenas pontos).
 
 \section{Glossário}
 
 \subsection{Coordenadas Polares}
+No OpenGL as coordenadas são cartesianas e como tal é necessário realizar a conversão caso as coordenadas polares forem usadas. Esta mesma conversão pode ser realizada tendo em atenção o seguinte:
 
-\subsection{VBO's}
+\begin{figure}[ht!]
+\centering
+\includegraphics[height=12cm]{scan.png}
+\end{figure}
+%colocar imagem/figura e equações de modo a realizar a conversão
+Sendo assim os valores das coordenadas cartesianas do ponto P bem como de w são:
+\begin{itemize}
+    \item $w = r * cos(\beta)$
+    \item $x_{p} = r * cos(\beta) * sin(\alpha)$
+    \item $y_{p} = r * sin(\beta)$
+    \item $z_{p} = r * cos(\beta) * cos(\alpha)$
+\end{itemize}
+
+\subsection{Vertex Buffer Objects (VBOs)}
+Numa fase inicial do trabalho foi tomada a decisão de ler o ficheiro XML a cada chamada da função \texttt{renderScene}, ou seja, no pior dos casos, tantas vezes quanto o \textit{refresh rate} do monitor. Isto representava no entanto um grande \textit{bottleneck} em casos em que o ficheiro fosse de tamanho considerável e os modelos em causa complexos. Para limitar este comportamento recorreu-se ao uso de \texttt{arrays} que armazenam as coordenadas de cada ponto sendo que cada modelo, representado por um conjunto de pontos, se encontra armazenado numa estrutura do tipo \texttt{modelPoints}:
+\begin{Verbatim}
+    typedef struct modelPoints {
+        float *points;
+        int size;
+        struct modelPoints *next;
+    }*Points;
+\end{Verbatim}
+Os modelos encontram-se armazenados numa lista ligada que é percorrida na fase de renderização. Nesta altura são usados VBOs que permitem armazenar os dados para renderização na memória do GPU ao invés da memória central apresentando, por isso, ganhos de performance significativos em relação à renderização imediata.
+
+\begin{Verbatim}
+    glBufferData(GL_ARRAY_BUFFER,(auxM->size)*sizeof(float),auxM->points,GL_STATIC_DRAW);
+    glDrawArrays(GL_TRIANGLES,0,auxM->size);
+    auxM = auxM->next;
+\end{Verbatim}
+
+\newpage
 
 \section{Conclusão}
+Apesar do bom trabalho realizado, cumprindo o estipulado no enunciado e sendo que já é usado VBO's de modo a desenhar os pontos, fica por realizar a verificação dos parâmetros passados como input ao generator, visto que, por exemplo o mesmo aceita valores negativos para as slices e stacks do cone.
+
+\newpage
+
+\section{Referências}
+stackoverflow.com/questions/7687148/drawing-sphere-in-opengl-without-using-glusphere
+\newline
+cpp.libhunt.com/compare-tinyxml2-vs-libxml2
+\newline
+www.xmlsoft.org/html/index.html
+\newline
+www.xmlsoft.org/html/libxml-tree.html
+\newline
+www.xmlsoft.org/html/libxml-parser.html
 
 \end{document}
