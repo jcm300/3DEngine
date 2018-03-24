@@ -30,6 +30,25 @@ typedef struct modelPoints {
      struct modelPoints *next;
 }*Points;
 
+/* case t=u:
+ *      start of group -> glPushMatrix();
+ * case t=o:
+ *      end of group -> glPopMatrix();
+ * case t=t:
+ *      translate with 3 arguments in args(X;Y;Z);
+ * case t=r:
+ *      rotate with 4 arguments in args(angle;axisX;axisY;axisZ);
+ * case t=s:
+ *      scale with 3 arguments in args(X;Y;Z);
+ * case t=m:
+ *      models with 1 argument in args(number of models);
+ */
+typedef struct transforms{
+    char t;
+    float *args;
+    struct transforms *next;
+}*Transforms;
+
 float radius = 10.0f;
 float alfa = M_PI/4;
 float beta = M_PI/4;
@@ -38,6 +57,7 @@ float changeR = 0.2;
 GLuint buffers[1];
 GLenum mode = GL_FILL;
 Points *models; 
+Transforms *transforms;
 
 long readln (int fildes, void * buf, size_t nbyte){
 	int i,x;
@@ -82,11 +102,95 @@ int parseModel(xmlChar * file, Points *m) {
     return ret;
 }
 
-void parseNodes(xmlNodePtr cur, Points *ml){
-    Points * m=ml;
+void parseModels(xmlNodePtr cur, Points *m, Transforms *t){
+    int models=0;
     while(cur){
-        if(!xmlStrcmp(cur->name,(const xmlChar*)"model"))
-            if(parseModel(xmlGetProp(cur,(const xmlChar*)"file"),m)) m = &((*m)->next);
+        if(!xmlStrcmp(cur->name,(const xmlChar*)"model")){
+            if(parseModel(xmlGetProp(cur,(const xmlChar*)"file"),m)){
+                m = &((*m)->next);
+                models++;
+            }
+        }
+        cur = cur -> next;
+    }
+    Transforms auxT=(Transforms)malloc(sizeof(struct transforms));
+    auxT->t = 'm';
+    auxT->args =(float*)malloc(sizeof(float)*1);
+    auxT->args[0]=models;
+    auxT->next=NULL;
+    *t=auxT;
+}
+
+void push(Transforms *t){
+    Transforms auxT=(Transforms)malloc(sizeof(struct transforms));
+    auxT->t = 'u';
+    auxT->args=NULL;
+    auxT->next=NULL;
+    *t=auxT;
+}
+
+void translate(xmlNodePtr cur, Transforms *t){
+    Transforms auxT=(Transforms)malloc(sizeof(struct transforms));
+    auxT->t = 't';
+    auxT->args =(float*)malloc(sizeof(float)*3);
+    auxT->args[0]=atof(xmlGetProp(cur,(const xmlChar*)"X"));
+    auxT->args[1]=atof(xmlGetProp(cur,(const xmlChar*)"Y"));
+    auxT->args[2]=atof(xmlGetProp(cur,(const xmlChar*)"Z"));
+    auxT->next=NULL;
+    *t=auxT;
+}
+
+void rotate(xmlNodePtr cur, Transforms *t){
+    Transforms auxT=(Transforms)malloc(sizeof(struct transforms));
+    auxT->t = 'r';
+    auxT->args =(float*)malloc(sizeof(float)*4);
+    auxT->args[0]=atof(xmlGetProp(cur,(const xmlChar*)"angle"));
+    auxT->args[1]=atof(xmlGetProp(cur,(const xmlChar*)"axisX"));
+    auxT->args[2]=atof(xmlGetProp(cur,(const xmlChar*)"axisY"));
+    auxT->args[3]=atof(xmlGetProp(cur,(const xmlChar*)"axisZ"));
+    auxT->next=NULL;
+    *t=auxT;
+}
+
+void scale(xmlNodePtr cur, Transforms *t){
+    Transforms auxT=(Transforms)malloc(sizeof(struct transforms));
+    auxT->t = 's';
+    auxT->args =(float*)malloc(sizeof(float)*3);
+    auxT->args[0]=atof(xmlGetProp(cur,(const xmlChar*)"X"));
+    auxT->args[1]=atof(xmlGetProp(cur,(const xmlChar*)"Y"));
+    auxT->args[2]=atof(xmlGetProp(cur,(const xmlChar*)"Z"));
+    auxT->next=NULL;
+    *t=auxT;
+}
+
+void pop(Transforms *t){
+    Transforms auxT=(Transforms)malloc(sizeof(struct transforms));
+    auxT->t = 'o';
+    auxT->args=NULL;
+    auxT->next=NULL;
+    *t=auxT;
+}
+
+void parseGroup(xmlNodePtr cur, Points *m, Transforms *t){
+    push(t);
+    t = &((*t)->next);
+    while(cur){
+        if(!xmlStrcmp(cur->name,(const xmlChar*)"translate")) translate(cur,t);
+        if(!xmlStrcmp(cur->name,(const xmlChar*)"rotate")) rotate(cur,t);
+        if(!xmlStrcmp(cur->name,(const xmlChar*)"scale")) scale(cur,t);
+        if(!xmlStrcmp(cur->name,(const xmlChar*)"models")) parseModels(cur -> xmlChildrenNode, m, t);
+        if(!xmlStrcmp(cur->name,(const xmlChar*)"group")) parseGroup(cur -> xmlChildrenNode, m, t);
+        t = &((*t)->next);
+        cur = cur -> next;
+    }
+    pop(t);
+} 
+
+void parseNodes(xmlNodePtr cur, Points *ml, Transforms *tl){
+    Points * m=ml;
+    Transforms *t=tl; 
+    while(cur){
+        if(!xmlStrcmp(cur->name,(const xmlChar*)"group")) parseGroup(cur -> xmlChildrenNode, m, t);
         cur = cur -> next;
     }
 }
@@ -105,7 +209,9 @@ void xmlParser(char * file){
                 cur = cur -> xmlChildrenNode;
                 models=(Points *)malloc(sizeof(void*));
                 *models=NULL;
-                parseNodes(cur,models);
+                transforms=(Transforms *)malloc(sizeof(void*));
+                *transforms=NULL;
+                parseNodes(cur,models,transforms);
             }else fprintf(stderr, "Don't recognize sintax\n");   
         }
     }
@@ -156,16 +262,58 @@ void drawXYZ(){
 
 }
 
-void drawModels(){
+void drawModels(int begin, int end){
     Points auxM=*models;
+    int i=0;
+
     glColor3f(1.0,1.0,1.0); //white color
-    while(auxM){
+
+    glBindBuffer(GL_ARRAY_BUFFER,buffers[0]);
+    glVertexPointer(3,GL_FLOAT,0,0);
+    
+    while(auxM && i<begin) {
+        auxM = auxM -> next;
+        i++;
+    }
+
+    while(auxM && i<end){
         glBufferData(GL_ARRAY_BUFFER,(auxM->size)*sizeof(float),auxM->points,GL_STATIC_DRAW);
         glDrawArrays(GL_TRIANGLES,0,auxM->size);
         auxM = auxM->next;
     }
 }
 
+void draw(){
+    Transforms auxT=*transforms;
+    int init = 0;
+
+    while(auxT){
+        switch(auxT->t){
+            case 'u':
+                glPushMatrix();
+                break;
+            case 't':
+                glTranslatef(auxT->args[0],auxT->args[1],auxT->args[2]);
+                break;
+            case 'r':
+                glRotatef(auxT->args[0],auxT->args[1],auxT->args[2],auxT->args[3]);
+                break;
+            case 's':
+                glScalef(auxT->args[0],auxT->args[1],auxT->args[2]);
+                break;
+            case 'm':
+                drawModels(init,(int)auxT->args[0]);
+                init= init + (int)auxT->args[0];
+                break;
+            case 'o':
+                glPopMatrix();
+                break;
+            default:
+                break;
+        }
+        auxT= auxT -> next;
+    }
+}
 
 void renderScene(void) {
 
@@ -182,7 +330,7 @@ void renderScene(void) {
 	// drawing instructions
 	drawXYZ();
 
-    drawModels();
+    draw();
 
 	// End of Frame
 	glutSwapBuffers();
@@ -254,8 +402,6 @@ int main(int argc, char **argv) {
         glEnableClientState(GL_VERTEX_ARRAY);
 
         glGenBuffers(1,buffers);
-        glBindBuffer(GL_ARRAY_BUFFER,buffers[0]);
-        glVertexPointer(3,GL_FLOAT,0,0);
 
 	    glutMainLoop();
     }else fprintf(stderr, "Wrong number of arguments.\n");
