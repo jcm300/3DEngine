@@ -75,12 +75,12 @@ int generatePlane(int fd, char *l, char *c){
     lf/=2.0f; 
     cf/=2.0f; 
     write(fd,"6\n",2);
-    printLine(fd,arr,-lf,0.f,-cf);
     printLine(fd,arr,-lf,0.f,cf);
-    printLine(fd,arr,lf,0.f,cf);
     printLine(fd,arr,-lf,0.f,-cf);
     printLine(fd,arr,lf,0.f,cf);
+    printLine(fd,arr,-lf,0.f,-cf);
     printLine(fd,arr,lf,0.f,-cf);
+    printLine(fd,arr,lf,0.f,cf);
 }
 
 void printLine(int fd, char* array, float x, float y, float z){

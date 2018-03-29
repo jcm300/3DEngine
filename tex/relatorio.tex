@@ -62,6 +62,33 @@ O plano é o modelo mais simples das opções apresentadas, sabendo logo de part
 \caption{Resultado obtido passando o ficheiro gerado pelo Generator com os parâmetros x=2 e z=4 ao Engine}
 \end{figure}
 
+\subsubsection{Em termos matemáticos}
+Seja:
+\begin{itemize}
+    \item x: valor da aresta paralela ao eixo x
+    \item z: valor da aresta paralela ao eixo z
+\end{itemize}
+De modo a desenhar 2 triângulos são necessários 6 pontos:
+\begin{itemize}
+    \item triângulo 1
+        \begin{itemize}
+            \item ponto 1: (-x/2,0,z/2)
+            \item ponto 2: (-x/2,0,-z/2)
+            \item ponto 3: (x/2,0,z/2)
+        \end{itemize}
+    \item triângulo 2
+        \begin{itemize}
+            \item ponto 1: (-x/2,0,-z/2)
+            \item ponto 2: (x/2,0,-z/2)
+            \item ponto 3: (x/2,0,z/2)
+        \end{itemize}
+\end{itemize}
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[height=7cm]{planeMath.png}
+\end{figure}
+
 \subsection{Caixa (Box)}
 
 Na caixa foi feita a assunção de que o seu centro se encontra na origem do gráfico ou seja, no ponto com coordenadas (0,0,0).
@@ -87,6 +114,85 @@ A partir daqui e com a utilização de um ciclo com a inicialização da uma var
 \includegraphics[height=7cm]{box.png}
 \caption{Resultado obtido passando o ficheiro gerado pelo Generator com os parâmetros correspondentes a uma box com 5 divisões ao Engine}
 \end{figure}
+
+\subsubsection{Em termos Matemáticos}
+Não considerando divisões, ou seja apenas 2 triângulos por face, seja:
+\begin{itemize}
+    \item xI: valor das arestas paralelas ao eixo x (input 1)
+    \item yI: valor das arestas paralelas ao eixo y (input 2)
+    \item zI: valor das arestas paralelas ao eixo z (input 3)
+\end{itemize}
+Visto que a Box tem de estar centrada na origem estes valores são divididos por 2 de modo a facilitar os cálculos:
+\begin{itemize}
+    \item x=xI/2
+    \item y=yI/2
+    \item z=zI/2
+\end{itemize}
+Com base na seguinte figura:
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=10cm]{boxMath1.png}
+\end{figure}
+Os vértices da box são:
+\begin{itemize}
+    \item A = (-x,-y,z)
+    \item B = (x,-y,z)
+    \item C = (-x,y,z)
+    \item D = (x,y,z)
+    \item E = (-x,y,-z)
+    \item F = (-x,-y,-z)
+    \item G = (x,-y,-z)
+    \item H = (x,y,-z)
+\end{itemize}
+Consideremos agora apenas as faces ABCD e EFGH:
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=5cm]{boxMath2.png}
+\end{figure}
+Para desenhar as faces(2 triângulos por cada face) as ordens dos pontos seria, por exemplo:
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=5cm]{boxMath3.png}
+\end{figure}
+Entre os pontos B e G e entre os pontos C e E apenas é alterado a coordenada z que é simétrica. Sendo assim, na função faceXY podemos (chamando duas vezes a função, uma com zParâmetro=z e outra com zParâmetro=-z) desenhar as duas faces sendo que, os pontos B e G são desenhados pela mesma expressão(x,-y,zParâmetro) e os C e E também(-x,y,zParâmetro). Para os outros pontos é usado um if e consoante o valor de z é desenhado os pontos correspondentes:
+\begin{verbatim}
+//triângulo 1 da face ABCD(z>0) ou triângulo 2 da face EFGH(z<0)
+(x,-y,zParâmetro) //desenhar B ou G
+(-x,y,zParâmetro) // desenhar C ou E
+if(z>0) (-x,-y,zParâmetro) //desenhar A
+else (x,y,zParâmetro) //desenhar H
+
+//triângulo 2 da face ABCD(z>0) ou triângulo 1 da face EFGH(z<0)
+(x,-y,zParâmetro) //desenhar B ou G
+if(z>0) (x,y,zParâmetro) //desenhar D
+else (-x,-y,zParâmetro) //desenhar F
+(-x,y,zParâmetro) // desenhar C ou E
+\end{verbatim}
+Isto é aplicado às outras faces mudando a coordenada simétrica:
+\begin{itemize}
+    \item faces paralelas a YZ: coordenada x (função faceYZ)
+    \item faces paralelas a XZ: coordenada y (função faceXZ) 
+\end{itemize}
+
+Consideremos agora as divisões:
+\newline
+O processo por detrás das divisões das faces da caixa passa por dividir cada uma das faces em N retângulos, sendo este N o número de divisões pretendidas.
+
+\begin{figure}[H]
+\centering
+\includegraphics[height=7cm]{caixaStacks1.png}
+\end{figure}
+
+Seguindo a face [A B D C] enunciada em cima, desta forma, começamos por desenhar o retângulo [A B B' A'] através da função \textit{faceXY}(visto que a mesma desenha 2 triângulos que formam um paralelogramo cujos lados formam 90º entre si), que representa a primeira \textit{stack} da face em causa, sendo que $|$yA'-yA$|$=$|$yB'-yB$|$=yI/stacks (sendo por exemplo yA o valor da coordenada y no ponto A').
+
+\begin{figure}[H]
+\centering
+\includegraphics[height=7cm]{caixaStacks2.png}
+\end{figure}
+
+Na próxima iteração passamos a desenhar o retângulo [A' B' B'' A''] e por aí adiante, até concluirmos o números de \textit{stack's} que queremos obter.
+\newline
+Nesta face, o eixo que faz variar as divisões é o y, já no caso da face superior e da inferior este eixo passa a ser o x, mas seguindo sempre a mesma teoria.
 
 \subsection{Esfera (Sphere)}
 A esfera é o modelo mais complexo dos envolvidos. Neste modelo, mais uma vez, o centro foi colocado na origem. O número de vértices necessários para a esfera é calculado da seguinte maneira:
