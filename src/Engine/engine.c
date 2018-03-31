@@ -346,10 +346,10 @@ void renderScene(void) {
 	gluLookAt(radius * cos(beta) * sin(alfa), radius * sin(beta), radius * cos(beta) * cos(alfa), 
 		      0.0,0.0,0.0,
 			  0.0f,1.0f,0.0f);
-   
+    
     glCullFace(GL_FRONT);
     glFrontFace(GL_CCW);
-    glPolygonMode(GL_FRONT, mode); //change mode
+    glPolygonMode(GL_FRONT_AND_BACK, mode); //change mode
 
 	// drawing instructions
 	drawXYZ();
@@ -424,8 +424,6 @@ int main(int argc, char **argv) {
 	    glEnable(GL_DEPTH_TEST);
 	    glEnable(GL_CULL_FACE);
         glEnableClientState(GL_VERTEX_ARRAY);
-        glCullFace(GL_FRONT);
-        glFrontFace(GL_CCW);
 
         glGenBuffers(1,buffers);
 

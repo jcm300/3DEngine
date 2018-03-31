@@ -90,38 +90,38 @@ void printLine(int fd, char* array, float x, float y, float z){
 
 void faceXZ(int fd, char* array, float x1, float x2, float y, float z){
 	printLine(fd,array,x2,y,z);
+    printLine(fd,array,x1,y,-z);
     if (y>0) printLine(fd,array,x2,y,-z);
     else printLine(fd,array,x1,y,z); 
-    printLine(fd,array,x1,y,-z);
     
     printLine(fd,array,x2,y,z);
-    printLine(fd,array,x1,y,-z);
     if (y>0) printLine(fd,array,x1,y,z);
     else printLine(fd,array,x2,y,-z);
+    printLine(fd,array,x1,y,-z);
 }
 
 void faceYZ(int fd, char* array, float x, float y1, float y2, float z){
     printLine(fd,array,x, y1, -z);
+    printLine(fd,array,x, y2, z);
     if (x>0) printLine(fd,array,x, y2, -z);
     else printLine(fd,array,x, y1, z);
-    printLine(fd,array,x, y2, z);
     
     printLine(fd,array,x, y1, -z);
-    printLine(fd,array,x, y2, z);
     if (x>0) printLine(fd,array,x, y1, z);
     else printLine(fd,array,x, y2, -z);
+    printLine(fd,array,x, y2, z);
 }
 
 void faceXY(int fd, char* array, float x, float y1, float y2, float z){
 	printLine(fd,array,x, y1, z);
+    printLine(fd,array,-x, y2, z);
     if (z>0) printLine(fd,array,x, y2, z);
     else printLine(fd,array,-x,y1, z);
-    printLine(fd,array,-x, y2, z);
     
     printLine(fd,array,x, y1, z);
-    printLine(fd,array,-x, y2, z);
     if (z>0) printLine(fd,array,-x, y1, z);
     else printLine(fd,array,x, y2, z);
+    printLine(fd,array,-x, y2, z);
 }
 
 int generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
@@ -181,9 +181,6 @@ int generateSphere(int fd, char *rds, char *slc, char *stks){
     }
 }
 
-
-
-
 int generateCone(int fd, char *radiuss , char *heights, char *slicess, char *stackss){
     float radius = (float) atof(radiuss);
     float height = (float) atof(heights);
@@ -208,8 +205,8 @@ int generateCone(int fd, char *radiuss , char *heights, char *slicess, char *sta
     //base
     for(i=0;i<slices;i++,curAngle+=deltaAngle){
         printLine(fd,array,0.f,0.f,0.f);
+        printLine(fd,array,radius*sin(curAngle),0.f,radius*cos(curAngle));
         printLine(fd,array,radius*sin(curAngle+deltaAngle),0.f,radius*cos(curAngle+deltaAngle));
-        printLine(fd,array,radius*sin(curAngle),0.f,radius*cos(curAngle));         
     }
 }
 
@@ -229,16 +226,16 @@ void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, fl
         curP.z=nextRadius*cos(curAngle);
         if(top<=0.f)curP=normalize(curP,radius);
         printLine(fd,array,curP.x,curP.y,curP.z);
+        
+        curP.x=curRadius*sin(curAngle+angle);
+        curP.y=y;
+        curP.z=curRadius*cos(curAngle+angle);
+        if(top<=0.f)curP=normalize(curP,radius);
+        printLine(fd,array,curP.x,curP.y,curP.z);
 
         curP.x=curRadius*sin(curAngle);
         curP.y=y;
         curP.z=curRadius*cos(curAngle);
-        if(top<=0.f)curP=normalize(curP,radius);
-        printLine(fd,array,curP.x,curP.y,curP.z);
-
-        curP.x=curRadius*sin(curAngle+angle);
-        curP.y=y;
-        curP.z=curRadius*cos(curAngle+angle);
         if(top<=0.f)curP=normalize(curP,radius);
         printLine(fd,array,curP.x,curP.y,curP.z);
 
@@ -247,6 +244,12 @@ void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, fl
         curP.z=nextRadius*cos(curAngle);
         if(top<=0.f)curP=normalize(curP,radius);
         printLine(fd,array,curP.x,curP.y,curP.z);
+        
+        curP.x=nextRadius*sin(curAngle+angle);
+        curP.y=nextStackY;
+        curP.z=nextRadius*cos(curAngle+angle);
+        if(top<=0.f)curP=normalize(curP,radius);
+        printLine(fd,array,curP.x,curP.y,curP.z);
 
         curP.x=curRadius*sin(curAngle+angle);
         curP.y=y;
@@ -254,11 +257,6 @@ void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, fl
         if(top<=0.f)curP=normalize(curP,radius);
         printLine(fd,array,curP.x,curP.y,curP.z);
 
-        curP.x=nextRadius*sin(curAngle+angle);
-        curP.y=nextStackY;
-        curP.z=nextRadius*cos(curAngle+angle);
-        if(top<=0.f)curP=normalize(curP,radius);
-        printLine(fd,array,curP.x,curP.y,curP.z);
     }
 
 }
