@@ -102,7 +102,7 @@ int parseModel(xmlChar * file, Points *m) {
     return ret;
 }
 
-void parseModels(xmlNodePtr cur, Points *m, Transforms *t){
+Points *parseModels(xmlNodePtr cur, Points *m, Transforms *t){
     int models=0;
     while(cur){
         if(!xmlStrcmp(cur->name,(const xmlChar*)"model")){
@@ -119,6 +119,7 @@ void parseModels(xmlNodePtr cur, Points *m, Transforms *t){
     auxT->args[0]=models;
     auxT->next=NULL;
     *t=auxT;
+    return m;
 }
 
 void push(Transforms *t){
@@ -133,9 +134,9 @@ void translate(xmlNodePtr cur, Transforms *t){
     Transforms auxT=(Transforms)malloc(sizeof(struct transforms));
     auxT->t = 't';
     auxT->args =(float*)malloc(sizeof(float)*3);
-    auxT->args[0]=atof(xmlGetProp(cur,(const xmlChar*)"X"));
-    auxT->args[1]=atof(xmlGetProp(cur,(const xmlChar*)"Y"));
-    auxT->args[2]=atof(xmlGetProp(cur,(const xmlChar*)"Z"));
+    auxT->args[0]= (xmlGetProp(cur,(const xmlChar*)"X")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"X")) : 0;
+    auxT->args[1]= (xmlGetProp(cur,(const xmlChar*)"Y")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"Y")) : 0;
+    auxT->args[2]= (xmlGetProp(cur,(const xmlChar*)"Z")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"Z")) : 0;
     auxT->next=NULL;
     *t=auxT;
 }
@@ -144,10 +145,10 @@ void rotate(xmlNodePtr cur, Transforms *t){
     Transforms auxT=(Transforms)malloc(sizeof(struct transforms));
     auxT->t = 'r';
     auxT->args =(float*)malloc(sizeof(float)*4);
-    auxT->args[0]=atof(xmlGetProp(cur,(const xmlChar*)"angle"));
-    auxT->args[1]=atof(xmlGetProp(cur,(const xmlChar*)"axisX"));
-    auxT->args[2]=atof(xmlGetProp(cur,(const xmlChar*)"axisY"));
-    auxT->args[3]=atof(xmlGetProp(cur,(const xmlChar*)"axisZ"));
+    auxT->args[0]= (xmlGetProp(cur,(const xmlChar*)"angle")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"angle")) : 0;
+    auxT->args[1]= (xmlGetProp(cur,(const xmlChar*)"axisX")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"axisX")) : 0;
+    auxT->args[2]= (xmlGetProp(cur,(const xmlChar*)"axisY")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"axisY")) : 0;
+    auxT->args[3]= (xmlGetProp(cur,(const xmlChar*)"axisZ")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"axisZ")) : 0;
     auxT->next=NULL;
     *t=auxT;
 }
@@ -156,9 +157,9 @@ void scale(xmlNodePtr cur, Transforms *t){
     Transforms auxT=(Transforms)malloc(sizeof(struct transforms));
     auxT->t = 's';
     auxT->args =(float*)malloc(sizeof(float)*3);
-    auxT->args[0]=atof(xmlGetProp(cur,(const xmlChar*)"X"));
-    auxT->args[1]=atof(xmlGetProp(cur,(const xmlChar*)"Y"));
-    auxT->args[2]=atof(xmlGetProp(cur,(const xmlChar*)"Z"));
+    auxT->args[0]= (xmlGetProp(cur,(const xmlChar*)"X")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"X")) : 0;
+    auxT->args[1]= (xmlGetProp(cur,(const xmlChar*)"Y")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"Y")) : 0;
+    auxT->args[2]= (xmlGetProp(cur,(const xmlChar*)"Z")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"Z")) : 0;
     auxT->next=NULL;
     *t=auxT;
 }
@@ -171,26 +172,46 @@ void pop(Transforms *t){
     *t=auxT;
 }
 
-void parseGroup(xmlNodePtr cur, Points *m, Transforms *t){
+Transforms *parseGroup(xmlNodePtr cur, Points *m, Transforms *t){
     push(t);
     t = &((*t)->next);
     while(cur){
-        if(!xmlStrcmp(cur->name,(const xmlChar*)"translate")) translate(cur,t);
-        if(!xmlStrcmp(cur->name,(const xmlChar*)"rotate")) rotate(cur,t);
-        if(!xmlStrcmp(cur->name,(const xmlChar*)"scale")) scale(cur,t);
-        if(!xmlStrcmp(cur->name,(const xmlChar*)"models")) parseModels(cur -> xmlChildrenNode, m, t);
-        if(!xmlStrcmp(cur->name,(const xmlChar*)"group")) parseGroup(cur -> xmlChildrenNode, m, t);
-        t = &((*t)->next);
+        if(!xmlStrcmp(cur->name,(const xmlChar*)"translate")){
+            translate(cur,t);
+            t = &((*t)->next);
+        }
+        if(!xmlStrcmp(cur->name,(const xmlChar*)"rotate")){
+            rotate(cur,t);
+            t = &((*t)->next);
+        }
+        if(!xmlStrcmp(cur->name,(const xmlChar*)"scale")){
+            scale(cur,t);
+            t = &((*t)->next);
+        }
+        if(!xmlStrcmp(cur->name,(const xmlChar*)"models")){
+            while(*m) m = &((*m)->next);
+            m = parseModels(cur -> xmlChildrenNode, m, t);
+            t = &((*t)->next);
+        }
+        if(!xmlStrcmp(cur->name,(const xmlChar*)"group")){
+            t = parseGroup(cur -> xmlChildrenNode, m, t);
+            t = &((*t)->next);
+        }
         cur = cur -> next;
     }
     pop(t);
+    return t;
 } 
 
 void parseNodes(xmlNodePtr cur, Points *ml, Transforms *tl){
     Points * m=ml;
     Transforms *t=tl; 
+    
     while(cur){
-        if(!xmlStrcmp(cur->name,(const xmlChar*)"group")) parseGroup(cur -> xmlChildrenNode, m, t);
+        if(!xmlStrcmp(cur->name,(const xmlChar*)"group")){
+            t = parseGroup(cur -> xmlChildrenNode, m, t);
+            t = &((*t)->next);
+        }
         cur = cur -> next;
     }
 }
@@ -280,6 +301,7 @@ void drawModels(int begin, int end){
         glBufferData(GL_ARRAY_BUFFER,(auxM->size)*sizeof(float),auxM->points,GL_STATIC_DRAW);
         glDrawArrays(GL_TRIANGLES,0,auxM->size);
         auxM = auxM->next;
+        i++;
     }
 }
 
@@ -302,7 +324,7 @@ void draw(){
                 glScalef(auxT->args[0],auxT->args[1],auxT->args[2]);
                 break;
             case 'm':
-                drawModels(init,(int)auxT->args[0]);
+                drawModels(init,init+(int)auxT->args[0]);
                 init= init + (int)auxT->args[0];
                 break;
             case 'o':
@@ -324,7 +346,9 @@ void renderScene(void) {
 	gluLookAt(radius * cos(beta) * sin(alfa), radius * sin(beta), radius * cos(beta) * cos(alfa), 
 		      0.0,0.0,0.0,
 			  0.0f,1.0f,0.0f);
-    
+   
+    glCullFace(GL_FRONT);
+    glFrontFace(GL_CCW);
     glPolygonMode(GL_FRONT, mode); //change mode
 
 	// drawing instructions
@@ -400,6 +424,8 @@ int main(int argc, char **argv) {
 	    glEnable(GL_DEPTH_TEST);
 	    glEnable(GL_CULL_FACE);
         glEnableClientState(GL_VERTEX_ARRAY);
+        glCullFace(GL_FRONT);
+        glFrontFace(GL_CCW);
 
         glGenBuffers(1,buffers);
 
