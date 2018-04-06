@@ -22,12 +22,12 @@
 
 \newpage
 
-\section{1ª Fase}
-
-\subsection{Introdução}
+\section{Introdução}
 Este documento serve de documentação à implementação do generator bem como engine desenvolvidos com o intuito de no futuro ser possível a construção de sistemas planetários virtualmente e graficamente.
 
 \newpage
+
+\section{1ª Fase}
 
 \subsection{Generator}
 
@@ -298,7 +298,66 @@ Foi também implementado, recorrendo a coordenadas polares, a possibilidade de m
 \end{itemize}
 Para além disso, carregando na tecla 'm' é alterado consecutivamente o modo de display dos polígonos, alternando entre FILL (a cheio), LINE (em linhas) e POINT (apenas pontos).
 
-\subsection{Glossário}
+\newpage
+
+\section{2ª Fase}
+
+\subsection{Objetivo}
+Nesta fase do projeto, o objetivo passa por implementar no Engine as funcionalidades capazes de tratar os ficheiros \textit{XML} onde a cena por este pretendida tem a sua informação no formato de uma árvore, onde cada nodo da mesma faz referência a um conjunto de transformações geométricas e opcionalmente a um conjunto de modelos, tendo para isto em atenção que um dado nodo pode ter vários filhos.
+\newline
+As transformações geométricas que se pretendem tratar são o \textit{translate}, o \textit{rotate} e o \textit{scale}, sendo que estas apenas podem existir dentro de um determinado grupo (\textit{$<$group$>$}) e a sua ordem é relevante.
+
+\subsection{Tratamento de dados}
+A juntar à estrutura criada por nós na fase anterior para armazenar os modelos a desenhar (\textit{modelPoints}), foi agora adicionada uma nova estrutua de dados que nos permita guardar as informações relativas às transformações que um dado ficheiro \textit{XML} requisita.
+Sendo assim, a estrutura de dados \textit{transforms} tem a seguinte implementação:
+\begin{verbatim}
+typedef struct transforms{
+    char t;
+    float *args;
+    struct transforms *next;
+}*Transforms;
+\end{verbatim}
+Tal como a estrutura dos modelos, esta lista ligada também é percorrida na fase de renderização. O caracter \textit{t} serve para guardar qual o tipo de transformação em causa na altura da renderização enunciada em cima, podendo tomar qualquer um dos seguintes valores:
+\begin{itemize}
+    \item 't' para realizar um \textit{translate} (necessários os parâmetros X, Y e Z)
+    \item 'r' para realizar um \textit{rotate} (necessários os parâmetros Angle, X, Y e Z)
+    \item 's' para realizar um \textit{scale} (necessários os parâmetros X, Y e Z)
+    \item 'u' para iniciar um novo grupo, fazendo \textit{push} da matriz
+    \item 'o' para terminar um grupo, fazendo \textit{pop} da matriz
+\end{itemize}
+Já o \textit{array} de \textit{float's args} guarda os parâmetros a utilizar na transformação, podendo o seu tamanho ser 3 (\textit{translate} e \textit{scale}), 4 (\textit{rotate}) ou \textit{NULL} (no caso do \textit{push} e \textit{pop}).
+
+\subsection{Implementação}
+Para o tratamento dos conjuntos de transformações possíveis de utlização numa cena, para o tipo de transformação em uso é chamada uma das seguintes funções:
+\begin{itemize}
+    \item void translate(xmlNodePtr cur, Transforms *t)
+    \item void rotate(xmlNodePtr cur, Transforms *t)
+    \item void scale(xmlNodePtr cur, Transforms *t)
+\end{itemize}
+Por exemplo, no caso da transformação em causa se tratar de um \textit{translate}, o armazenamento da informação a usar na estrutura enunciada em cima é realizado recorrendo à função:
+\begin{verbatim}
+void translate(xmlNodePtr cur, Transforms *t){
+ Transforms auxT=(Transforms)malloc(sizeof(struct transforms));
+ auxT->t = 't';
+ auxT->args =(float*)malloc(sizeof(float)*3);
+ auxT->args[0]= (xmlGetProp(cur,(const xmlChar*)"X")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"X")) : 0;
+ auxT->args[1]= (xmlGetProp(cur,(const xmlChar*)"Y")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"Y")) : 0;
+ auxT->args[2]= (xmlGetProp(cur,(const xmlChar*)"Z")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"Z")) : 0;$<$translate X="5" Y="0" Z="2" /$>$
+ auxT->next=NULL;
+ *t=auxT;
+}
+\end{verbatim}
+Sendo assim, o caracter que identifica esta processo é o 't' e o número de parâmetros a realizar nesta transformação é 3 (\textit{auxT-$>$args =(float*)malloc(sizeof(float)*3);}).
+\newline
+Para a informação em:
+\begin{verbatim}
+<translate X="5" Y="0" Z="2" />
+\end{verbatim}
+precisamos de guardar o valor 5 em auxT-$>$args[0], 0 em auxT-$>$args[1] e 2 em auxT-$>$args[2].
+\newline
+As funções para as outras duas transformações geométricas seguem a mesma lógica e raciocínio.
+
+\section{Glossário}
 
 \subsection{Coordenadas Polares}
 No OpenGL as coordenadas são cartesianas e como tal é necessário realizar a conversão caso as coordenadas polares forem usadas. Esta mesma conversão pode ser realizada tendo em atenção o seguinte:
@@ -335,68 +394,11 @@ Os modelos encontram-se armazenados numa lista ligada que é percorrida na fase 
 
 \newpage
 
-\subsection{Conclusão}
+\section{Conclusão}
 Apesar do bom trabalho realizado, cumprindo o estipulado no enunciado e sendo que já é usado VBO's de modo a desenhar os pontos, fica por realizar a verificação dos parâmetros passados como input ao generator, visto que, por exemplo o mesmo aceita valores negativos para as slices e stacks do cone.
 
 \newpage
-\section{2ª Fase}
 
-\subsection{Objetivo}
-Nesta fase do projeto, o objetivo passa por implementar no Engine as funcionalidades capazes de tratar os ficheiros \textit{XML} onde a cena por este pretendida tem a sua informação no formato de uma árvore, onde cada nodo da mesma faz referência a um conjunto de transformações geométricas e opcionalmente a um conjunto de modelos, tendo para isto em atenção que um dado nodo pode ter vários filhos.
-\newline
-As transformações geométricas que se pretendem tratar são o \textit{translate}, o \textit{rotate} e o \textit{scale}, sendo que estas apenas podem existir dentro de um determinado grupo (\textit{$<$group$>$}) e a sua ordem é relevante.
-
-\subsection{Tratamento de dados}
-A juntar à estrutura criada por nós na fase anterior para armazenar os modelos a desenhar (\textit{modelPoints}), foi agora adicionada uma nova estrutua de dados que nos permita guardar as informações relativas às transformações que um dado ficheiro \textit{XML} requisita.
-Sendo assim, a estrutura de dados \textit{transforms} tem a seguinte implementação:
-\begin{verbatim}
-typedef struct transforms{
-    char t;
-    float *args;
-    struct transforms *next;
-}*Transforms;
-\end{verbatim}
-Tal como a estrutura dos modelos, esta lista ligada também é percorrida na fase de renderização. O carater \textit{t} serve para guardar qual o tipo de transformação em causa na altura da renderização enunciada em cima, podendo tomar qualquer um dos seguintes valores:
-\begin{itemize}
-    \item 't' para realizar um \textit{translate} (necessários os parâmetros X, Y e Z)
-    \item 'r' para realizar um \textit{rotate} (necessários os parâmetros Angle, X, Y e Z)
-    \item 's' para realizar um \textit{scale} (necessários os parâmetros X, Y e Z)
-    \item 'u' para iniciar um novo grupo, fazendo \textit{push} da matriz
-    \item 'o' para terminar um grupo, fazendo \textit{pop} da matriz
-\end{itemize}
-Já o \textit{array} de \textit{float's args} guarda os parâmetros a utilizar na transformação, podendo o seu tamanho ser 3 (\textit{translate} e \textit{scale}), 4 (\textit{rotate}) ou \textit{NULL} (no caso do \textit{push} e \textit{pop}).
-
-\subsection{Implementação}
-Para o tratamento dos conjuntos de transformações possíveis de utlização numa cena, para o tipo de transformação em uso é chamada uma das seguintes funções:
-\begin{itemize}
-    \item void translate(xmlNodePtr cur, Transforms *t)
-    \item void rotate(xmlNodePtr cur, Transforms *t)
-    \item void scale(xmlNodePtr cur, Transforms *t)
-\end{itemize}
-Por exemplo, no caso da transformação em causa se tratar de um \textit{translate}, o armazenamento da informação a usar na estrutura enunciada em cima é realizado recorrendo à função:
-\begin{verbatim}
-void translate(xmlNodePtr cur, Transforms *t){
- Transforms auxT=(Transforms)malloc(sizeof(struct transforms));
- auxT->t = 't';
- auxT->args =(float*)malloc(sizeof(float)*3);
- auxT->args[0]= (xmlGetProp(cur,(const xmlChar*)"X")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"X")) : 0;
- auxT->args[1]= (xmlGetProp(cur,(const xmlChar*)"Y")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"Y")) : 0;
- auxT->args[2]= (xmlGetProp(cur,(const xmlChar*)"Z")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"Z")) : 0;$<$translate X="5" Y="0" Z="2" /$>$
- auxT->next=NULL;
- *t=auxT;
-}
-\end{verbatim}
-Sendo assim, o carater que identifica esta processo é o 't' e o número de parâmetros a realizar nesta transformação é 3 (\textit{auxT-$>$args =(float*)malloc(sizeof(float)*3);}).
-\newline
-Para a informação em:
-\begin{verbatim}
-<translate X="5" Y="0" Z="2" />
-\end{verbatim}
-precisamos de guardar o valor 5 em auxT-$>$args[0], 0 em auxT-$>$args[1] e 2 em auxT-$>$args[2].
-\newline
-As funções para as outras duas transformações geométricas seguem a mesma lógica e raciocínio.
-
-\newpage
 \section{Referências}
 stackoverflow.com/questions/7687148/drawing-sphere-in-opengl-without-using-glusphere
 \newline
