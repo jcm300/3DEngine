@@ -337,14 +337,17 @@ Para o tratamento dos conjuntos de transformações possíveis de utlização nu
 Por exemplo, no caso da transformação em causa se tratar de um \textit{translate}, o armazenamento da informação a usar na estrutura enunciada em cima é realizado recorrendo à função:
 \begin{verbatim}
 void translate(xmlNodePtr cur, Transforms *t){
- Transforms auxT=(Transforms)malloc(sizeof(struct transforms));
- auxT->t = 't';
- auxT->args =(float*)malloc(sizeof(float)*3);
- auxT->args[0]= (xmlGetProp(cur,(const xmlChar*)"X")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"X")) : 0;
- auxT->args[1]= (xmlGetProp(cur,(const xmlChar*)"Y")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"Y")) : 0;
- auxT->args[2]= (xmlGetProp(cur,(const xmlChar*)"Z")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"Z")) : 0;$<$translate X="5" Y="0" Z="2" /$>$
- auxT->next=NULL;
- *t=auxT;
+    Transforms auxT=(Transforms)malloc(sizeof(struct transforms));
+    auxT->t = 't';
+    auxT->args =(float*)malloc(sizeof(float)*3);
+    auxT->args[0]= (xmlGetProp(cur,(const xmlChar*)"X")!=NULL) ? 
+                        atof(xmlGetProp(cur,(const xmlChar*)"X")) : 0;
+    auxT->args[1]= (xmlGetProp(cur,(const xmlChar*)"Y")!=NULL) ? 
+                        atof(xmlGetProp(cur,(const xmlChar*)"Y")) : 0;
+    auxT->args[2]= (xmlGetProp(cur,(const xmlChar*)"Z")!=NULL) ? 
+                        atof(xmlGetProp(cur,(const xmlChar*)"Z")) : 0;
+    auxT->next=NULL;
+    *t=auxT;
 }
 \end{verbatim}
 Sendo assim, o caracter que identifica esta processo é o 't' e o número de parâmetros a realizar nesta transformação é 3 (\textit{auxT-$>$args =(float*)malloc(sizeof(float)*3);}).
