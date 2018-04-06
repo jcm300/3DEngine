@@ -366,6 +366,36 @@ Tal como a estrutura dos modelos, esta lista ligada também é percorrida na fas
 \end{itemize}
 Já o \textit{array} de \textit{float's args} guarda os parâmetros a utilizar na transformação, podendo o seu tamanho ser 3 (\textit{translate} e \textit{scale}), 4 (\textit{rotate}) ou \textit{NULL} (no caso do \textit{push} e \textit{pop}).
 
+\subsection{Implementação}
+Para o tratamento dos conjuntos de transformações possíveis de utlização numa cena, para o tipo de transformação em uso é chamada uma das seguintes funções:
+\begin{itemize}
+    \item void translate(xmlNodePtr cur, Transforms *t)
+    \item void rotate(xmlNodePtr cur, Transforms *t)
+    \item void scale(xmlNodePtr cur, Transforms *t)
+\end{itemize}
+Por exemplo, no caso da transformação em causa se tratar de um \textit{translate}, o armazenamento da informação a usar na estrutura enunciada em cima é realizado recorrendo à função:
+\begin{verbatim}
+void translate(xmlNodePtr cur, Transforms *t){
+ Transforms auxT=(Transforms)malloc(sizeof(struct transforms));
+ auxT->t = 't';
+ auxT->args =(float*)malloc(sizeof(float)*3);
+ auxT->args[0]= (xmlGetProp(cur,(const xmlChar*)"X")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"X")) : 0;
+ auxT->args[1]= (xmlGetProp(cur,(const xmlChar*)"Y")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"Y")) : 0;
+ auxT->args[2]= (xmlGetProp(cur,(const xmlChar*)"Z")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"Z")) : 0;$<$translate X="5" Y="0" Z="2" /$>$
+ auxT->next=NULL;
+ *t=auxT;
+}
+\end{verbatim}
+Sendo assim, o carater que identifica esta processo é o 't' e o número de parâmetros a realizar nesta transformação é 3 (\textit{auxT-$>$args =(float*)malloc(sizeof(float)*3);}).
+\newline
+Para a informação em:
+\begin{verbatim}
+<translate X="5" Y="0" Z="2" />
+\end{verbatim}
+precisamos de guardar o valor 5 em auxT-$>$args[0], 0 em auxT-$>$args[1] e 2 em auxT-$>$args[2].
+\newline
+As funções para as outras duas transformações geométricas seguem a mesma lógica e raciocínio.
+
 \newpage
 \section{Referências}
 stackoverflow.com/questions/7687148/drawing-sphere-in-opengl-without-using-glusphere
