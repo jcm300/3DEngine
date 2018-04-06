@@ -30,7 +30,7 @@ int generateCone(int, char*, char*, char*, char*);
 int generateSphere(int, char *, char *, char *);
 void printLine(int, char*, float, float, float);
 void genSlice(int, int,float,float, float, float,int);
-void genWalls(int,int,float,float,float,float,float,float);
+void genWalls(int,int,float,float,float,float,float,float,int);
 Point normalize(Point,float);
 
 int main(int argc, char *argv[]){
@@ -166,19 +166,24 @@ int generateSphere(int fd, char *rds, char *slc, char *stks){
     sprintf(array,"%d\n", slices*stacks*12);
     write(fd,array,strlen(array));
     
-    for(i=0;i<stacks;i++){
-        genWalls(fd,slices,radius,curRadius,curHeight,angle,step,-1.f);
+    for(i=0;i<stacks-1;i++){
+        genWalls(fd,slices,radius,curRadius,curHeight,angle,step,-1.f,0);
         curRadius-=step;
         curHeight+=step;
     }
     
+    genWalls(fd,slices,radius,curRadius,curHeight,angle,step,-1.f,1);
+
+
     curHeight=-step;
     curRadius=radius-step;
-    for(i=1;i<=stacks;i++){
-        genWalls(fd,slices,radius,curRadius,curHeight,angle,step,0.f);
+    for(i=0;i<stacks-1;i++){
+        genWalls(fd,slices,radius,curRadius,curHeight,angle,step,0.f,0);
         curRadius-=step;
         curHeight-=step;
     }
+
+    genWalls(fd,slices,radius,curRadius,curHeight,angle,step,0.f,-1);
 }
 
 int generateCone(int fd, char *radiuss , char *heights, char *slicess, char *stackss){
@@ -188,9 +193,9 @@ int generateCone(int fd, char *radiuss , char *heights, char *slicess, char *sta
     float stacks = (float) atof(stackss);
     int numVert =  slices*stacks*6 + slices *3,i;
     char array[65];
-    float curAngle=0.f;
+    float curAngle;
     float deltaAngle = (2*M_PI)/slices;
-    float curHeight=0.f;
+    float curHeight;
     float deltaH =height/stacks;
     float curRadius = radius;
     float deltaR = radius/stacks;
@@ -198,19 +203,21 @@ int generateCone(int fd, char *radiuss , char *heights, char *slicess, char *sta
     sprintf(array, "%d\n", numVert);
     write(fd,array,strlen(array));
     
-    for(i=0;i<stacks;i++,curHeight+=deltaH, curRadius-=deltaR){
-        genWalls(fd,slices,radius,curRadius,curHeight,deltaAngle,deltaR,deltaH);
+    for(i=0,curHeight=0.f;i<stacks-1;i++,curHeight+=deltaH, curRadius-=deltaR){
+        genWalls(fd,slices,radius,curRadius,curHeight,deltaAngle,deltaR,deltaH,0);
     }
-    
+
+    genWalls(fd,slices,radius,curRadius,curHeight,deltaAngle,deltaR,deltaH,1);
+
     //base
-    for(i=0;i<slices;i++,curAngle+=deltaAngle){
+    for(i=0, curAngle=0.f;i<slices;i++,curAngle+=deltaAngle){
         printLine(fd,array,0.f,0.f,0.f);
         printLine(fd,array,radius*sin(curAngle),0.f,radius*cos(curAngle));
         printLine(fd,array,radius*sin(curAngle+deltaAngle),0.f,radius*cos(curAngle+deltaAngle));
     }
 }
 
-void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, float angle, float delta, float top){
+void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, float angle, float delta, float top,int tpbt){
     char array[70];
     int i;
     float curAngle;
@@ -221,44 +228,46 @@ void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, fl
     else if(top>0.f) nextStackY=y+top;
 
     for(i=0,curAngle=0.f;i<sliceCount;i++,curAngle+=angle){
-        curP.x=nextRadius*sin(curAngle);
-        curP.y=nextStackY;
-        curP.z=nextRadius*cos(curAngle);
-        if(top<=0.f)curP=normalize(curP,radius);
-        printLine(fd,array,curP.x,curP.y,curP.z);
+        if(tpbt>=0){
+            curP.x=nextRadius*sin(curAngle);
+            curP.y=nextStackY;
+            curP.z=nextRadius*cos(curAngle);
+            if(top<=0.f)curP=normalize(curP,radius);
+            printLine(fd,array,curP.x,curP.y,curP.z);
+
+            curP.x=curRadius*sin(curAngle+angle);
+            curP.y=y;
+            curP.z=curRadius*cos(curAngle+angle);
+            if(top<=0.f)curP=normalize(curP,radius);
+            printLine(fd,array,curP.x,curP.y,curP.z);
+
+            curP.x=curRadius*sin(curAngle);
+            curP.y=y;
+            curP.z=curRadius*cos(curAngle);
+            if(top<=0.f)curP=normalize(curP,radius);
+            printLine(fd,array,curP.x,curP.y,curP.z);
+        }
         
-        curP.x=curRadius*sin(curAngle+angle);
-        curP.y=y;
-        curP.z=curRadius*cos(curAngle+angle);
-        if(top<=0.f)curP=normalize(curP,radius);
-        printLine(fd,array,curP.x,curP.y,curP.z);
-
-        curP.x=curRadius*sin(curAngle);
-        curP.y=y;
-        curP.z=curRadius*cos(curAngle);
-        if(top<=0.f)curP=normalize(curP,radius);
-        printLine(fd,array,curP.x,curP.y,curP.z);
-
-        curP.x=nextRadius*sin(curAngle);
-        curP.y=nextStackY;
-        curP.z=nextRadius*cos(curAngle);
-        if(top<=0.f)curP=normalize(curP,radius);
-        printLine(fd,array,curP.x,curP.y,curP.z);
+        if(tpbt<=0){
+            curP.x=nextRadius*sin(curAngle);
+            curP.y=nextStackY;
+            curP.z=nextRadius*cos(curAngle);
+            if(top<=0.f)curP=normalize(curP,radius);
+            printLine(fd,array,curP.x,curP.y,curP.z);
+            
+            curP.x=nextRadius*sin(curAngle+angle);
+            curP.y=nextStackY;
+            curP.z=nextRadius*cos(curAngle+angle);
+            if(top<=0.f)curP=normalize(curP,radius);
+            printLine(fd,array,curP.x,curP.y,curP.z);
         
-        curP.x=nextRadius*sin(curAngle+angle);
-        curP.y=nextStackY;
-        curP.z=nextRadius*cos(curAngle+angle);
-        if(top<=0.f)curP=normalize(curP,radius);
-        printLine(fd,array,curP.x,curP.y,curP.z);
-
-        curP.x=curRadius*sin(curAngle+angle);
-        curP.y=y;
-        curP.z=curRadius*cos(curAngle+angle);
-        if(top<=0.f)curP=normalize(curP,radius);
-        printLine(fd,array,curP.x,curP.y,curP.z);
-
+            curP.x=curRadius*sin(curAngle+angle);
+            curP.y=y;
+            curP.z=curRadius*cos(curAngle+angle);
+            if(top<=0.f)curP=normalize(curP,radius);
+            printLine(fd,array,curP.x,curP.y,curP.z);
+        }
     }
-
 }
 
 
