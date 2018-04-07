@@ -346,6 +346,46 @@ Tal como a estrutura dos modelos, esta lista ligada também é percorrida na fas
     \item 'o' para terminar um grupo, fazendo \textit{pop} da matriz
 \end{itemize}
 Já o \textit{array} de \textit{float's args} guarda os parâmetros a utilizar na transformação, podendo o seu tamanho ser 3 (\textit{translate} e \textit{scale}), 4 (\textit{rotate}) ou \textit{NULL} (no caso do \textit{push} e \textit{pop}).
+\newline
+A função \textit{draw} decide qual das tranformações/ações tomar tendo como base o caracter 't' de tipo das transformações:
+\begin{verbatim}
+    while(auxT){
+        switch(auxT->t){
+            case 'u':
+                glPushMatrix();
+                break;
+            case 't':
+                glTranslatef(auxT->args[0],auxT->args[1],auxT->args[2]);
+                break;
+            case 'r':
+                glRotatef(auxT->args[0],auxT->args[1],auxT->args[2],auxT->args[3]);
+                break;
+            case 's':
+                glScalef(auxT->args[0],auxT->args[1],auxT->args[2]);
+                break;
+            case 'm':
+                drawModels(init,init+(int)auxT->args[0]);
+                init= init + (int)auxT->args[0];
+                break;
+            case 'o':
+                glPopMatrix();
+                break;
+            default:
+                break;
+        }
+        auxT= auxT -> next;
+    }
+\end{verbatim} 
+No caso do tipo ser 'm' é utilizada a função \textit{drawModels} que desenha os modelos correspondentes:
+\begin{verbatim}
+    while(auxM && i<end){
+        glBufferData(GL_ARRAY_BUFFER,(auxM->size)*sizeof(float),auxM->points,GL_STATIC_DRAW);
+        glDrawArrays(GL_TRIANGLES,0,auxM->size);
+        auxM = auxM->next;
+        i++;
+    }
+\end{verbatim}
+
 
 \subsection{Implementação}
 Para o tratamento dos conjuntos de transformações possíveis de utlização numa cena, para o tipo de transformação em uso é chamada uma das seguintes funções:
@@ -379,7 +419,6 @@ Para a informação em:
 precisamos de guardar o valor 5 em auxT-$>$args[0], 0 em auxT-$>$args[1] e 2 em auxT-$>$args[2].
 \newline
 As funções para as outras duas transformações geométricas seguem a mesma lógica e raciocínio.
-
 \section{Glossário}
 
 \subsection{Coordenadas Polares}
