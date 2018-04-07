@@ -217,16 +217,33 @@ O cálculo dos pontos que forma as laterais da esfera e do cone é feita com rec
 
 Para tal esta calcula os dois triângulos que formam a superfície de cada uma das figuras (cone e esfera).
 \begin{figure}[H]
+    \centering
     \includegraphics[height=4cm]{genWallsDemo.jpg}
     \caption{Superfície desenhada por cada iteração do loop da função \texttt{genWalls}}
 \end{figure}
-$A=(nextRadius*sin(curAngle),nextStackY,nextRadius*cos(curAngle))$
 
-$B=(nextRadius*sin(curAngle+angle),nextStackY,nextRadius*cos(curAngle+angle))$
+Tendo em conta as seguintes assunções:
+\begin{itemize}
+    \item \texttt{nextRadius} raio da \textit{stack} seguinte
+    \item \texttt{nextStackY} valor da coordenada y para os pontos da \textit{stack} seguinte
+    \item \texttt{curRadius} raio da \textit{stack} atual
+    \item \texttt{y} valor da coordenada y da \textit{stack} atual
+    \item \texttt{angle} amplitude de cada \textit{slice} que compõem a \textit{stack}
+\end{itemize}
+segue que:
+\\
 
-$C=(curRadius*sin(curAngle),y,curRadius*cos(curAngle))$
+$A=(nextRadius*\sin(curAngle),nextStackY,nextRadius*\cos(curAngle))$
 
-$D=(curRadius*sin(curAngle+angle),y,curRadius*cos(curAngle+angle))$
+$B=(nextRadius*\sin(curAngle+angle),nextStackY,nextRadius*\cos(curAngle+angle))$
+
+$C=(curRadius*\sin(curAngle),y,curRadius*\cos(curAngle))$
+
+$D=(curRadius*\sin(curAngle+angle),y,curRadius*\cos(curAngle+angle))$
+
+
+(\textbf{conf.} \ref{PolarCoordinates}-Coordenadas Polares)
+\\
 
 O parametro \texttt{tpbt} é usado para indicar se a \textit{stack} a ser desenhada pertence ao extremo superior(1), extremo inferior(-1) ou se é uma \textit{stack} intermédia por forma a impedir que nos extremos sejam calculados o dobro dos pontos necessários. O parâmetro \texttt{top} é usado para determinar se a função está a ser chamada para gerar parte da esfera ou parte do cone para poder realizar a normalização quando se tratar do primeiro caso, sendo também usado, no caso da esfera, para determinar se está a ser calculada a metade superior ou a metade inferior.
 
@@ -273,7 +290,7 @@ O cone, tal como a esfera, é um dos modelos mais complexos, tanto em termos de 
     \item nro. total de pontos=3*\textit{slices} + 6*\textit{stacks}*\textit{slices}
 \end{enumerate}
 
-Tal como na esfera, a função genWalls é usada para calcular os pontos que compõem a superfície lateral do cone no entanto, visto que no cone não existe a noção de raio, não é necessário normalizar os pontos. Isto é conseguido através do parâmetro \texttt{deltaH} que corresponde à variação no eixo dos yy entre \textit{stacks} consecutivas e que, no caso da esfera, é igual ao valor de deltaR (variação do raio entre \textit{stacks} consecutivas) sendo por isso passado um valor menor(se se tratar da metade superior) ou igual(se se tratar da metade inferior) a 0 neste último caso permitindo assim a seguinte condição:
+Como já foi referido, a função \texttt{genWalls} é usada para calcular os pontos que compõem a superfície lateral do cone. No entanto, visto que no cone não existe a noção de raio, não é necessário normalizar os pontos, isto é conseguido através do parâmetro \texttt{deltaH} que corresponde à variação no eixo dos yy entre \textit{stacks} consecutivas e que, no caso da esfera, é igual ao valor de deltaR (variação do raio entre \textit{stacks} consecutivas) sendo por isso passado um valor menor ou igual a 0 caso se trate da metade superior ou inferior respetivamente, permitindo assim a seguinte condição:
 
 \begin{Verbatim}
     else if(top>0.f) nextStackY=y+top;
@@ -281,7 +298,13 @@ Tal como na esfera, a função genWalls é usada para calcular os pontos que com
     if(top<=0.f)curP=normalize(curP,radius);
 \end{Verbatim}
 
-Por fim é gerada a base do cone que consiste em gerar uma aproximação a um círculo constituído por s \textit{slices}, sendo cada uma delas um triângulo.
+Por fim é gerada a base do cone que consiste em numa aproximação a um círculo por meio de s \textit{slices}, cada uma delas um triângulo. Também neste caso são usadas coordenadas polares (\textbf{conf.} \ref{PolarCoordinates}) para calcular os pontos que constituem cada \textit{slice}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=4cm]{circleStack.png}
+    \caption{Aproximação de \textit{stack} a círculo}
+\end{figure}
 
 
 \begin{figure}[H]
@@ -427,6 +450,7 @@ O número de modelos presente em args quando o tipo é 'm' permite saber que mod
 \section{Glossário}
 
 \subsection{Coordenadas Polares}
+\label{PolarCoordinates}
 No OpenGL as coordenadas são cartesianas e como tal é necessário realizar a conversão caso as coordenadas polares forem usadas. Esta mesma conversão pode ser realizada tendo em atenção o seguinte:
 
 \begin{figure}[ht!]
