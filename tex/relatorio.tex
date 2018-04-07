@@ -211,10 +211,11 @@ De notar que no código desenvolvido o número de \textit{stacks} é dividido po
 
 O cálculo dos pontos que forma as laterais da esfera e do cone é feita com recurso à função:
 \begin{Verbatim}
-    void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, float angle, float delta, float top,int tpbt)
+    void genWalls(int fd, int sliceCount, float radius, float curRadius, 
+                    float y, float angle, float delta, float top,int tpbt)
 \end{Verbatim}
 
-Para tal esta calcula os dois triangulos que formam a superfície de cada uma das figuras (cone e esfera).
+Para tal esta calcula os dois triângulos que formam a superfície de cada uma das figuras (cone e esfera).
 \begin{figure}[H]
     \includegraphics[height=4cm]{genWallsDemo.jpg}
     \caption{Superfície desenhada por cada iteração do loop da função \texttt{genWalls}}
@@ -227,7 +228,7 @@ $C=(curRadius*sin(curAngle),y,curRadius*cos(curAngle))$
 
 $D=(curRadius*sin(curAngle+angle),y,curRadius*cos(curAngle+angle))$
 
-O parametro \texttt{tpbt} é usado para indicar se a \textit{stack} a ser desenhada pertence ao extremo superior(1), extremo inferior(-1) ou se é uma \textit{stack} intermédia por forma a impedir que nos extremos sejam calculados o dobro dos pontos necessários. O parametro \texttt{top} é usado para determinar se a função está a ser chamada para gerar parte da esfera ou parte do cone para poder realizar a normalização quando se tratar do primeiro caso, sendo também usado, no caso da esfera, para determinar se está a ser caculada a metade superior ou a metade inferior.
+O parametro \texttt{tpbt} é usado para indicar se a \textit{stack} a ser desenhada pertence ao extremo superior(1), extremo inferior(-1) ou se é uma \textit{stack} intermédia por forma a impedir que nos extremos sejam calculados o dobro dos pontos necessários. O parâmetro \texttt{top} é usado para determinar se a função está a ser chamada para gerar parte da esfera ou parte do cone para poder realizar a normalização quando se tratar do primeiro caso, sendo também usado, no caso da esfera, para determinar se está a ser calculada a metade superior ou a metade inferior.
 
 Inicialmente são calculados os pontos que formam a metade superior da esfera. Visto tratar-se de uma esfera procedemos à normalização dos pontos antes de os escrevermos no ficheiro de configuração. A normalização tem como objetivo manter a distância dos triângulos a serem desenhados em relação à origem (\textbf{i.e} centro da esfera) igual ao raio mantendo, no entanto, o ângulo entre estes.
 
@@ -344,48 +345,9 @@ Tal como a estrutura dos modelos, esta lista ligada também é percorrida na fas
     \item 's' para realizar um \textit{scale} (necessários os parâmetros X, Y e Z)
     \item 'u' para iniciar um novo grupo, fazendo \textit{push} da matriz
     \item 'o' para terminar um grupo, fazendo \textit{pop} da matriz
+    \item 'm' para indicar um grupo models
 \end{itemize}
-Já o \textit{array} de \textit{float's args} guarda os parâmetros a utilizar na transformação, podendo o seu tamanho ser 3 (\textit{translate} e \textit{scale}), 4 (\textit{rotate}) ou \textit{NULL} (no caso do \textit{push} e \textit{pop}).
-\newline
-A função \textit{draw} decide qual das tranformações/ações tomar tendo como base o caracter 't' de tipo das transformações:
-\begin{verbatim}
-    while(auxT){
-        switch(auxT->t){
-            case 'u':
-                glPushMatrix();
-                break;
-            case 't':
-                glTranslatef(auxT->args[0],auxT->args[1],auxT->args[2]);
-                break;
-            case 'r':
-                glRotatef(auxT->args[0],auxT->args[1],auxT->args[2],auxT->args[3]);
-                break;
-            case 's':
-                glScalef(auxT->args[0],auxT->args[1],auxT->args[2]);
-                break;
-            case 'm':
-                drawModels(init,init+(int)auxT->args[0]);
-                init= init + (int)auxT->args[0];
-                break;
-            case 'o':
-                glPopMatrix();
-                break;
-            default:
-                break;
-        }
-        auxT= auxT -> next;
-    }
-\end{verbatim} 
-No caso do tipo ser 'm' é utilizada a função \textit{drawModels} que desenha os modelos correspondentes:
-\begin{verbatim}
-    while(auxM && i<end){
-        glBufferData(GL_ARRAY_BUFFER,(auxM->size)*sizeof(float),auxM->points,GL_STATIC_DRAW);
-        glDrawArrays(GL_TRIANGLES,0,auxM->size);
-        auxM = auxM->next;
-        i++;
-    }
-\end{verbatim}
-
+Já o \textit{array} de \textit{float's args} guarda os parâmetros a utilizar na transformação, podendo o seu tamanho ser 3 (\textit{translate} e \textit{scale}), 4 (\textit{rotate}), \textit{NULL} (no caso do \textit{push} e \textit{pop}) ou 1(grupo models guardando o número de modelos).
 
 \subsection{Implementação}
 Para o tratamento dos conjuntos de transformações possíveis de utlização numa cena, para o tipo de transformação em uso é chamada uma das seguintes funções:
@@ -419,6 +381,49 @@ Para a informação em:
 precisamos de guardar o valor 5 em auxT-$>$args[0], 0 em auxT-$>$args[1] e 2 em auxT-$>$args[2].
 \newline
 As funções para as outras duas transformações geométricas seguem a mesma lógica e raciocínio.
+Para o caso do caracter 'm' (grupo models) é chamada a função parseModels de modo a guardar os modelos na estrutura Points *models referida na fase anterior.
+
+\subsection{Renderização}
+A função \textit{draw} decide qual das tranformações/ações tomar tendo como base o caracter 't' de tipo das transformações:
+\begin{verbatim}
+    while(auxT){
+        switch(auxT->t){
+            case 'u':
+                glPushMatrix();
+                break;
+            case 't':
+                glTranslatef(auxT->args[0],auxT->args[1],auxT->args[2]);
+                break;
+            case 'r':
+                glRotatef(auxT->args[0],auxT->args[1],auxT->args[2],auxT->args[3]);
+                break;
+            case 's':
+                glScalef(auxT->args[0],auxT->args[1],auxT->args[2]);
+                break;
+            case 'm':
+                drawModels(init,init+(int)auxT->args[0]);
+                init= init + (int)auxT->args[0];
+                break;
+            case 'o':
+                glPopMatrix();
+                break;
+            default:
+                break;
+        }
+        auxT= auxT -> next;
+    }
+\end{verbatim} 
+No caso do tipo ser 'm' é utilizada a função \textit{drawModels} que desenha os modelos correspondentes:
+\begin{verbatim}
+while(auxM && i<end){
+    glBufferData(GL_ARRAY_BUFFER,(auxM->size)*sizeof(float),auxM->points,GL_STATIC_DRAW);
+    glDrawArrays(GL_TRIANGLES,0,auxM->size);
+    auxM = auxM->next;
+    i++;
+}
+\end{verbatim}
+O número de modelos presente em args quando o tipo é 'm' permite saber que modelos presentes em Points *models deve-se desenhar, visto que os mesmos são guardados na altura do parse pela ordem de receção, basta assim saber em cada grupo models quantos havia. É com o intuito de gerir esta situação que exite a variável local init na função \textit{draw}, no qual guarda a partir de que modelo se deve desenhar no preciso momento.
+
 \section{Glossário}
 
 \subsection{Coordenadas Polares}
@@ -457,7 +462,7 @@ Os modelos encontram-se armazenados numa lista ligada que é percorrida na fase 
 \newpage
 
 \section{Conclusão}
-Apesar do bom trabalho realizado, cumprindo o estipulado no enunciado e sendo que já é usado VBO's de modo a desenhar os pontos, fica por realizar a verificação dos parâmetros passados como input ao generator, visto que, por exemplo o mesmo aceita valores negativos para as slices e stacks do cone.
+Apesar do bom trabalho realizado, cumprindo o estipulado no enunciado e sendo que já é usado VBO's de modo a desenhar os pontos, fica por realizar a verificação dos parâmetros passados como input ao generator, visto que, por exemplo o mesmo aceita valores negativos para as slices e stacks do cone. Nesta segunda fase realizou-se a tentativa de melhorar o relatorio anteriormente enviado, tentando assim apresentar fórmulas matemáticas para cada polígono (plane, box, sphere, cone). Foram construidos novos ficheiros de teste visto que os anteriormente apresentados não possuiam a sintaxe final correta. Um destes novos ficheiros de teste é o textit{solarSytem} no qual pretende representar o sistema solar. 
 
 \newpage
 
