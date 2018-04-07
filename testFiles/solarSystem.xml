@@ -1,0 +1,55 @@
+<scene>
+    <group>
+        <models>
+            <model file="planet.3d" />
+        </models>
+    </group>
+    <group>
+        <translate X="4" Y="0" Z="0"/>
+        <scale X="0.004" Y="0.004" Z="0.004"/>
+        <models>
+            <model file="planet.3d" />
+        </models>
+    </group>
+    <group>
+        <translate X="7" Y="0" Z="0"/>
+        <scale X="0.0087" Y="0.0087" Z="0.0087"/>
+        <models>
+            <model file="planet.3d" />
+        </models>
+    </group>
+    <group>
+        <translate X="10" Y="0" Z="0"/>
+        <scale X="0.0091" Y="0.0091" Z="0.0091"/>
+        <models>
+            <model file="planet.3d" />
+        </models>
+    </group>
+    <group>
+        <translate X="15" Y="0" Z="0"/>
+        <scale X="0.0048" Y="0.0048" Z="0.0048"/>
+        <models>
+            <model file="planet.3d" />
+        </models>
+    </group>
+    <group>
+        <translate X="52" Y="0" Z="0"/>
+        <scale X="0.1004" Y="0.1004" Z="0.1004"/>
+        <models>
+            <model file="planet.3d" />
+        </models>
+    </group>
+    <group>
+        <translate X="95" Y="0" Z="0"/>
+        <scale X="0.0836" Y="0.0836" Z="0.0836"/>
+        <models>
+            <model file="planet.3d" />
+        </models>
+    </group>
+    <group>
+        <translate X="95" Y="0" Z="0"/>
+        <models>
+            <model file="planet.3d" />
+        </models>
+    </group>
+</scene>

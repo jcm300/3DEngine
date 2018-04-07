@@ -209,7 +209,27 @@ A esfera é o modelo mais complexo dos envolvidos. Neste modelo, mais uma vez, o
 De notar que no código desenvolvido o número de \textit{stacks} é dividido por dois (metade para a parte superior, metade para a parte inferior) e, como tal, o cálculo é efetuado com 12*\textit{stacks}*\textit{slices}.
 
 
-Inicialmente são calculados os pontos que formam a metade superior da esfera, usando para isso a função \texttt{genWalls}. Visto tratar-se de uma esfera procedemos à normalização dos pontos antes de os escrevermos no ficheiro de configuração. A normalização tem como objetivo manter a distância dos triângulos a serem desenhados em relação à origem (\textbf{i.e} centro da esfera) igual ao raio mantendo, no entanto, o ângulo entre estes.
+O cálculo dos pontos que forma as laterais da esfera e do cone é feita com recurso à função:
+\begin{Verbatim}
+    void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, float angle, float delta, float top,int tpbt)
+\end{Verbatim}
+
+Para tal esta calcula os dois triangulos que formam a superfície de cada uma das figuras (cone e esfera).
+\begin{figure}[H]
+    \includegraphics[height=4cm]{genWallsDemo.jpg}
+    \caption{Superfície desenhada por cada iteração do loop da função \texttt{genWalls}}
+\end{figure}
+$A=(nextRadius*sin(curAngle),nextStackY,nextRadius*cos(curAngle))$
+
+$B=(nextRadius*sin(curAngle+angle),nextStackY,nextRadius*cos(curAngle+angle))$
+
+$C=(curRadius*sin(curAngle),y,curRadius*cos(curAngle))$
+
+$D=(curRadius*sin(curAngle+angle),y,curRadius*cos(curAngle+angle))$
+
+O parametro \texttt{tpbt} é usado para indicar se a \textit{stack} a ser desenhada pertence ao extremo superior(1), extremo inferior(-1) ou se é uma \textit{stack} intermédia por forma a impedir que nos extremos sejam calculados o dobro dos pontos necessários. O parametro \texttt{top} é usado para determinar se a função está a ser chamada para gerar parte da esfera ou parte do cone para poder realizar a normalização quando se tratar do primeiro caso, sendo também usado, no caso da esfera, para determinar se está a ser caculada a metade superior ou a metade inferior.
+
+Inicialmente são calculados os pontos que formam a metade superior da esfera. Visto tratar-se de uma esfera procedemos à normalização dos pontos antes de os escrevermos no ficheiro de configuração. A normalização tem como objetivo manter a distância dos triângulos a serem desenhados em relação à origem (\textbf{i.e} centro da esfera) igual ao raio mantendo, no entanto, o ângulo entre estes.
 
 \begin{figure}[H]
     \centering
