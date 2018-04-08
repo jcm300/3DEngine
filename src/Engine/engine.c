@@ -99,6 +99,7 @@ int parseModel(xmlChar * file, Points *m) {
             ret = 1;
         }
     }
+    else printf("Couldn't open file %s\n", file);
     return ret;
 }
 
@@ -110,6 +111,7 @@ Points *parseModels(xmlNodePtr cur, Points *m, Transforms *t){
                 m = &((*m)->next);
                 models++;
             }
+            else exit(1);
         }
         cur = cur -> next;
     }
