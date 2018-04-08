@@ -495,11 +495,23 @@ Os modelos encontram-se armazenados numa lista ligada que é percorrida na fase 
     auxM = auxM->next;
 \end{Verbatim}
 
+\subsection{First Person Camera - FPC}
+Na segunda fase deste projeto optamos por implementar o modo de \textit{First Person Camera}. Este sistema de visualização permite observar os modelos construídos de um modo diferente e confere um maior realismo ao \textit{Engine}, tornando o programa um pouco mais completo. A implementação desta mesma câmara foi realizada de modo a que ao clicar na tecla \textit{'t'} se possa alterar entre o modo de vista por nós já implementado anteriormente e este novo modo.
+\newline
+Dentro deste modo de visualização, utilizamos as teclas:
+\begin{itemize}
+    \item \textit{'w'} para mover a câmara para a frente
+    \item \textit{'s'} para mover a câmara para trás
+    \item \textit{'a'} para mover a câmara para a esquerda
+    \item \textit{'d'} para mover a câmara para a direita
+    \item setas direita e esquerda para efetuar rotação no sentido pretendido
+\end{itemize}
+
 \newpage
 
 \section{Conclusão}
 Tendo em conta o trabalho realizado e o uso de VBO's de modo a desenhar os pontos fica por realizar a validação dos parâmetros passados como input ao \textit{Generator} nomeadamente a verificação da positividade do número de slices e stacks do cone. 
-A segunda fase compreendeu a construção de novos ficheiros de teste visto que os anteriormente apresentados não cumpriam a nova sintaxe. É de destacar o ficheiro \textit{solarSytem} que especifca uma cena que representa o sistema solar. Dos aspetos a melhorar no trabalho realizado destaca-se a verificação da sintaxe do ficheiro XML em relação à sua correção. 
+A segunda fase compreendeu a construção de novos ficheiros de teste visto que os anteriormente apresentados não cumpriam a nova sintaxe. É de destacar o ficheiro \textit{solarSytem} que especifca uma cena que representa o sistema solar. Optamos também por implementar o modo de visualização \textit{First Person Camera} que adiciona um maior realismo ao programa. Dos aspetos a melhorar no trabalho realizado destaca-se a verificação da sintaxe do ficheiro XML em relação à sua correção. 
 
 \newpage
 
@@ -513,7 +525,5 @@ www.xmlsoft.org/html/index.html
 www.xmlsoft.org/html/libxml-tree.html
 \newline
 www.xmlsoft.org/html/libxml-parser.html
-\newline
-solar.physics.montana.edu/spot/teacher\_area/Scale\_Model\_Solar\_System\_Activity(6-8)]
 
 \end{document}
