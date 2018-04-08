@@ -282,11 +282,9 @@ void updateFstPrsn(int fwd, int lat,int rot){
         xLookAt += 0.1*rX*lat;
         zLookAt += 0.1*rZ*lat;
     }else if(rot){
-        dMod=sqrt(dX*dX+dZ*dZ);
-        rX=dMod*(dX*cos(alfafpc*rot)-dZ*sin(alfafpc*rot)); 
-        rZ=dMod*(dZ*sin(alfafpc*rot)+dZ*cos(alfafpc*rot)); 
-        xLookAt = xLocation + rX;
-        zLookAt = zLocation + rZ;
+        alfafpc = alfafpc + rot;
+        xLookAt = xLocation + sin(alfafpc * 3.14 /180);
+        zLookAt = zLocation + cos(alfafpc * 3.14 /180);
     }
 }
 
