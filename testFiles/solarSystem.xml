@@ -1,55 +1,120 @@
 <scene>
+    <!--Sol-->
     <group>
         <models>
             <model file="planet.3d" />
         </models>
     </group>
+    <!--Mercurio-->
     <group>
-        <translate X="4" Y="0" Z="0"/>
-        <scale X="0.004" Y="0.004" Z="0.004"/>
+        <translate X="10.5" Y="0" Z="0"/>
+        <scale X="0.003125" Y="0.003125" Z="0.003125"/>
         <models>
             <model file="planet.3d" />
         </models>
     </group>
+    <!--Venus-->
     <group>
-        <translate X="7" Y="0" Z="0"/>
-        <scale X="0.0087" Y="0.0087" Z="0.0087"/>
+        <translate X="19.6" Y="0" Z="0"/>
+        <scale X="0.00859375" Y="0.00859375" Z="0.00859375"/>
         <models>
             <model file="planet.3d" />
         </models>
     </group>
+    <!--Terra-->
     <group>
-        <translate X="10" Y="0" Z="0"/>
-        <scale X="0.0091" Y="0.0091" Z="0.0091"/>
+        <translate X="27.125" Y="0" Z="0"/>
+        <scale X="0.0091125" Y="0.0091125" Z="0.0091125"/>
+        <models>
+            <model file="planet.3d" />
+        </models>
+        <!--Lua-->
+        <group>
+            <translate X="0" Y="0" Z="2.76" />
+            <scale X="0.273" Y="0.273" Z="0.273" />
+            <models>
+                <model file="planet.3d" />
+            </models>
+        </group>
+    </group>
+    <!--Marte-->
+    <group>
+        <translate X="41.272" Y="0" Z="0"/>
+        <scale X="0.00495" Y="0.00495" Z="0.00495"/>
         <models>
             <model file="planet.3d" />
         </models>
     </group>
+    <!--Jupiter-->
     <group>
-        <translate X="15" Y="0" Z="0"/>
-        <scale X="0.0048" Y="0.0048" Z="0.0048"/>
+        <translate X="140.9625" Y="0" Z="0"/>
+        <scale X="0.101565" Y="0.101565" Z="0.101565"/>
+        <models>
+            <model file="planet.3d" />
+        </models>
+        <!--Lua Ganimedes-->
+        <group>
+            <translate X="0" Y="0" Z="7.69" />
+            <scale X="0.0377" Y="0.0377" Z="0.0377" />
+            <models>
+                <model file="planet.3d" />
+            </models>    
+        </group>
+        <!--Lua Io-->
+        <group>
+            <translate X="0" Y="0" Z="3.03" />
+            <scale X="0.0261" Y="0.0261" Z="0.0261" />
+            <models>
+                <model file="planet.3d" />
+            </models>
+        </group>
+        <!--Lua Europa-->
+        <group>
+            <translate X="0" Y="0" Z="4.82" />
+            <scale X="0.0223" Y="0.0223" Z="0.0223" />
+            <models>
+                <model file="planet.3d" />
+            </models>
+        </group>
+    </group>
+    <!--Saturno-->
+    <group>
+        <translate X="258.475" Y="0" Z="0"/>
+        <scale X="0.067709375" Y="0.067709375" Z="0.067709375"/>
+        <models>
+            <model file="planet.3d" />
+        </models>
+        <!--Lua Titã-->
+        <group>
+            <translate X="0" Y="0" Z="8.78" />
+            <scale X="0.0442" Y="0.0442" Z="0.0442" />
+            <models>
+                <model file="planet.3d" />
+            </models>
+        </group>
+    </group>
+    <!--Urano-->
+    <group>
+        <translate X="520.0125" Y="0" Z="0"/>
+        <scale X="0.033853125" Y="0.033853125" Z="0.033853125" />
         <models>
             <model file="planet.3d" />
         </models>
     </group>
+    <!--Neptuno-->
     <group>
-        <translate X="52" Y="0" Z="0"/>
-        <scale X="0.1004" Y="0.1004" Z="0.1004"/>
+        <translate X="814.506" Y="0" Z="0"/>
+        <scale X="0.044271875" Y="0.044271875" Z="0.044271875" />
         <models>
             <model file="planet.3d" />
         </models>
-    </group>
-    <group>
-        <translate X="95" Y="0" Z="0"/>
-        <scale X="0.0836" Y="0.0836" Z="0.0836"/>
-        <models>
-            <model file="planet.3d" />
-        </models>
-    </group>
-    <group>
-        <translate X="95" Y="0" Z="0"/>
-        <models>
-            <model file="planet.3d" />
-        </models>
+        <!--Lua Tritão-->
+        <group>
+            <translate X="0" Y="0" Z="2.55" />
+            <scale X="0.055" Y="0.055" Z="0.055" />
+            <models>
+                <model file="planet.3d" />
+            </models>
+        </group>
     </group>
 </scene>
