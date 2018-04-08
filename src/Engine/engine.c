@@ -223,11 +223,15 @@ void xmlParser(char * file){
     xmlNodePtr cur;
 
     doc = xmlParseFile(file);
-    if(!doc) fprintf(stderr, "Couldn't parse xml file\n");
-    else{
+    if(!doc){
+        fprintf(stderr, "Couldn't parse xml file\n");
+        exit(1);
+    }else{
         cur = xmlDocGetRootElement(doc);
-        if(!cur) fprintf(stderr, "Empty xml file\n");
-        else{
+        if(!cur){
+            fprintf(stderr, "Empty xml file\n");
+            exit(1);
+        }else{
             if(!xmlStrcmp(cur->name,(const xmlChar*)"scene")){
                 cur = cur -> xmlChildrenNode;
                 models=(Points *)malloc(sizeof(void*));
@@ -235,7 +239,10 @@ void xmlParser(char * file){
                 transforms=(Transforms *)malloc(sizeof(void*));
                 *transforms=NULL;
                 parseNodes(cur,models,transforms);
-            }else fprintf(stderr, "Don't recognize sintax\n");   
+            }else{
+                fprintf(stderr, "Don't recognize sintax\n");
+                exit(1);
+            }   
         }
     }
     //xmlFreeDoc(doc);
