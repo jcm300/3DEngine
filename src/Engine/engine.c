@@ -54,6 +54,14 @@ float alfa = M_PI/4;
 float beta = M_PI/4;
 float change = 0.025;
 float changeR = 0.2;
+float xLocation=0.f; 
+float yLocation=1.5f; 
+float zLocation=0.f; 
+float alfafpc=0.25f;
+float xLookAt=1.f; 
+float yLookAt=1.5f; 
+float zLookAt=0.f;
+int fpc=0;
 GLuint buffers[1];
 GLenum mode = GL_FILL;
 Points *models; 
@@ -249,6 +257,39 @@ void xmlParser(char * file){
     //xmlFreeNode(cur);
 }
 
+/**
+ * Updates first person camera current position
+ * fwd: indicates whether the movement is forward or backwards
+ * lat: indicates whether the movement is lateral
+ * rot: indicates whether the movement is rotational
+**/
+void updateFstPrsn(int fwd, int lat,int rot){
+    float dX,dZ,dMod,rX,rZ;
+    dX=xLookAt-xLocation; 
+    dZ=zLookAt-zLocation; 
+
+    if(fwd){
+        xLocation += 0.1*dX*fwd;
+        zLocation += 0.1*dZ*fwd;
+        xLookAt += 0.1*dX*fwd;
+        zLookAt += 0.1*dZ*fwd;
+    }else if(lat){
+        dMod=sqrt(dX*dX+dZ*dZ);
+        rX=dMod*(dX*cos(90.f)-dZ*sin(90.f)); 
+        rZ=dMod*(dX*sin(90.f)+dZ*cos(90.f)); 
+        xLocation += 0.1*rX*lat;
+        zLocation += 0.1*rZ*lat;
+        xLookAt += 0.1*rX*lat;
+        zLookAt += 0.1*rZ*lat;
+    }else if(rot){
+        dMod=sqrt(dX*dX+dZ*dZ);
+        rX=dMod*(dX*cos(alfafpc*rot)-dZ*sin(alfafpc*rot)); 
+        rZ=dMod*(dZ*sin(alfafpc*rot)+dZ*cos(alfafpc*rot)); 
+        xLookAt = xLocation + rX;
+        zLookAt = zLocation + rZ;
+    }
+}
+
 void changeSize(int w, int h) {
 
 	if(h == 0) h = 1;
@@ -352,10 +393,16 @@ void renderScene(void) {
 
 	// Camera
 	glLoadIdentity();
-	gluLookAt(radius * cos(beta) * sin(alfa), radius * sin(beta), radius * cos(beta) * cos(alfa), 
-		      0.0,0.0,0.0,
-			  0.0f,1.0f,0.0f);
-    
+    if(fpc){
+        gluLookAt(xLocation, yLocation, zLocation, 
+            xLookAt,yLookAt,zLookAt,
+            0.0f,1.0f,0.0f);
+    }else{
+        gluLookAt(radius * cos(beta) * sin(alfa), radius * sin(beta), radius * cos(beta) * cos(alfa), 
+            0.0,0.0,0.0,
+            0.0f,1.0f,0.0f);
+    }
+	    
     glCullFace(GL_FRONT);
     glFrontFace(GL_CCW);
     glPolygonMode(GL_FRONT_AND_BACK, mode); //change mode
@@ -374,17 +421,29 @@ void processKeys(unsigned char c, int xx, int yy) {
 
 	switch(c)
 	{
-		case 'w':
-			radius -= changeR;
+		case 'w': //forward
+            if(fpc) updateFstPrsn(1,0,0);
+            else radius -= changeR;
 			break;
-		case 's':
-			radius += changeR;
+		case 's': //backward
+            if(fpc) updateFstPrsn(-1,0,0);
+            else radius += changeR;
 			break;
+        case 'd': //rightward
+            if(fpc) updateFstPrsn(0,1,0);
+            
+            break;
+        case 'a': //leftward
+            if(fpc) updateFstPrsn(0,-1,0);
+            break;
         case 'm':
             if(mode==GL_FILL) mode = GL_LINE;
             else if(mode==GL_LINE) mode = GL_POINT;
             else if(mode==GL_POINT) mode = GL_FILL;
 	        break;
+        case 't':   //toggle first person camera
+            fpc=!fpc;
+            break;
     }
 	glutPostRedisplay();
 }
@@ -394,16 +453,18 @@ void processSpecialKeys(int key, int xx, int yy) {
 	switch(key)
 	{
 		case GLUT_KEY_LEFT:
-			alfa -= change;
+            if(fpc) updateFstPrsn(0,0,1);
+            else alfa -= change;
 			break;
 		case GLUT_KEY_RIGHT:
-			alfa += change;
+            if(fpc) updateFstPrsn(0,0,-1);
+            else alfa += change;
 			break;
 		case GLUT_KEY_UP:
-			if (beta < 1.5f) beta += change;
+			if (!fpc && beta < 1.5f) beta += change;
 			break;
 		case GLUT_KEY_DOWN:
-			if (beta > -1.5f) beta -= change;
+			if (!fpc && beta > -1.5f) beta -= change;
 			break;
 	}
 	glutPostRedisplay();
