@@ -347,13 +347,19 @@ Para além disso, carregando na tecla 'm' é alterado consecutivamente o modo de
 \section{2ª Fase}
 
 \subsection{Objetivo}
-Nesta fase do projeto, o objetivo passa por implementar no Engine as funcionalidades capazes de tratar os ficheiros \textit{XML} onde a cena por este pretendida tem a sua informação no formato de uma árvore, onde cada nodo da mesma faz referência a um conjunto de transformações geométricas e opcionalmente a um conjunto de modelos, tendo para isto em atenção que um dado nodo pode ter vários filhos.
+A segunda fase do projeto consiste em implementar, no componente \textit{Engine}, a possbilidade de tratar os ficheiros \textit{XML} que especificam transformações geométricas aplicadas a um conjunto de modelos que pertençam ao mesmo grupo. 
 \newline
-As transformações geométricas que se pretendem tratar são o \textit{translate}, o \textit{rotate} e o \textit{scale}, sendo que estas apenas podem existir dentro de um determinado grupo (\textit{$<$group$>$}) e a sua ordem é relevante.
+As transformações geométricas suportadas são:
+\begin{itemize}
+    \item \textit{translate}: translação 
+    \item \textit{rotate}: rotação
+    \item \textit{scale}: escala 
+\end{itemize}
+sendo estas obrigatoriamente referentes a um determinado grupo indicado pela \textit{tag} \textit{$<$group$>$} tendo ainda em conta que a sua ordem é relevante.
 
 \subsection{Tratamento de dados}
-A juntar à estrutura criada por nós na fase anterior para armazenar os modelos a desenhar (\textit{modelPoints}), foi agora adicionada uma nova estrutua de dados que nos permita guardar as informações relativas às transformações que um dado ficheiro \textit{XML} requisita.
-Sendo assim, a estrutura de dados \textit{transforms} tem a seguinte implementação:
+Tendo em conta a nova estrutura dos ficheiros \textit{XML} foi implementada uma nova estrutura de dados(\textit{transforms}) para guardar informações relativas às transformações indicadas nestes que, em conjunto com a estrutura já definida(\textit{modelPoints}) permite armazenar todos os dados necessários à renderização das cenas descritas.
+Sendo assim, a estrutura de dados \textit{transforms} tem a seguinte forma:
 \begin{verbatim}
 typedef struct transforms{
     char t;
@@ -361,7 +367,7 @@ typedef struct transforms{
     struct transforms *next;
 }*Transforms;
 \end{verbatim}
-Tal como a estrutura dos modelos, esta lista ligada também é percorrida na fase de renderização. O caracter \textit{t} serve para guardar qual o tipo de transformação em causa na altura da renderização enunciada em cima, podendo tomar qualquer um dos seguintes valores:
+Tal como a estrutura \textit{modelPoints}, esta lista ligada também é percorrida na fase de renderização. O campo \textit{t} serve para guardar qual o tipo de transformação em causa na altura da renderização enunciada em cima, podendo tomar qualquer um dos seguintes valores:
 \begin{itemize}
     \item 't' para realizar um \textit{translate} (necessários os parâmetros X, Y e Z)
     \item 'r' para realizar um \textit{rotate} (necessários os parâmetros Angle, X, Y e Z)
@@ -370,7 +376,13 @@ Tal como a estrutura dos modelos, esta lista ligada também é percorrida na fas
     \item 'o' para terminar um grupo, fazendo \textit{pop} da matriz
     \item 'm' para indicar um grupo models
 \end{itemize}
-Já o \textit{array} de \textit{float's args} guarda os parâmetros a utilizar na transformação, podendo o seu tamanho ser 3 (\textit{translate} e \textit{scale}), 4 (\textit{rotate}), \textit{NULL} (no caso do \textit{push} e \textit{pop}) ou 1(grupo models guardando o número de modelos).
+Já o \textit{array} de \textit{float's (args)} guarda os parâmetros a utilizar na transformação, sendo que o seu tamanho varia consoante a transformação a aplicar:
+\begin{itemize}
+    \item 3: \textit{translate} e \textit{scale}
+    \item 4: \textit{rotate}
+    \item \textbf{NULL}(0): \textit{push} e \textit{pop}
+    \item 1: grupo models guardando o número de modelos
+\end{itemize}
 
 \subsection{Implementação}
 Para o tratamento dos conjuntos de transformações possíveis de utlização numa cena, para o tipo de transformação em uso é chamada uma das seguintes funções:
@@ -486,7 +498,8 @@ Os modelos encontram-se armazenados numa lista ligada que é percorrida na fase 
 \newpage
 
 \section{Conclusão}
-Apesar do bom trabalho realizado, cumprindo o estipulado no enunciado e sendo que já é usado VBO's de modo a desenhar os pontos, fica por realizar a verificação dos parâmetros passados como input ao generator, visto que, por exemplo o mesmo aceita valores negativos para as slices e stacks do cone. Nesta segunda fase realizou-se a tentativa de melhorar o relatorio anteriormente enviado, tentando assim apresentar fórmulas matemáticas para cada polígono (plane, box, sphere, cone). Foram construidos novos ficheiros de teste visto que os anteriormente apresentados não possuiam a sintaxe final correta. Um destes novos ficheiros de teste é o \textit{solarSytem} no qual pretende representar o sistema solar. Alguns pontos a melhorar nesta 2ºfase é verificar se a sintaxe do ficheiro XML é correta e também verificar se os ficheiros .3d chamados no ficheiro XML existem. Sendo assim, nesta 2º fase se a sintaxe for correta e os ficheiros .3d existirem o resultado será o esperado, caso contrário poderá obter-se resultados inesperados. 
+Tendo em conta o trabalho realizado e o uso de VBO's de modo a desenhar os pontos fica por realizar a validação dos parâmetros passados como input ao \textit{Generator} nomeadamente a verificação da positividade do número de slices e stacks do cone. 
+A segunda fase compreendeu a construção de novos ficheiros de teste visto que os anteriormente apresentados não cumpriam a nova sintaxe. É de destacar o ficheiro \textit{solarSytem} que especifca uma cena que representa o sistema solar. Dos aspetos a melhorar no trabalho realizado destaca-se a verifcação da sintaxe do ficheiro XML em relação à sua correção. 
 
 \newpage
 
