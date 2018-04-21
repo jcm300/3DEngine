@@ -23,11 +23,12 @@ typedef struct point{
 
 
 int writeConfig(int, char**);
-int generatePlane(int, char*,char*);
+void generatePlane(int, char*,char*);
 char* ftoa(float);
-int generateBox(int, char*, char*, char*, char*);
-int generateCone(int, char*, char*, char*, char*);
-int generateSphere(int, char *, char *, char *);
+void generateBox(int, char*, char*, char*, char*);
+void generateCone(int, char*, char*, char*, char*);
+void generateSphere(int, char *, char *, char *);
+void generateBezierPatch(int, char *, char *);
 void printLine(int, char*, float, float, float);
 void genSlice(int, int,float,float, float, float,int);
 void genWalls(int,int,float,float,float,float,float,float,int);
@@ -36,7 +37,7 @@ Point normalize(Point,float);
 int main(int argc, char *argv[]){
 
     if(argc<3){
-        fprintf(stderr,"Invalid no. of arguments");
+        fprintf(stderr,"Invalid no. of arguments\n");
     }else{
         writeConfig(argc-1,++argv);
     }
@@ -51,9 +52,11 @@ int writeConfig(int nParams, char **params){
             else fprintf(stderr,"Incorrect plane parameters\n");
         }
         else if (strcmp(params[0],"box") == 0){ //box
-         	if (nParams==6) generateBox(fd,params[1],params[2],params[3],params[4]);
-			else if (nParams==5) generateBox(fd,params[1],params[2],params[3],"1"); //without stacks
-			else fprintf(stderr,"Incorrect box parameters\n");
+         	if (nParams==6){
+                generateBox(fd,params[1],params[2],params[3],params[4]);
+            }else if (nParams==5){
+                generateBox(fd,params[1],params[2],params[3],"1"); //without stacks
+			}else fprintf(stderr,"Incorrect box parameters\n");
         }
         else if (strcmp(params[0],"sphere") == 0){ //sphere
             if (nParams==5) generateSphere(fd,params[1],params[2],params[3]);
@@ -62,6 +65,9 @@ int writeConfig(int nParams, char **params){
         else if (strcmp(params[0],"cone") == 0){ //cone
             if (nParams==6) generateCone(fd,params[1],params[2],params[3],params[4]);
             else fprintf(stderr,"Incorrect cone parameters\n");
+        }else if(strcmp(params[0],"bezierPatch") == 0){ //bezierPatch
+            if (nParams==4) generateBezierPatch(fd,params[1],params[2]);
+            else fprintf(stderr,"Incorrect bezier patch parameters\n");
         }
         else fprintf(stderr,"Primitive not recognized\n");
         close(fd);
@@ -69,7 +75,7 @@ int writeConfig(int nParams, char **params){
     return 1;
 }
 
-int generatePlane(int fd, char *l, char *c){
+void generatePlane(int fd, char *l, char *c){
     float lf=atof(l),cf=atof(c);
     char arr[70];
     lf/=2.0f; 
@@ -124,7 +130,7 @@ void faceXY(int fd, char* array, float x, float y1, float y2, float z){
     printLine(fd,array,-x, y2, z);
 }
 
-int generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
+void generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
     float x = (float) atof(xx);
     float y = (float) atof(yy);
     float z = (float) atof(zz);
@@ -156,7 +162,7 @@ int generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
     }
 }
 
-int generateSphere(int fd, char *rds, char *slc, char *stks){
+void generateSphere(int fd, char *rds, char *slc, char *stks){
     int slices=atoi(slc), stacks=atoi(stks)/2,i;
     float radius=atof(rds),curRadius=radius,curHeight=0.f;
     float step=radius/stacks;
@@ -186,7 +192,7 @@ int generateSphere(int fd, char *rds, char *slc, char *stks){
     genWalls(fd,slices,radius,curRadius,curHeight,angle,step,0.f,-1);
 }
 
-int generateCone(int fd, char *radiuss , char *heights, char *slicess, char *stackss){
+void generateCone(int fd, char *radiuss , char *heights, char *slicess, char *stackss){
     float radius = (float) atof(radiuss);
     float height = (float) atof(heights);
     float slices = (float) atof(slicess);
@@ -282,6 +288,182 @@ Point normalize(Point cur,float radius){
     normPoint.y=dy;
     normPoint.z=dz;
     return normPoint;
+}
+
+//get number of Patches/Control Points
+int getNumber(int fd){
+    int i=0;
+    char line[20], buf;
+
+    while(read(fd, &buf, 1) && buf!='\n'){
+      line[i++]=buf;
+    }
+    line[i]='\0';
+    return atoi(line);
+}
+
+//get the indices of the patches and save in patches
+void getPatches(int fd, int *patches, int numPatches){
+    char buf;
+    char line[20]; 
+    int i, w;       
+    
+    for(int j=0; j<numPatches; j++){
+        i=0;
+        w=0;
+
+        while(read(fd, &buf, 1) && buf!='\n'){
+            if(buf==','){
+                line[i]='\0';
+                i=0;
+                patches[j*16+w++]=atoi(line);
+            }
+            else if(buf!=' ') line[i++]=buf;
+        }
+        line[i]='\0';
+        patches[j*16+w]=atoi(line);
+    }
+}
+
+//get control points and save in controlPoints
+void getControlPoints(int fd, float *controlPoints, int numControlPoints){ 
+    char buf;
+    char line[20];
+    int i, w;
+
+    for(int j=0; j<numControlPoints; j++){
+        i=0;
+        w=0;
+
+        while(read(fd, &buf, 1) && buf!='\n'){
+            if(buf==','){
+                line[i]='\0';
+                i=0;
+                controlPoints[j*3+w++]=atof(line);
+            }
+            else if(buf!=' ') line[i++]=buf;
+        }
+        line[i]='\0';
+        controlPoints[j*3+w]=atof(line);
+    }
+}
+
+//produto externo
+void crossProduct(float *a, float *b, float *res) {
+	res[0] = a[1]*b[2] - a[2]*b[1];
+	res[1] = a[2]*b[0] - a[0]*b[2];
+	res[2] = a[0]*b[1] - a[1]*b[0];
+}
+
+//multiply matrix M by the control points and then by M transpost
+void mMultCpMultM(float m[4][4], float cp[4][4][3], float res[4][4][3]){
+    
+    for(int i=0; i<4; i++){
+        for(int j=0; j<4; j++){
+            res[i][j][0] = m[i][0]*cp[0][j][0] + m[i][1]*cp[1][j][0] + m[i][2]*cp[2][j][0] + m[i][3]*cp[3][j][0];
+            res[i][j][1] = m[i][0]*cp[0][j][1] + m[i][1]*cp[1][j][1] + m[i][2]*cp[2][j][1] + m[i][3]*cp[3][j][1];
+            res[i][j][2] = m[i][0]*cp[0][j][2] + m[i][1]*cp[1][j][2] + m[i][2]*cp[2][j][2] + m[i][3]*cp[3][j][2];
+        }
+    }
+
+    for(int i=0; i<4; i++){
+        for(int j=0; j<4; j++){
+            res[i][j][0] = res[i][0][0]*m[0][j] + res[i][1][0]*m[1][j] + res[i][2][0]*m[2][j] + res[i][3][0]*m[3][j];
+            res[i][j][1] = res[i][0][1]*m[0][j] + res[i][1][1]*m[1][j] + res[i][2][1]*m[2][j] + res[i][3][1]*m[3][j];
+            res[i][j][2] = res[i][0][2]*m[0][j] + res[i][1][2]*m[1][j] + res[i][2][2]*m[2][j] + res[i][3][2]*m[3][j];
+        }
+    }
+}
+
+//calcula a posição do ponto e a normal
+void calcPoint(float u, float v, float m[4][4][3], float *p, float *n){
+    float aux[4][3];
+    float dU[3]; //derivada parcial por u
+    float dV[3]; //derivada parcial por v
+
+    //[3u² 2u 1 0]*m
+    for(int i=0;i<4;i++){
+        aux[i][0] = 3*u*u*m[0][i][0] + 2*u*m[1][i][0] + m[2][i][0];
+        aux[i][1] = 3*u*u*m[0][i][1] + 2*u*m[1][i][1] + m[2][i][1];
+        aux[i][2] = 3*u*u*m[0][i][2] + 2*u*m[1][i][2] + m[2][i][2];
+    }
+    
+    //m*[[v³][v²][v][1]]
+    dU[0] = aux[0][0]*v*v*v + aux[1][0]*v*v + aux[2][0]*v + aux[3][0];
+    dU[1] = aux[0][1]*v*v*v + aux[1][1]*v*v + aux[2][1]*v + aux[3][1];
+    dU[2] = aux[0][2]*v*v*v + aux[1][2]*v*v + aux[2][2]*v + aux[3][2];
+
+    //[u³ u² u 1]*m
+    for(int i=0;i<4;i++){
+        aux[i][0] = u*u*u*m[0][i][0] + u*u*m[1][i][0] + u*m[2][i][0] + m[3][i][0];
+        aux[i][1] = u*u*u*m[0][i][1] + u*u*m[1][i][1] + u*m[2][i][1] + m[3][i][1];
+        aux[i][2] = u*u*u*m[0][i][2] + u*u*m[1][i][2] + u*m[2][i][2] + m[3][i][2];
+    }
+
+    //m*[[3v²][2v][1][0]]
+    dV[0] = aux[0][0]*3*v*v + aux[1][0]*2*v + aux[2][0];
+    dV[1] = aux[0][1]*3*v*v + aux[1][1]*2*v + aux[2][1];
+    dV[2] = aux[0][2]*3*v*v + aux[1][2]*2*v + aux[2][2];
+    
+    //calculo da posição do ponto
+    //m*[[v³][v²][v][1]]
+    p[0] = aux[0][0]*v*v*v + aux[1][0]*v*v + aux[2][0]*v + aux[3][0];
+    p[1] = aux[0][1]*v*v*v + aux[1][1]*v*v + aux[2][1]*v + aux[3][1];
+    p[2] = aux[0][2]*v*v*v + aux[1][2]*v*v + aux[2][2]*v + aux[3][2];
+
+    //calculo da normal do ponto
+    crossProduct(dU,dV,n);
+}
+
+//buscar a controlPoints os pontos de controlo deste patch
+void getPatchPoints(int *patch, float *cp, float res[4][4][3]){
+    int i=0;
+
+    for(int j=0;j<4;j++){
+        for(int k=0;k<4;k++){
+            res[j][k][0]=cp[patch[i]*3];
+            res[j][k][1]=cp[patch[i]*3 +1];
+            res[j][k][2]=cp[patch[i]*3 +2];
+            i++;
+        }
+    }
+}
+
+void generateBezierPatch(int fd, char *file, char *tessLevel){
+    int fdI=open(file,O_RDONLY,0777);
+    int numPatches, numControlPoints;
+    float cp[4][4][3], con[4][4][3];
+    float p[3], n[3];
+    char array[65];
+
+    float m[4][4] = {{-1.f,  3.f, -3.f, 1.f},
+                     { 3.f, -6.f,  3.f, 0.f},
+                     {-3.f,  3.f,  0.f, 0.f},
+                     { 1.f,  0.f,  0.f, 0.f}};
+
+    if(fdI!=-1){
+        numPatches = getNumber(fdI);
+        int patches[numPatches*16];
+        getPatches(fdI,patches,numPatches);
+        
+        numControlPoints = getNumber(fdI);
+        float controlPoints[numControlPoints*3];
+        getControlPoints(fdI,controlPoints,numControlPoints);
+        
+        for(int i=0;i<numPatches;i++){
+            getPatchPoints(patches+i*16,controlPoints,cp);
+            mMultCpMultM(m,cp,con);
+            
+            //gerar os pontos para cada patch(in pogress): TODO
+            for(float u=0; u<1; u+=0.2){
+                for(float v=0; v<1; v+=0.2){
+                    calcPoint(u,v,con,p,n);
+                    printLine(fd,array,p[0],p[1],p[2]);
+                }   
+            }   
+        }
+        close(fdI);
+    }else fprintf(stderr,"Wrong bezier file\n");
 }
 
 //Converts a float to an array of chars
