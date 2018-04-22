@@ -357,20 +357,21 @@ void crossProduct(float *a, float *b, float *res) {
 
 //multiply matrix M by the control points and then by M transpost
 void mMultCpMultM(float m[4][4], float cp[4][4][3], float res[4][4][3]){
-    
+    float aux[4][4][3];
+
     for(int i=0; i<4; i++){
         for(int j=0; j<4; j++){
-            res[i][j][0] = m[i][0]*cp[0][j][0] + m[i][1]*cp[1][j][0] + m[i][2]*cp[2][j][0] + m[i][3]*cp[3][j][0];
-            res[i][j][1] = m[i][0]*cp[0][j][1] + m[i][1]*cp[1][j][1] + m[i][2]*cp[2][j][1] + m[i][3]*cp[3][j][1];
-            res[i][j][2] = m[i][0]*cp[0][j][2] + m[i][1]*cp[1][j][2] + m[i][2]*cp[2][j][2] + m[i][3]*cp[3][j][2];
+            aux[i][j][0] = m[i][0]*cp[0][j][0] + m[i][1]*cp[1][j][0] + m[i][2]*cp[2][j][0] + m[i][3]*cp[3][j][0];
+            aux[i][j][1] = m[i][0]*cp[0][j][1] + m[i][1]*cp[1][j][1] + m[i][2]*cp[2][j][1] + m[i][3]*cp[3][j][1];
+            aux[i][j][2] = m[i][0]*cp[0][j][2] + m[i][1]*cp[1][j][2] + m[i][2]*cp[2][j][2] + m[i][3]*cp[3][j][2];
         }
     }
 
     for(int i=0; i<4; i++){
         for(int j=0; j<4; j++){
-            res[i][j][0] = res[i][0][0]*m[0][j] + res[i][1][0]*m[1][j] + res[i][2][0]*m[2][j] + res[i][3][0]*m[3][j];
-            res[i][j][1] = res[i][0][1]*m[0][j] + res[i][1][1]*m[1][j] + res[i][2][1]*m[2][j] + res[i][3][1]*m[3][j];
-            res[i][j][2] = res[i][0][2]*m[0][j] + res[i][1][2]*m[1][j] + res[i][2][2]*m[2][j] + res[i][3][2]*m[3][j];
+            res[i][j][0] = aux[i][0][0]*m[0][j] + aux[i][1][0]*m[1][j] + aux[i][2][0]*m[2][j] + aux[i][3][0]*m[3][j];
+            res[i][j][1] = aux[i][0][1]*m[0][j] + aux[i][1][1]*m[1][j] + aux[i][2][1]*m[2][j] + aux[i][3][1]*m[3][j];
+            res[i][j][2] = aux[i][0][2]*m[0][j] + aux[i][1][2]*m[1][j] + aux[i][2][2]*m[2][j] + aux[i][3][2]*m[3][j];
         }
     }
 }
@@ -388,7 +389,7 @@ void calcPoint(float u, float v, float m[4][4][3], float *p, float *n){
         aux[i][2] = 3*u*u*m[0][i][2] + 2*u*m[1][i][2] + m[2][i][2];
     }
     
-    //m*[[v³][v²][v][1]]
+    //[3u² 2u 1 0]*m*[[v³][v²][v][1]]
     dU[0] = aux[0][0]*v*v*v + aux[1][0]*v*v + aux[2][0]*v + aux[3][0];
     dU[1] = aux[0][1]*v*v*v + aux[1][1]*v*v + aux[2][1]*v + aux[3][1];
     dU[2] = aux[0][2]*v*v*v + aux[1][2]*v*v + aux[2][2]*v + aux[3][2];
@@ -400,13 +401,13 @@ void calcPoint(float u, float v, float m[4][4][3], float *p, float *n){
         aux[i][2] = u*u*u*m[0][i][2] + u*u*m[1][i][2] + u*m[2][i][2] + m[3][i][2];
     }
 
-    //m*[[3v²][2v][1][0]]
+    //[u³ u² u 1]*m*[[3v²][2v][1][0]]
     dV[0] = aux[0][0]*3*v*v + aux[1][0]*2*v + aux[2][0];
     dV[1] = aux[0][1]*3*v*v + aux[1][1]*2*v + aux[2][1];
     dV[2] = aux[0][2]*3*v*v + aux[1][2]*2*v + aux[2][2];
     
     //calculo da posição do ponto
-    //m*[[v³][v²][v][1]]
+    //[u³ u² u 1]*m*[[v³][v²][v][1]]
     p[0] = aux[0][0]*v*v*v + aux[1][0]*v*v + aux[2][0]*v + aux[3][0];
     p[1] = aux[0][1]*v*v*v + aux[1][1]*v*v + aux[2][1]*v + aux[3][1];
     p[2] = aux[0][2]*v*v*v + aux[1][2]*v*v + aux[2][2]*v + aux[3][2];
@@ -435,6 +436,7 @@ void generateBezierPatch(int fd, char *file, char *tessLevel){
     float cp[4][4][3], con[4][4][3];
     float p[3], n[3];
     char array[65];
+    int tL = atoi(tessLevel);
 
     float m[4][4] = {{-1.f,  3.f, -3.f, 1.f},
                      { 3.f, -6.f,  3.f, 0.f},
@@ -450,17 +452,40 @@ void generateBezierPatch(int fd, char *file, char *tessLevel){
         float controlPoints[numControlPoints*3];
         getControlPoints(fdI,controlPoints,numControlPoints);
         
+        float points[tL][tL][3];
+        
+        sprintf(array,"%d\n", numPatches*(tL-1)*(tL-1)*6);
+        write(fd,array,strlen(array));
+
         for(int i=0;i<numPatches;i++){
             getPatchPoints(patches+i*16,controlPoints,cp);
             mMultCpMultM(m,cp,con);
             
             //gerar os pontos para cada patch(in pogress): TODO
-            for(float u=0; u<1; u+=0.2){
-                for(float v=0; v<1; v+=0.2){
+            float u=0,v;
+            for(int t=0; t<tL; t++){
+                v=0;
+                for(int q=0; q<tL; q++){
                     calcPoint(u,v,con,p,n);
-                    printLine(fd,array,p[0],p[1],p[2]);
-                }   
-            }   
+                    points[t][q][0]=p[0];
+                    points[t][q][1]=p[1];
+                    points[t][q][2]=p[2];
+                    v+=(1.f/(tL-1));
+                }
+                u+=(1.f/(tL-1));
+            }
+                
+            for(int t=0; t<tL-1; t++){
+                for(int q=0; q<tL-1; q++){
+                    printLine(fd,array,points[t][q][0],points[t][q][1],points[t][q][2]);
+                    printLine(fd,array,points[t+1][q][0],points[t+1][q][1],points[t+1][q][2]);
+                    printLine(fd,array,points[t][q+1][0],points[t][q+1][1],points[t][q+1][2]);
+                    
+                    printLine(fd,array,points[t+1][q][0],points[t+1][q][1],points[t+1][q][2]);
+                    printLine(fd,array,points[t+1][q+1][0],points[t+1][q+1][1],points[t+1][q+1][2]);
+                    printLine(fd,array,points[t][q+1][0],points[t][q+1][1],points[t][q+1][2]);
+                }
+            }
         }
         close(fdI);
     }else fprintf(stderr,"Wrong bezier file\n");
