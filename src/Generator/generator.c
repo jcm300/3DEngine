@@ -436,8 +436,10 @@ void generateBezierPatch(int fd, char *file, char *tessLevel){
     float cp[4][4][3], con[4][4][3];
     float p[3], n[3];
     char array[65];
+    //need to be at least 4
     int tL = atoi(tessLevel);
-
+    
+    //matriz de Bezier
     float m[4][4] = {{-1.f,  3.f, -3.f, 1.f},
                      { 3.f, -6.f,  3.f, 0.f},
                      {-3.f,  3.f,  0.f, 0.f},
@@ -453,7 +455,8 @@ void generateBezierPatch(int fd, char *file, char *tessLevel){
         getControlPoints(fdI,controlPoints,numControlPoints);
         
         float points[tL][tL][3];
-        
+       
+        //print number of points
         sprintf(array,"%d\n", numPatches*(tL-1)*(tL-1)*6);
         write(fd,array,strlen(array));
 
@@ -461,7 +464,7 @@ void generateBezierPatch(int fd, char *file, char *tessLevel){
             getPatchPoints(patches+i*16,controlPoints,cp);
             mMultCpMultM(m,cp,con);
             
-            //gerar os pontos para cada patch(in pogress): TODO
+            //gerar os pontos para cada patch
             float u=0,v;
             for(int t=0; t<tL; t++){
                 v=0;
@@ -474,7 +477,8 @@ void generateBezierPatch(int fd, char *file, char *tessLevel){
                 }
                 u+=(1.f/(tL-1));
             }
-                
+            
+            //desenhar os triangulos a partir dos pontos gerados
             for(int t=0; t<tL-1; t++){
                 for(int q=0; q<tL-1; q++){
                     printLine(fd,array,points[t][q][0],points[t][q][1],points[t][q][2]);
