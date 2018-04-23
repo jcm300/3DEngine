@@ -24,7 +24,6 @@ typedef struct point{
 
 int writeConfig(int, char**);
 void generatePlane(int, char*,char*);
-char* ftoa(float);
 void generateBox(int, char*, char*, char*, char*);
 void generateCone(int, char*, char*, char*, char*);
 void generateSphere(int, char *, char *, char *);
@@ -355,7 +354,7 @@ void crossProduct(float *a, float *b, float *res) {
 	res[2] = a[0]*b[1] - a[1]*b[0];
 }
 
-//multiply matrix M by the control points and then by M transpost
+//multiply matrix M by the control points and then by M transposed
 void mMultCpMultM(float m[4][4], float cp[4][4][3], float res[4][4][3]){
     float aux[4][4][3];
 
@@ -493,34 +492,4 @@ void generateBezierPatch(int fd, char *file, char *tessLevel){
         }
         close(fdI);
     }else fprintf(stderr,"Wrong bezier file\n");
-}
-
-//Converts a float to an array of chars
-char *ftoa(float fl){
-    char *c=(char*)calloc(20,sizeof(char));
-    int i=0,temp=(int)fl,dec=5;
-    
-    //fl is now the decimal part
-    fl-=temp;
-    do{
-        *(c+i)=48+temp%10;
-        temp/=10;
-        i ++;
-    }while(temp>0 && i<18);
-    if(i==0){
-        *(c+i)='0';
-        i ++;
-    }
-    *(c+i)='.';
-    i ++;
-    temp=(int)fl*1000000;
-    do{
-        *(c+i+dec)=48+temp%10;
-        temp/=10;
-        dec --;
-    }while(dec>=0 && temp>0);
-    if(dec==5)
-        *(c+i)='0';
-
-    return c;
 }
