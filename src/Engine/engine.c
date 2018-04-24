@@ -151,6 +151,28 @@ void translate(xmlNodePtr cur, Transforms *t){
     *t=auxT;
 }
 
+void catmullTranslate(xmlNodePtr cur, Transforms *t){
+    Transforms auxT=(Transforms)malloc(sizeof(struct transforms));
+    auxT->t = 'c';
+    int nChildren = xmlChildElementCount(cur);
+    printf(" ");
+    auxT->args =(float*)malloc(sizeof(float)*(3*nChildren+2));
+    auxT->args[0] = atof(xmlGetProp(cur,(const xmlChar*)"time"));
+    auxT->args[1] = nChildren;
+    int i = 2;
+    cur = cur -> xmlChildrenNode;
+    while(cur){
+        if(!xmlStrcmp(cur->name,(const xmlChar*)"point")){
+            auxT->args[i++]= (xmlGetProp(cur,(const xmlChar*)"X")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"X")) : 0;
+            auxT->args[i++]= (xmlGetProp(cur,(const xmlChar*)"Y")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"Y")) : 0;
+            auxT->args[i++]= (xmlGetProp(cur,(const xmlChar*)"Z")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"Z")) : 0;
+        }
+        cur = cur -> next;
+    }
+    auxT->next=NULL;
+    *t=auxT;
+}
+
 void rotate(xmlNodePtr cur, Transforms *t){
     Transforms auxT=(Transforms)malloc(sizeof(struct transforms));
     auxT->t = 'r';
@@ -187,7 +209,8 @@ Transforms *parseGroup(xmlNodePtr cur, Points *m, Transforms *t){
     t = &((*t)->next);
     while(cur){
         if(!xmlStrcmp(cur->name,(const xmlChar*)"translate")){
-            translate(cur,t);
+            if (xmlGetProp(cur,(const xmlChar*)"time")!=NULL) catmullTranslate(cur,t);
+            else translate(cur,t);
             t = &((*t)->next);
         }
         if(!xmlStrcmp(cur->name,(const xmlChar*)"rotate")){
@@ -352,9 +375,89 @@ void drawModels(int begin, int end){
     }
 }
 
+void buildRotMatrix(float *x, float *y, float *z, float *m) {
+
+    m[0] = x[0]; m[1] = x[1]; m[2] = x[2]; m[3] = 0;
+    m[4] = y[0]; m[5] = y[1]; m[6] = y[2]; m[7] = 0;
+    m[8] = z[0]; m[9] = z[1]; m[10] = z[2]; m[11] = 0;
+    m[12] = 0; m[13] = 0; m[14] = 0; m[15] = 1;
+}
+
+void cross(float *a, float *b, float *res) {
+
+    res[0] = a[1]*b[2] - a[2]*b[1];
+    res[1] = a[2]*b[0] - a[0]*b[2];
+    res[2] = a[0]*b[1] - a[1]*b[0];
+}
+
+void normalize(float *a) {
+
+    float l = sqrt(a[0]*a[0] + a[1] * a[1] + a[2] * a[2]);
+    a[0] = a[0]/l;
+    a[1] = a[1]/l;
+    a[2] = a[2]/l;
+}
+
+void getCatmullRomPoint(float t, float *p0, float *p1, float *p2, float *p3, float *pos, float *deriv) {
+
+    // catmull-rom matrix
+    float m[4][4] = {   {-0.5f,  1.5f, -1.5f,  0.5f},
+                        { 1.0f, -2.5f,  2.0f, -0.5f},
+                        {-0.5f,  0.0f,  0.5f,  0.0f},
+                        { 0.0f,  1.0f,  0.0f,  0.0f}};
+    // Compute A = M * P
+    float a[4][3];
+
+    for(int i=0;i<4;i++){
+        for(int j=0;j<3;j++)
+            a[i][j]=m[i][0]*p0[j]+m[i][1]*p1[j]+m[i][2]*p2[j]+m[i][3]*p3[j];  //p0j+p1j+p2j+p3j
+    }
+    
+    // Compute pos = T * A
+    for(int i=0;i<3;i++)
+        pos[i]=powf(t,3)*a[0][i]+powf(t,2)*a[1][i]+t*a[2][i]+a[3][i];
+        
+    // compute deriv = T' * A
+    for(int i=0;i<3;i++)
+        deriv[i]=3*powf(t,2)*a[0][i]+2*t*a[1][i]+a[2][i];
+}
+
+
+// given  global t, returns the point in the curve
+void getGlobalCatmullRomPoint(float gt, float *pos, float *deriv, long pointCount, float *points) {
+    float t = gt * pointCount; // this is the real global t
+    int index = floor(t);  // which segment
+    t = t - index; // where within  the segment
+
+    // indices store the points
+    int indices[4]; 
+    indices[0] = (index + pointCount-1)%pointCount;   
+    indices[1] = (indices[0]+1)%pointCount;
+    indices[2] = (indices[1]+1)%pointCount; 
+    indices[3] = (indices[2]+1)%pointCount;
+
+    getCatmullRomPoint(t, points+indices[0]*3, points+indices[1]*3, points+indices[2]*3, points+indices[3]*3, pos, deriv);
+}
+
+void renderCatmullRomCurve(long pointCount, float *points) {
+    float pos[3],deriv[3];
+
+    // desenhar a curva usando segmentos de reta - GL_LINE_LOOP
+    glBegin(GL_LINE_LOOP);
+        for(float gt=0.f;gt<1.f;gt+=0.0001f){
+            getGlobalCatmullRomPoint(gt,pos,deriv,pointCount,points);
+            glVertex3f(pos[0],pos[1],pos[2]);
+        }
+    glEnd();
+}
+
+
 void draw(){
+    float deriv[3],pos[3],z[3],m[16];
+    static float lY[3]={0.f,1.f,0.f};
     Transforms auxT=*transforms;
     int init = 0;
+    float gt,time;
 
     while(auxT){
         switch(auxT->t){
@@ -370,6 +473,20 @@ void draw(){
             case 's':
                 glScalef(auxT->args[0],auxT->args[1],auxT->args[2]);
                 break;
+            case 'c':
+                time = glutGet(GLUT_ELAPSED_TIME) / 1000;
+                gt =  fmod(time,auxT->args[0]) / auxT->args[0];
+                renderCatmullRomCurve((long)auxT->args[1],&(auxT->args[2]));
+                getGlobalCatmullRomPoint(gt,pos,deriv,(long)auxT->args[1],&(auxT->args[2]));
+                normalize(deriv);
+                normalize(lY);
+                normalize(z);
+                cross(deriv,lY,z);
+                cross(z,deriv,lY);
+                buildRotMatrix(deriv,lY,z,m);
+                glTranslatef(pos[0],pos[1],pos[2]);
+                glPushMatrix();
+                glMultMatrixf(m);
             case 'm':
                 drawModels(init,init+(int)auxT->args[0]);
                 init= init + (int)auxT->args[0];
@@ -479,6 +596,7 @@ int main(int argc, char **argv) {
 	    glutCreateWindow("3DEngine");
 		
 	    glutDisplayFunc(renderScene);
+        glutIdleFunc(renderScene);
 	    glutReshapeFunc(changeSize);
 	
 	    glutKeyboardFunc(processKeys);

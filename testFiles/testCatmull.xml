@@ -1,0 +1,15 @@
+<scene>
+    <group>
+    	<translate time="30" >
+			<point X="-1" Y="-1" Z="0" />
+			<point X="-1" Y="1" Z="0" />
+			<point X="1" Y="1" Z="0" />
+			<point X="0" Y="0" Z="0" />
+            <point X="1" Y="-1" Z="0" />
+		</translate>
+        <scale X="0.3" Y="0.3" Z="0.3" />
+        <models>
+            <model file="teapot.3d" />
+        </models>
+    </group>
+</scene>
