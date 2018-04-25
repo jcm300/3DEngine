@@ -484,7 +484,6 @@ void draw(){
         switch(auxT->t){
             case 'u':
                 glPushMatrix();
-                Npush++;
                 break;
             case 't':
                 glTranslatef(auxT->args[0],auxT->args[1],auxT->args[2]);
@@ -523,6 +522,7 @@ void draw(){
             case 'o':
                 for(int i=0;i<Npush; i++) glPopMatrix();
                 Npush=0;
+                glPopMatrix();
                 break;
             default:
                 break;

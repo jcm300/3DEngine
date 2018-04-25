@@ -118,5 +118,26 @@
                 </models>
             </group>
         </group>
+        <!--Cometa-->
+        <group>
+            <!--Caminho do cometa-->
+            <translate time="365">
+                <point X="15" Y="0" Z="7.5" />
+                <point X="15" Y="0" Z="-7.5" />
+                <point X="5"  Y="0" Z="-25" />
+                <point X="-25" Y="0" Z="-40" />
+                <point X="-50" Y="0" Z="-40" />
+                <point X="-80" Y="0" Z="-25" />
+                <point X="-90" Y="0" Z="-7.5" />
+                <point X="-90" Y="0" Z="7.5" />
+                <point X="-80" Y="0" Z="25" />
+                <point X="-50" Y="0" Z="40" />
+                <point X="-25" Y="0" Z="40" />
+                <point X="5" Y="0" Z="25" />
+            </translate>
+            <models>
+                <model file="comet.3d" />
+            </models>
+        </group>
     </group>
 </scene>
