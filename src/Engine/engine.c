@@ -40,6 +40,10 @@ typedef struct modelPoints {
  *      rotate with 4 arguments in args(angle;axisX;axisY;axisZ);
  * case t=s:
  *      scale with 3 arguments in args(X;Y;Z);
+ * case t=c:
+ *		catmull translate with variable args(time;number_of_points;points...);
+ * case t=i:
+ *		rotate 360º in certain time with args(time;axisX;axisY;axisZ); 
  * case t=m:
  *      models with 1 argument in args(number of models);
  */
