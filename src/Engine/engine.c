@@ -185,6 +185,18 @@ void rotate(xmlNodePtr cur, Transforms *t){
     *t=auxT;
 }
 
+void timeRotate(xmlNodePtr cur, Transforms *t){
+	Transforms auxT=(Transforms)malloc(sizeof(struct transforms));
+	auxT->t = 'i';
+    auxT->args =(float*)malloc(sizeof(float)*4);
+    auxT->args[0]= atof(xmlGetProp(cur,(const xmlChar*)"time"));
+    auxT->args[1]= (xmlGetProp(cur,(const xmlChar*)"axisX")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"axisX")) : 0;
+    auxT->args[2]= (xmlGetProp(cur,(const xmlChar*)"axisY")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"axisY")) : 0;
+    auxT->args[3]= (xmlGetProp(cur,(const xmlChar*)"axisZ")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"axisZ")) : 0;
+    auxT->next=NULL;
+    *t=auxT;
+}
+
 void scale(xmlNodePtr cur, Transforms *t){
     Transforms auxT=(Transforms)malloc(sizeof(struct transforms));
     auxT->t = 's';
@@ -214,7 +226,8 @@ Transforms *parseGroup(xmlNodePtr cur, Points *m, Transforms *t){
             t = &((*t)->next);
         }
         if(!xmlStrcmp(cur->name,(const xmlChar*)"rotate")){
-            rotate(cur,t);
+            if (xmlGetProp(cur,(const xmlChar*)"time")!=NULL) timeRotate(cur,t);
+            else rotate(cur,t);
             t = &((*t)->next);
         }
         if(!xmlStrcmp(cur->name,(const xmlChar*)"scale")){
@@ -487,6 +500,12 @@ void draw(){
                 glTranslatef(pos[0],pos[1],pos[2]);
                 glPushMatrix();
                 glMultMatrixf(m);
+                break;
+            case 'i':
+            	time = glutGet(GLUT_ELAPSED_TIME) / 1000;
+                gt =  fmod(time,auxT->args[0]) / auxT->args[0];
+                glRotatef(360 * gt,auxT->args[1] * gt,auxT->args[2] * gt,auxT->args[3] * gt);
+                break;
             case 'm':
                 drawModels(init,init+(int)auxT->args[0]);
                 init= init + (int)auxT->args[0];
