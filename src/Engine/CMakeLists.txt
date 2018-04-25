@@ -1,14 +1,20 @@
 cmake_minimum_required(VERSION 2.8)
 
-find_package(GLEW REQUIRED)                                                                                                                                              
-include_directories(${GLEW_INCLUDE_DIRS})
-link_libraries(${GLEW_LIBRARIES})
+if(NOT APPLE)
+    find_package(GLEW REQUIRED)                                                                                                                                              
+    include_directories(${GLEW_INCLUDE_DIRS})
+    link_libraries(${GLEW_LIBRARIES})
+endif(NOT APPLE)
 
 find_package(GLUT REQUIRED)
 include_directories(${GLUT_INCLUDE_DIR})
 link_directories(${GLUT_LIBRARY_DIRS})
 add_definitions(${GLUT_DEFINITIONS})
 
+find_package(OpenGL REQUIRED)
+include_directories(${OpenGL_INCLUDE_DIRS})
+link_directories(${OpenGL_LIBRARY_DIRS})
+add_definitions(${OpenGL_DEFINITIONS})
 
 if(NOT GLUT_FOUND)
     message(ERROR " GLUT not found!")

@@ -8,6 +8,11 @@
  * @author Simão Barbosa
  */
 
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#include <unistd.h>
+#endif
+
 #ifdef __linux__
 #include <unistd.h>
 #include <GL/glew.h>
