@@ -1,5 +1,4 @@
-/**
- * engine.c
+/*
  * Purpose: Reads an XML file specifying which models to render and the files in which this models have been specified. 
  *
  * @author João Vieira 
@@ -45,6 +44,10 @@ typedef struct modelPoints {
  *      rotate with 4 arguments in args(angle;axisX;axisY;axisZ);
  * case t=s:
  *      scale with 3 arguments in args(X;Y;Z);
+ * case t=c:
+ *		catmull translate with variable args(time;number_of_points;points...);
+ * case t=i:
+ *		rotate 360º in certain time with args(time;axisX;axisY;axisZ); 
  * case t=m:
  *      models with 1 argument in args(number of models);
  */
@@ -474,13 +477,14 @@ void draw(){
     float deriv[3],pos[3],z[3],m[16];
     static float lY[3]={0.f,1.f,0.f};
     Transforms auxT=*transforms;
-    int init = 0;
+    int init = 0, Npush = 0;
     float gt,time;
 
     while(auxT){
         switch(auxT->t){
             case 'u':
                 glPushMatrix();
+                Npush++;
                 break;
             case 't':
                 glTranslatef(auxT->args[0],auxT->args[1],auxT->args[2]);
@@ -492,8 +496,8 @@ void draw(){
                 glScalef(auxT->args[0],auxT->args[1],auxT->args[2]);
                 break;
             case 'c':
-                time = glutGet(GLUT_ELAPSED_TIME) / 1000;
-                gt =  fmod(time,auxT->args[0]) / auxT->args[0];
+                time = glutGet(GLUT_ELAPSED_TIME);
+                gt =  fmod(time,auxT->args[0] * 1000) / (auxT->args[0] * 1000);
                 renderCatmullRomCurve((long)auxT->args[1],&(auxT->args[2]));
                 getGlobalCatmullRomPoint(gt,pos,deriv,(long)auxT->args[1],&(auxT->args[2]));
                 normalize(deriv);
@@ -504,11 +508,12 @@ void draw(){
                 buildRotMatrix(deriv,lY,z,m);
                 glTranslatef(pos[0],pos[1],pos[2]);
                 glPushMatrix();
+                Npush++;
                 glMultMatrixf(m);
                 break;
             case 'i':
-            	time = glutGet(GLUT_ELAPSED_TIME) / 1000;
-                gt =  fmod(time,auxT->args[0]) / auxT->args[0];
+            	time = glutGet(GLUT_ELAPSED_TIME);
+                gt =  fmod(time,auxT->args[0] * 1000) / (auxT->args[0] * 1000);
                 glRotatef(360 * gt,auxT->args[1] * gt,auxT->args[2] * gt,auxT->args[3] * gt);
                 break;
             case 'm':
@@ -516,7 +521,8 @@ void draw(){
                 init= init + (int)auxT->args[0];
                 break;
             case 'o':
-                glPopMatrix();
+                for(int i=0;i<Npush; i++) glPopMatrix();
+                Npush=0;
                 break;
             default:
                 break;
@@ -569,7 +575,6 @@ void processKeys(unsigned char c, int xx, int yy) {
 			break;
         case 'd': //rightward
             if(fpc) updateFstPrsn(0,1,0);
-            
             break;
         case 'a': //leftward
             if(fpc) updateFstPrsn(0,-1,0);
