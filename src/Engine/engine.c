@@ -1,5 +1,4 @@
-/**
- * engine.c
+/*
  * Purpose: Reads an XML file specifying which models to render and the files in which this models have been specified. 
  *
  * @author João Vieira 
@@ -473,13 +472,14 @@ void draw(){
     float deriv[3],pos[3],z[3],m[16];
     static float lY[3]={0.f,1.f,0.f};
     Transforms auxT=*transforms;
-    int init = 0;
+    int init = 0, Npush = 0;
     float gt,time;
 
     while(auxT){
         switch(auxT->t){
             case 'u':
                 glPushMatrix();
+                Npush++;
                 break;
             case 't':
                 glTranslatef(auxT->args[0],auxT->args[1],auxT->args[2]);
@@ -503,6 +503,7 @@ void draw(){
                 buildRotMatrix(deriv,lY,z,m);
                 glTranslatef(pos[0],pos[1],pos[2]);
                 glPushMatrix();
+                Npush++;
                 glMultMatrixf(m);
                 break;
             case 'i':
@@ -515,7 +516,8 @@ void draw(){
                 init= init + (int)auxT->args[0];
                 break;
             case 'o':
-                glPopMatrix();
+                for(int i=0;i<Npush; i++) glPopMatrix();
+                Npush=0;
                 break;
             default:
                 break;
@@ -568,7 +570,6 @@ void processKeys(unsigned char c, int xx, int yy) {
 			break;
         case 'd': //rightward
             if(fpc) updateFstPrsn(0,1,0);
-            
             break;
         case 'a': //leftward
             if(fpc) updateFstPrsn(0,-1,0);
