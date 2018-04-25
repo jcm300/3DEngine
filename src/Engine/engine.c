@@ -491,8 +491,8 @@ void draw(){
                 glScalef(auxT->args[0],auxT->args[1],auxT->args[2]);
                 break;
             case 'c':
-                time = glutGet(GLUT_ELAPSED_TIME) / 1000;
-                gt =  fmod(time,auxT->args[0]) / auxT->args[0];
+                time = glutGet(GLUT_ELAPSED_TIME);
+                gt =  fmod(time,auxT->args[0] * 1000) / (auxT->args[0] * 1000);
                 renderCatmullRomCurve((long)auxT->args[1],&(auxT->args[2]));
                 getGlobalCatmullRomPoint(gt,pos,deriv,(long)auxT->args[1],&(auxT->args[2]));
                 normalize(deriv);
@@ -506,8 +506,8 @@ void draw(){
                 glMultMatrixf(m);
                 break;
             case 'i':
-            	time = glutGet(GLUT_ELAPSED_TIME) / 1000;
-                gt =  fmod(time,auxT->args[0]) / auxT->args[0];
+            	time = glutGet(GLUT_ELAPSED_TIME);
+                gt =  fmod(time,auxT->args[0] * 1000) / (auxT->args[0] * 1000);
                 glRotatef(360 * gt,auxT->args[1] * gt,auxT->args[2] * gt,auxT->args[3] * gt);
                 break;
             case 'm':
