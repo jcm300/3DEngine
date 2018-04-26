@@ -163,7 +163,6 @@ void catmullTranslate(xmlNodePtr cur, Transforms *t){
     Transforms auxT=(Transforms)malloc(sizeof(struct transforms));
     auxT->t = 'c';
     int nChildren = xmlChildElementCount(cur);
-    printf(" ");
     auxT->args =(float*)malloc(sizeof(float)*(3*nChildren+2));
     auxT->args[0] = atof(xmlGetProp(cur,(const xmlChar*)"time"));
     auxT->args[1] = nChildren;
