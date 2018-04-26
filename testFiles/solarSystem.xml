@@ -250,18 +250,14 @@
         <group>
             <!--Caminho do cometa-->
             <translate time="365">
-                <point X="5" Y="0" Z="25" />
-                <point X="-25" Y="0" Z="40" />
-                <point X="-50" Y="0" Z="40" />
-                <point X="-80" Y="0" Z="25" />
-                <point X="-90" Y="0" Z="7.5" />
-                <point X="-90" Y="0" Z="-7.5" />
-                <point X="-80" Y="0" Z="-25" />
-                <point X="-50" Y="0" Z="-40" />
-                <point X="-25" Y="0" Z="-40" />
-                <point X="5"  Y="0" Z="-25" />
-                <point X="15" Y="0" Z="-7.5" />
-                <point X="15" Y="0" Z="7.5" />
+                <point X="15" Y="0" Z="0" />
+                <point X="0" Y="0" Z="-13" />
+                <point X="-40" Y="0" Z="-20" />
+                <point X="-80" Y="0" Z="-13" />
+                <point X="-95" Y="0" Z="0" />
+                <point X="-80" Y="0" Z="13" />
+                <point X="-40" Y="0" Z="20" />
+                <point X="0" Y="0" Z="13" />
             </translate>
             <scale X="0.05" Y="0.05" Z="0.05" />
             <rotate angle="-90" axisX="0" axisY="1" axisZ="0" /> 
