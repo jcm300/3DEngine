@@ -66,6 +66,7 @@ float xLocation=0.f;
 float yLocation=1.5f; 
 float zLocation=0.f; 
 float alfafpc=90;
+float betafpc=90;
 float xLookAt=1.f; 
 float yLookAt=1.5f; 
 float zLookAt=0.f;
@@ -84,7 +85,6 @@ long readln (int fildes, void * buf, size_t nbyte){
 }
 
 int parseModel(xmlChar * file, Points *m) {
-
 	int fd,x,i=0,j=0,ret=0;
 	char buffer[100];
 	float coord[3];
@@ -324,10 +324,13 @@ void updateFstPrsn(int fwd, int lat,int rot){
         zLocation += 0.1*rZ*lat;
         xLookAt += 0.1*rX*lat;
         zLookAt += 0.1*rZ*lat;
-    }else if(rot){
+    }else if(abs(rot)==1){
         alfafpc = alfafpc + rot;
         xLookAt = xLocation + sin(alfafpc * 3.14 /180);
         zLookAt = zLocation + cos(alfafpc * 3.14 /180);
+    }else if(abs(rot)==2){
+        betafpc = betafpc + rot/2;
+        yLookAt = yLocation + cos(betafpc * 3.14 /180);
     }
 }
 
@@ -604,10 +607,12 @@ void processSpecialKeys(int key, int xx, int yy) {
             else alfa += change;
 			break;
 		case GLUT_KEY_UP:
-			if (!fpc && beta < 1.5f) beta += change;
+            if(fpc) updateFstPrsn(0,0,-2);
+            else if(beta < 1.5f) beta += change;
 			break;
 		case GLUT_KEY_DOWN:
-			if (!fpc && beta > -1.5f) beta -= change;
+            if(fpc) updateFstPrsn(0,0,2);
+            else if(beta > -1.5f) beta -= change;
 			break;
 	}
 	glutPostRedisplay();
