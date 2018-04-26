@@ -459,6 +459,35 @@ while(auxM && i<end){
 \end{verbatim}
 O número de modelos presente em args quando o tipo é 'm' permite saber que modelos presentes em Points *models deve-se desenhar, visto que os mesmos são guardados na altura do parse pela ordem de receção, basta assim saber em cada grupo models quantos havia. É com o intuito de gerir esta situação que exite a variável local init na função \textit{draw}, no qual guarda a partir de que modelo se deve desenhar no preciso momento.
 
+\section{3º Fase}
+
+\subsection{Bezier Patches}
+De modo a gerar no generator os triângulos correpondentes à figura presente num ficheiro \textit{.patch} inicialmente é necessário carregar os valores presentes no mesmo para memória daí a existência de \textit{getNumber} que obtém o número de \textit{Patches} ou o número de \textit{Control Points}, de \textit{getPatches} que guarda os índices dos pontos de controlo e por fim de \textit{getControlPoints} que guarda os pontos de controlo.
+
+Após esta fase de recolha de dados, imprime-se no ficheiro de \textit{output} o número de pontos que irão ser gerados: $numPatches*(tesselationLevel-1)*(tesselationLevel-1)*6$, em que \textit{tesselationLevel} é o número de tesselagem passado como parâmetro, que \textit{numPatches} é o número de \textit{patches}, que 6 deriva do facto de que para cada 2 triângulos são necessários 6 pontos, e por fim é multiplicado pelo número de secções(2 triângulos) que irão existir em cada patch ($(tesselationLevel-1)*(tesselationLevel-1)$) visto que o que será gerado é uma malha destas secções na superficie delimitada pelos pontos extremos de controlo (4 pontos de controlo presentes em cada canto da matriz com os pontos de controlo).
+
+De seguida para cada \textit{patch} é recolhido os pontos de controlo a partir dos índices com a função \textit{getPatchPoints} para logo de seguida ser calculada a matriz constante $RES=M*CP*M^T$, sendo CP a matriz dos pontos de controlo recolhidos anteriormente, na função \textit{mMultCpMultM}. Portanto com a matriz resultante (RES) é calculado os ``novos'' pontos de modo a gerar os triângulos a partir dos mesmos. 
+
+Tendo em conta que u e v só podem variar de 0 a 1 e que recebemos como parâmetro o nivel de tesselagem (\textit{tesselationLevel}) que tem de ser no mínimo 4, caso em que os pontos resultantes são os próprios pontos de controlo, é calculado cada ponto com a função \textit{calcPoint} sendo guardado em \textit{points} para posterior criação de tringulos. Esta função (\textit{calcPoint}) é chamada num loop duplo que, varia v entre 0 e 1 aumentando v em $1/(tesselationLevel-1)$ em cada iteração no loop externo e no loop interno u varia entre 0 e 1 aumentado u também em $1/(tesselationLevel-1)$ em cada iteração. 
+
+A função calcPoints calcula a posição do ponto atravês da fórmula de Bezier: $\begin{bmatrix} u^3 & u^2 & u & 1 \end{bmatrix}*RES*\begin{bmatrix} v^3 \\ v^2 \\ v \\ 1 \end{bmatrix}$
+em que como visto anteriormente $RES=M*CP*M^T$, com CP sendo os pontos de controlo.
+
+Por fim sao percorridos os pontos guardados em \textit{points} de modo a criar os triângulos:
+\begin{verbatim}
+for(int t=0; t<tL-1; t++){
+    for(int q=0; q<tL-1; q++){
+        printLine(fd,array,points[t][q][0],points[t][q][1],points[t][q][2]);
+        printLine(fd,array,points[t+1][q][0],points[t+1][q][1],points[t+1][q][2]);
+        printLine(fd,array,points[t][q+1][0],points[t][q+1][1],points[t][q+1][2]);
+
+        printLine(fd,array,points[t+1][q][0],points[t+1][q][1],points[t+1][q][2]);
+        printLine(fd,array,points[t+1][q+1][0],points[t+1][q+1][1],points[t+1][q+1][2]);
+        printLine(fd,array,points[t][q+1][0],points[t][q+1][1],points[t][q+1][2]);
+    }
+}
+\end{verbatim}
+
 \section{Glossário}
 
 \subsection{Coordenadas Polares}
