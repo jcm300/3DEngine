@@ -135,6 +135,8 @@
                 <point X="-25" Y="0" Z="40" />
                 <point X="5" Y="0" Z="25" />
             </translate>
+            <scale X="0.1" Y="0.1" Z="0.1" />
+            <rotate angle="-90" axisX="0" axisY="1" axisZ="0" /> 
             <models>
                 <model file="comet.3d" />
             </models>
