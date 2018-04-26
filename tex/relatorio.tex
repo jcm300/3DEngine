@@ -489,6 +489,43 @@ for(int t=0; t<tL-1; t++){
 \end{verbatim}
 
 \subsection{Catmull Rom - Translação}
+O uso de translações com uma duração predefinida é usada para introduzir movimento(animação) na cena. Estas translações seguem uma trajetória definida por uma curva cúbica de Catmull-Rom.
+\begin{verbatim}
+<translate time="365">
+    <point X="15" Y="0" Z="7.5" />
+    <point X="15" Y="0" Z="-7.5" />
+    <point X="5"  Y="0" Z="-25" />
+    <point X="-25" Y="0" Z="-40" />
+    <point X="-50" Y="0" Z="-40" />
+    <point X="-80" Y="0" Z="-25" />
+    <point X="-90" Y="0" Z="-7.5" />
+    <point X="-90" Y="0" Z="7.5" />
+    <point X="-80" Y="0" Z="25" />
+    <point X="-50" Y="0" Z="40" />
+    <point X="-25" Y="0" Z="40" />
+    <point X="5" Y="0" Z="25" />
+</translate>
+\end{verbatim}
+Por forma a suportar esta nova funcionalidade é usado um novo tipo à estrutura \texttt{struct transforms} correspondente à translação de uma curva de Catmull-Rom que, por motivos de simplicidade e no contexto deste relatório, designaremos por translação tipo 2.
+Para tal, quando o ficheiro de configuração é lido, e visto que há duas transformações cuja \textit{tag} é do tipo \textit{translate}, é verificada a existência a
+da propriedade \textit{time}: 
+\begin{verbatim}
+if (xmlGetProp(cur,(const xmlChar*)"time")!=NULL) catmullTranslate(cur,t);
+\end{verbatim}
+caraterística da translação tipo 2. No caso de se tratar desta translação é chamada a função \texttt{catmullTranslate}.
+Para guardar os pontos de controlo da curva Catmull-Rom é usado o \texttt{array} args sendo que, na primeira posição é armazenado o tempo que deve durar a translação(em segundos): 
+\begin{verbatim}
+auxT->args[0] = atof(xmlGetProp(cur,(const xmlChar*)"time")); 
+\end{verbatim}
+e na segunda posição o número de pontos de controlo  da curva: 
+\begin{verbatim}
+auxT->args[1] = nChildren;
+\end{verbatim}
+De seguida o \texttt{array} é preenchido com os pontos de controlo. As translações do tipo 2 têm como parametro t o caractér 'c'.
+
+
+
+
 
 \subsection{Catmull Rom - Rotação}
 
