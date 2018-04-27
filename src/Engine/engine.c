@@ -457,7 +457,7 @@ void getGlobalCatmullRomPoint(float gt, float *pos, float *deriv, long pointCoun
 
     // indices store the points
     int indices[4]; 
-    indices[0] = (index + pointCount-1)%pointCount;   
+    indices[0] = (index+pointCount-1)%pointCount;   
     indices[1] = (indices[0]+1)%pointCount;
     indices[2] = (indices[1]+1)%pointCount; 
     indices[3] = (indices[2]+1)%pointCount;
@@ -506,8 +506,8 @@ void draw(){
                 getGlobalCatmullRomPoint(gt,pos,deriv,(long)auxT->args[1],&(auxT->args[2]));
                 normalize(deriv);
                 normalize(lY);
-                normalize(z);
                 cross(deriv,lY,z);
+                normalize(z);
                 cross(z,deriv,lY);
                 buildRotMatrix(deriv,lY,z,m);
                 glTranslatef(pos[0],pos[1],pos[2]);

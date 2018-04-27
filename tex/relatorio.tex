@@ -535,6 +535,28 @@ auxT->args[1] = nChildren;
 \end{verbatim}
 De seguida o \texttt{array} é preenchido com os pontos de controlo. As translações do tipo 2 têm como parametro t o caractér 'c'.
 
+A animação de um modelo (ou conjunto de modelos) é conseguida atualizando a posição do modelo a cada \textit{frame}. Para isso a função \texttt{draw} calcula o tempo desde a chamada da função \texttt{glutInit} e, calcula, com base no tempo de translação da curva previamente definido, a percentagem já percorrida da curva:
+\begin{verbatim}
+time = glutGet(GLUT_ELAPSED_TIME);
+gt =  fmod(time,auxT->args[0] * 1000) / (auxT->args[0] * 1000);
+\end{verbatim}
+Para isso é usada a função 
+\begin{verbatim}
+void getGlobalCatmullRomPoint(float gt, float *pos, float *deriv, 
+                              long pointCount, float *points)
+\end{verbatim}
+que recebe como argumento o valor anteriormente calculado, dois vetores que são usados para indicar a posição do modelo e a derivada da mesma bem como o número de pontos de control e o array contendo os mesmos. Esta calcula o segmento em que o modelo se encontra e, de seguida, os quatro pontos de controlo correspondentes. 
+A função
+\begin{verbatim}
+void getCatmullRomPoint(float t, float *p0, float *p1, float *p2, float *p3, 
+                        float *pos, float *deriv)
+\end{verbatim}
+é usada para, tendo em conta os quatro pontos controlo e a percetagem do segmento já percorrida, calcular a posição do modelo na curva e, consequentemente, as suas coordenadas bem como a tangente à sua posição. Estes dois vetores, em conjunção com o \textit{up vector} que toma o valor inicial de (0,1,0) são usados para contruir a matriz de rotação que permite alinhar o modelo com a curva tendo em conta a posição (nesta) em que o mesmo se encontra, algo que é conseguido através da translação do mesmo.
+\begin{verbatim}
+buildRotMatrix(deriv,lY,z,m);
+glTranslatef(pos[0],pos[1],pos[2]);
+\end{verbatim}
+
 \subsection{Catmull Rom - Rotação}
 
 Outra funcionalidade adicionada nesta fase de desenvolvimento do projeto passa pela introdução da capacidade de realizar rotações de modelos durante um determinado período de tempo definido no ficheiro \textit{XML} a ler.
@@ -587,7 +609,7 @@ else if(abs(rot)==1){ //yy rotation
     yLookAt = yLocation + cos(betafpc * 3.14 /180);
 }
 \end{verbatim}
-Sendo que \texttt{betafpc} o angulo de rotação. Adicionalmente o movimento da FPC tem agora em conta a direção em que a mesma está a olhar no eixo dos yy para condicionar a posição seguinte.
+Sendo que \texttt{betafpc} corresponde ao angulo de rotação. Adicionalmente o movimento da FPC tem agora em conta a direção em que a mesma está a olhar no eixo dos yy para condicionar a posição seguinte.
 
 \subsection{Demo Scene - Sistema Solar}
 A partir da versão do Sistema Solar (solarSystem) realizado na fase anterior onde está presente o Sol, os 8 planetas(Mercúrio, Vénus, Terra, Marte, Júpiter, Saturno, Neptuno e Urano) e 6 dos principais satélites(Lua, Ganimedes, Io, Europa, Titã e Tritão) é agora adicionado o cometa Halley's. Esta cometa é contruído com base no ficheiro fornecido pelo docentes (\textit{teapot.patch} agora chamado de \textit{comet.patch}) em que no mesmo foram apagadas patches e alterados valores de pontos de controlo, permitindo assim gerar o \textit{comet.3d} que possui os triângulos que representa o cometa. Para a criação do caminho e o movimento pelo caminho foi utilizado \textit{Catmull Rom} Translação já referido anteriormente. Foram também criadas as translações de todos os planetas e luas através do mesmo método. Por fim, adicionou-se rotação ao Sol.
