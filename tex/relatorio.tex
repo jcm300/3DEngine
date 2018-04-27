@@ -579,7 +579,7 @@ Quando é utilizada a função \texttt{draw} na \texttt{renderScene} para desenh
 time = glutGet(GLUT_ELAPSED_TIME);
 \end{verbatim}
 Após isto, é calculada a percentagem da rotação que nos encontramos a fazer (valor compreendido entre 0 e 1), por exemplo, se o tempo pretendido para uma dada rotação 
-é de 5s e nos encontramos 11s após o início do programa, então já 2 rotações de 360º foram efetuadas e encontramo-nos agora a 80\% da realização da terceira, sendo que, neste caso, \texttt{gt} seria igual a \texttt{0.2}.
+é de 5s e nos encontramos 11s após o início do programa, então já 2 rotações de 360º foram efetuadas e encontramo-nos agora a realizar 20\% da terceira, sendo que, neste caso, \texttt{gt} seria igual a \texttt{0.2}.
 \begin{verbatim}
 gt =  fmod(time,auxT->args[0] * 1000) / (auxT->args[0] * 1000);
 \end{verbatim}
@@ -656,7 +656,7 @@ Os modelos encontram-se armazenados numa lista ligada que é percorrida na fase 
 \section{Conclusão}
 Tendo em conta o trabalho realizado e o uso de VBO's de modo a desenhar os pontos fica por realizar a validação dos parâmetros passados como input ao \textit{Generator} nomeadamente a verificação da positividade do número de slices e stacks do cone. 
 A segunda fase compreendeu a construção de novos ficheiros de teste visto que os anteriormente apresentados não cumpriam a nova sintaxe. É de destacar o ficheiro \textit{solarSytem} que especifca uma cena que representa o sistema solar. Optamos também por implementar o modo de visualização \textit{First Person Camera} que adiciona um maior realismo ao programa. Dos aspetos a melhorar no trabalho realizado destaca-se a verificação da sintaxe do ficheiro XML em relação à sua correção. 
-Na terceira fase foi realizado os Bezier Patches bem como a translação usando Catmull Rom e a rotação de 360º durante algum tempo. Contudo algumas coisas a melhorar seria, verificação de sintaxe dos ficheiros .patch algo que não é realizado sendo que o generator assume que o ficheiro tem a sintaxe correta, logo quando não a tem o resultado é inesperado. Para além disso poderia ser adicionado as rotações também aos planetas e luas algo que só é feito ao Sol.
+Na terceira fase foi realizado os Bezier Patches bem como a translação usando Catmull Rom e a rotação de 360º durante algum tempo. Contudo, possíveis melhorias passariam pela verificação de sintaxe dos ficheiros \textit{.patch}, algo que não é realizado, sendo que o generator assume que o ficheiro tem a sintaxe correta e, desta forma, quando não a tem o resultado é inesperado. Para além disso, poderiam ser adicionadas rotações também aos planetas e luas, algo que de momento só é realizado no Sol.
 
 \newpage
 
