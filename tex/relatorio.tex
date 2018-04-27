@@ -529,6 +529,35 @@ De seguida o \texttt{array} é preenchido com os pontos de controlo. As transla�
 
 \subsection{Catmull Rom - Rotação}
 
+Outra funcionalidade adicionada nesta fase de desenvolvimento do projeto passa pela introdução da capacidade de realizar rotações de modelos durante um determinado período de tempo definido no ficheiro \textit{XML} a ler.
+\begin{verbatim}
+<rotate time="10" axisX="1" axisY="1" axisZ="0" />
+\end{verbatim}
+Sendo assim, para suportar esta nova funcionalidade é dado uso à estrutura \texttt{stuct transforms} de forma a ser capaz de armazenar a informação necessária para realizar estas rotações de segundo tipo. Desta forma, seguinda a mesmo lógica utilizada na translação de uma cuva de Catmull-Rom, quando é efetuada a leitura do ficheiro de configuração, e visto que temos agora duas transformações cujo \textit{tag} no ficheiro \textit{XML} é do tipo \textit{rotate}, é verificada a existência da propriedade \textit{time}:
+\begin{verbatim}
+if (xmlGetProp(cur,(const xmlChar*)"time")!=NULL) timeRotate(cur,t);
+\end{verbatim}
+caraterística da rotação de segundo tipo. No caso de esta propriedade se verificar é então chamada a função \texttt{timeRotate}. De seguida, para guardar a informação desta transformação é utilizado o \textit{array} \texttt{args}, sendo que, na primeira posição do mesmo é guardado o tempo que deve demorar a efetuar uma rotação de 360º (em segundos):
+\begin{verbatim}
+auxT->args[0]= atof(xmlGetProp(cur,(const xmlChar*)"time"));
+\end{verbatim}
+A partir deste ponto, as posições 1, 2 e 3 deste mesmo \textit{array} guardam os valores dos eixos \textit{x}, \textit{y} e \textit{z} para esta rotação.\\
+É utilizado o caratér 'i' para identificar esta rotação no parâmetro \textit{t} da estrutura utilizada.
+\newline
+Quando é utilizada a função \texttt{draw} na \texttt{renderScene} para desenhar os modelos pretendidos, no caso de ser necessário processar este tipo de rotação, é inicialmente calculado o tempo decorrido desde o ínicio do programa (em milissegundos):
+\begin{verbatim}
+time = glutGet(GLUT_ELAPSED_TIME);
+\end{verbatim}
+Após isto, é calculada a percentagem da rotação que nos encontramos a fazer (valor compreendido entre 0 e 1), por exemplo, se o tempo pretendido para uma dada rotação 
+é de 5s e nos encontramos 11s após o início do programa, então já 2 rotações de 360º foram efetuadas e encontramo-nos agora a 20\% da realização da terceira, sendo que, neste caso, \texttt{gt} seria igual a \texttt{0.2}.
+\begin{verbatim}
+gt =  fmod(time,auxT->args[0] * 1000) / (auxT->args[0] * 1000);
+\end{verbatim}
+Sendo assim, basta apenas de seguida ser efetuada a rotação tendo em conta estes valores já conhecidos e estabelecidos e o valor \texttt{gt} calculado.
+\begin{verbatim}
+glRotatef(360 * gt,auxT->args[1] * gt,auxT->args[2] * gt,auxT->args[3] * gt);
+\end{verbatim}
+
 \subsection{First Person Camera - Melhorias/Funcionalidades adicionais}
 
 \subsection{Demo Scene - Sistema Solar}
