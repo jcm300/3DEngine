@@ -555,13 +555,13 @@ gt =  fmod(time,auxT->args[0] * 1000) / (auxT->args[0] * 1000);
 \end{verbatim}
 Sendo assim, basta apenas de seguida ser efetuada a rotação tendo em conta estes valores já conhecidos e estabelecidos e o valor \texttt{gt} calculado.
 \begin{verbatim}
-glRotatef(360 * gt,auxT->args[1] * gt,auxT->args[2] * gt,auxT->args[3] * gt);
+glRotatef(360 * gt,auxT->args[1],auxT->args[2],auxT->args[3]);
 \end{verbatim}
 
 \subsection{First Person Camera - Melhorias/Funcionalidades adicionais}
 
 \subsection{Demo Scene - Sistema Solar}
-A partir da versão do Sistema Solar (solarSystem) realizado na fase anterior onde está presente o Sol, os 8 planetas(Mercúrio, Vénus, Terra, Marte, Júpiter, Saturno, Neptuno e Urano) e 6 dos principais satélites(Lua, Ganimedes, Io, Europa, Titã e Tritão) é agora adicionado o cometa Halley's. Esta cometa é contruído com base no ficheiro fornecido pelo docentes (\textit{teapot.patch} agora chamado de \textit{comet.patch}) em que no mesmo foram apagadas patches e alterados valores de pontos de controlo, permitindo assim gerar o \textit{comet.3d} que possui os triângulos que representa o cometa. Para a criação do caminho e o movimento pelo caminho foi utilizado \textit{Catmull Rom} Translação já referido anteriormente. Foi também criado as translações de todos os planetas e luas através do mesmo método.
+A partir da versão do Sistema Solar (solarSystem) realizado na fase anterior onde está presente o Sol, os 8 planetas(Mercúrio, Vénus, Terra, Marte, Júpiter, Saturno, Neptuno e Urano) e 6 dos principais satélites(Lua, Ganimedes, Io, Europa, Titã e Tritão) é agora adicionado o cometa Halley's. Esta cometa é contruído com base no ficheiro fornecido pelo docentes (\textit{teapot.patch} agora chamado de \textit{comet.patch}) em que no mesmo foram apagadas patches e alterados valores de pontos de controlo, permitindo assim gerar o \textit{comet.3d} que possui os triângulos que representa o cometa. Para a criação do caminho e o movimento pelo caminho foi utilizado \textit{Catmull Rom} Translação já referido anteriormente. Foram também criadas as translações de todos os planetas e luas através do mesmo método.
 
 \section{Glossário}
 

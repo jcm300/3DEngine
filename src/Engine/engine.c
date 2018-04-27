@@ -515,7 +515,7 @@ void draw(){
             case 'i':
             	time = glutGet(GLUT_ELAPSED_TIME);
                 gt =  fmod(time,auxT->args[0] * 1000) / (auxT->args[0] * 1000);
-                glRotatef(360 * gt,auxT->args[1] * gt,auxT->args[2] * gt,auxT->args[3] * gt);
+                glRotatef(360 * gt,auxT->args[1],auxT->args[2],auxT->args[3]);
                 break;
             case 'm':
                 drawModels(init,init+(int)auxT->args[0]);
