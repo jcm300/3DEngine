@@ -459,6 +459,18 @@ while(auxM && i<end){
 \end{verbatim}
 O número de modelos presente em args quando o tipo é 'm' permite saber que modelos presentes em Points *models deve-se desenhar, visto que os mesmos são guardados na altura do parse pela ordem de receção, basta assim saber em cada grupo models quantos havia. É com o intuito de gerir esta situação que exite a variável local init na função \textit{draw}, no qual guarda a partir de que modelo se deve desenhar no preciso momento.
 
+\subsection{First Person Camera - FPC}
+Na segunda fase deste projeto optamos por implementar o modo de \textit{First Person Camera}. Este sistema de visualização permite observar os modelos construídos de um modo diferente e confere um maior realismo ao \textit{Engine}, tornando o programa um pouco mais completo. A implementação desta mesma câmara foi realizada de modo a que ao clicar na tecla \textit{'t'} se possa alterar entre o modo de vista por nós já implementado anteriormente e este novo modo.
+\newline
+Dentro deste modo de visualização, utilizamos as teclas:
+\begin{itemize}
+    \item \textit{'w'} para mover a câmara para a frente
+    \item \textit{'s'} para mover a câmara para trás
+    \item \textit{'a'} para mover a câmara para a esquerda
+    \item \textit{'d'} para mover a câmara para a direita
+    \item setas direita e esquerda para efetuar rotação no sentido pretendido
+\end{itemize}
+
 \section{3º Fase}
 
 \subsection{Bezier Patches}
@@ -559,6 +571,27 @@ glRotatef(360 * gt,auxT->args[1] * gt,auxT->args[2] * gt,auxT->args[3] * gt);
 \end{verbatim}
 
 \subsection{First Person Camera - Melhorias/Funcionalidades adicionais}
+A FPC desenvolvida na fase anterior foi modificada por forma a permitir efetuar uma rotação no eixo dos xx ou dos zz (rotação vertical) com recurso às setas para cima e para baixo:
+\begin{verbatim}
+case GLUT_KEY_UP:
+    if(fpc) updateFstPrsn(0,0,-2);
+    ...
+case GLUT_KEY_DOWN:
+   if(fpc) updateFstPrsn(0,0,2);
+\end{verbatim}
+
+O último parametro é usado para fazer a distinção entre a rotação vertical e a rotação segundo o eixo dos yy (anteriomente implementada):
+\begin{verbatim}
+else if(abs(rot)==1){ //yy rotation 
+    alfafpc = alfafpc + rot;
+    xLookAt = xLocation + sin(alfafpc * 3.14 /180);
+    zLookAt = zLocation + cos(alfafpc * 3.14 /180);
+}else if(abs(rot)==2){ //xx or zz rotation 
+    betafpc = betafpc + rot/2;
+    yLookAt = yLocation + cos(betafpc * 3.14 /180);
+}
+\end{verbatim}
+Sendo que \texttt{betafpc} o angulo de rotação. Adicionalmente o movimento da FPC tem agora em conta a direção em que a mesma está a olhar no eixo dos yy para condicionar a posição seguinte.
 
 \subsection{Demo Scene - Sistema Solar}
 A partir da versão do Sistema Solar (solarSystem) realizado na fase anterior onde está presente o Sol, os 8 planetas(Mercúrio, Vénus, Terra, Marte, Júpiter, Saturno, Neptuno e Urano) e 6 dos principais satélites(Lua, Ganimedes, Io, Europa, Titã e Tritão) é agora adicionado o cometa Halley's. Esta cometa é contruído com base no ficheiro fornecido pelo docentes (\textit{teapot.patch} agora chamado de \textit{comet.patch}) em que no mesmo foram apagadas patches e alterados valores de pontos de controlo, permitindo assim gerar o \textit{comet.3d} que possui os triângulos que representa o cometa. Para a criação do caminho e o movimento pelo caminho foi utilizado \textit{Catmull Rom} Translação já referido anteriormente. Foi também criado as translações de todos os planetas e luas através do mesmo método.
@@ -599,17 +632,6 @@ Os modelos encontram-se armazenados numa lista ligada que é percorrida na fase 
     auxM = auxM->next;
 \end{Verbatim}
 
-\subsection{First Person Camera - FPC}
-Na segunda fase deste projeto optamos por implementar o modo de \textit{First Person Camera}. Este sistema de visualização permite observar os modelos construídos de um modo diferente e confere um maior realismo ao \textit{Engine}, tornando o programa um pouco mais completo. A implementação desta mesma câmara foi realizada de modo a que ao clicar na tecla \textit{'t'} se possa alterar entre o modo de vista por nós já implementado anteriormente e este novo modo.
-\newline
-Dentro deste modo de visualização, utilizamos as teclas:
-\begin{itemize}
-    \item \textit{'w'} para mover a câmara para a frente
-    \item \textit{'s'} para mover a câmara para trás
-    \item \textit{'a'} para mover a câmara para a esquerda
-    \item \textit{'d'} para mover a câmara para a direita
-    \item setas direita e esquerda para efetuar rotação no sentido pretendido
-\end{itemize}
 
 \newpage
 

@@ -307,14 +307,17 @@ void xmlParser(char * file){
  * rot: indicates whether the movement is rotational
 **/
 void updateFstPrsn(int fwd, int lat,int rot){
-    float dX,dZ,dMod,rX,rZ;
+    float dX,dY,dZ,dMod,rX,rZ;
     dX=xLookAt-xLocation; 
+    dY=yLookAt-yLocation; 
     dZ=zLookAt-zLocation; 
 
     if(fwd){
         xLocation += 0.1*dX*fwd;
+        yLocation += 0.1*dY*fwd;
         zLocation += 0.1*dZ*fwd;
         xLookAt += 0.1*dX*fwd;
+        yLookAt += 0.1*dY*fwd;
         zLookAt += 0.1*dZ*fwd;
     }else if(lat){
         rX=-dZ; 
@@ -323,11 +326,11 @@ void updateFstPrsn(int fwd, int lat,int rot){
         zLocation += 0.1*rZ*lat;
         xLookAt += 0.1*rX*lat;
         zLookAt += 0.1*rZ*lat;
-    }else if(abs(rot)==1){
+    }else if(abs(rot)==1){ //yy rotation
         alfafpc = alfafpc + rot;
         xLookAt = xLocation + sin(alfafpc * 3.14 /180);
         zLookAt = zLocation + cos(alfafpc * 3.14 /180);
-    }else if(abs(rot)==2){
+    }else if(abs(rot)==2){ //xx or zz rotation
         betafpc = betafpc + rot/2;
         yLookAt = yLocation + cos(betafpc * 3.14 /180);
     }
