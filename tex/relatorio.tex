@@ -518,7 +518,7 @@ O uso de translações com uma duração predefinida é usada para introduzir mo
     <point X="5" Y="0" Z="25" />
 </translate>
 \end{verbatim}
-Por forma a suportar esta nova funcionalidade é usado um novo tipo à estrutura \texttt{struct transforms} correspondente à translação de uma curva de Catmull-Rom que, por motivos de simplicidade e no contexto deste relatório, designaremos por translação tipo 2.
+Por forma a suportar esta nova funcionalidade é adicionado um novo tipo à estrutura \texttt{struct transforms} correspondente à translação de uma curva de Catmull-Rom que, por motivos de simplicidade e no contexto deste relatório, designaremos por translação tipo 2.
 Para tal, quando o ficheiro de configuração é lido, e visto que há duas transformações cuja \textit{tag} é do tipo \textit{translate}, é verificada a existência a
 da propriedade \textit{time}: 
 \begin{verbatim}
@@ -535,17 +535,13 @@ auxT->args[1] = nChildren;
 \end{verbatim}
 De seguida o \texttt{array} é preenchido com os pontos de controlo. As translações do tipo 2 têm como parametro t o caractér 'c'.
 
-
-
-
-
 \subsection{Catmull Rom - Rotação}
 
 Outra funcionalidade adicionada nesta fase de desenvolvimento do projeto passa pela introdução da capacidade de realizar rotações de modelos durante um determinado período de tempo definido no ficheiro \textit{XML} a ler.
 \begin{verbatim}
 <rotate time="10" axisX="1" axisY="1" axisZ="0" />
 \end{verbatim}
-Sendo assim, para suportar esta nova funcionalidade é dado uso à estrutura \texttt{stuct transforms} de forma a ser capaz de armazenar a informação necessária para realizar estas rotações de segundo tipo. Desta forma, seguinda a mesmo lógica utilizada na translação de uma cuva de Catmull-Rom, quando é efetuada a leitura do ficheiro de configuração, e visto que temos agora duas transformações cujo \textit{tag} no ficheiro \textit{XML} é do tipo \textit{rotate}, é verificada a existência da propriedade \textit{time}:
+Sendo assim, para suportar esta nova funcionalidade é dado uso à estrutura \texttt{stuct transforms} de forma a ser capaz de armazenar a informação necessária para realizar estas rotações de segundo tipo. Desta forma, seguindo a mesmo lógica utilizada na translação de uma cuva de Catmull-Rom, quando é efetuada a leitura do ficheiro de configuração, e visto que temos agora duas transformações cujo \textit{tag} no ficheiro \textit{XML} é do tipo \textit{rotate}, é verificada a existência da propriedade \textit{time}:
 \begin{verbatim}
 if (xmlGetProp(cur,(const xmlChar*)"time")!=NULL) timeRotate(cur,t);
 \end{verbatim}
@@ -561,13 +557,13 @@ Quando é utilizada a função \texttt{draw} na \texttt{renderScene} para desenh
 time = glutGet(GLUT_ELAPSED_TIME);
 \end{verbatim}
 Após isto, é calculada a percentagem da rotação que nos encontramos a fazer (valor compreendido entre 0 e 1), por exemplo, se o tempo pretendido para uma dada rotação 
-é de 5s e nos encontramos 11s após o início do programa, então já 2 rotações de 360º foram efetuadas e encontramo-nos agora a 20\% da realização da terceira, sendo que, neste caso, \texttt{gt} seria igual a \texttt{0.2}.
+é de 5s e nos encontramos 11s após o início do programa, então já 2 rotações de 360º foram efetuadas e encontramo-nos agora a 80\% da realização da terceira, sendo que, neste caso, \texttt{gt} seria igual a \texttt{0.2}.
 \begin{verbatim}
 gt =  fmod(time,auxT->args[0] * 1000) / (auxT->args[0] * 1000);
 \end{verbatim}
 Sendo assim, basta apenas de seguida ser efetuada a rotação tendo em conta estes valores já conhecidos e estabelecidos e o valor \texttt{gt} calculado.
 \begin{verbatim}
-glRotatef(360 * gt,auxT->args[1] * gt,auxT->args[2] * gt,auxT->args[3] * gt);
+glRotatef(360 * gt,auxT->args[1],auxT->args[2],auxT->args[3]);
 \end{verbatim}
 
 \subsection{First Person Camera - Melhorias/Funcionalidades adicionais}
@@ -594,7 +590,7 @@ else if(abs(rot)==1){ //yy rotation
 Sendo que \texttt{betafpc} o angulo de rotação. Adicionalmente o movimento da FPC tem agora em conta a direção em que a mesma está a olhar no eixo dos yy para condicionar a posição seguinte.
 
 \subsection{Demo Scene - Sistema Solar}
-A partir da versão do Sistema Solar (solarSystem) realizado na fase anterior onde está presente o Sol, os 8 planetas(Mercúrio, Vénus, Terra, Marte, Júpiter, Saturno, Neptuno e Urano) e 6 dos principais satélites(Lua, Ganimedes, Io, Europa, Titã e Tritão) é agora adicionado o cometa Halley's. Esta cometa é contruído com base no ficheiro fornecido pelo docentes (\textit{teapot.patch} agora chamado de \textit{comet.patch}) em que no mesmo foram apagadas patches e alterados valores de pontos de controlo, permitindo assim gerar o \textit{comet.3d} que possui os triângulos que representa o cometa. Para a criação do caminho e o movimento pelo caminho foi utilizado \textit{Catmull Rom} Translação já referido anteriormente. Foi também criado as translações de todos os planetas e luas através do mesmo método.
+A partir da versão do Sistema Solar (solarSystem) realizado na fase anterior onde está presente o Sol, os 8 planetas(Mercúrio, Vénus, Terra, Marte, Júpiter, Saturno, Neptuno e Urano) e 6 dos principais satélites(Lua, Ganimedes, Io, Europa, Titã e Tritão) é agora adicionado o cometa Halley's. Esta cometa é contruído com base no ficheiro fornecido pelo docentes (\textit{teapot.patch} agora chamado de \textit{comet.patch}) em que no mesmo foram apagadas patches e alterados valores de pontos de controlo, permitindo assim gerar o \textit{comet.3d} que possui os triângulos que representa o cometa. Para a criação do caminho e o movimento pelo caminho foi utilizado \textit{Catmull Rom} Translação já referido anteriormente. Foram também criadas as translações de todos os planetas e luas através do mesmo método. Por fim, adicionou-se rotação ao Sol.
 
 \section{Glossário}
 
@@ -637,7 +633,8 @@ Os modelos encontram-se armazenados numa lista ligada que é percorrida na fase 
 
 \section{Conclusão}
 Tendo em conta o trabalho realizado e o uso de VBO's de modo a desenhar os pontos fica por realizar a validação dos parâmetros passados como input ao \textit{Generator} nomeadamente a verificação da positividade do número de slices e stacks do cone. 
-A segunda fase compreendeu a construção de novos ficheiros de teste visto que os anteriormente apresentados não cumpriam a nova sintaxe. É de destacar o ficheiro \textit{solarSytem} que especifca uma cena que representa o sistema solar. Optamos também por implementar o modo de visualização \textit{First Person Camera} que adiciona um maior realismo ao programa. Dos aspetos a melhorar no trabalho realizado destaca-se a verificação da sintaxe do ficheiro XML em relação à sua correção. Por fim, adicionou-se rotação ao Sol.
+A segunda fase compreendeu a construção de novos ficheiros de teste visto que os anteriormente apresentados não cumpriam a nova sintaxe. É de destacar o ficheiro \textit{solarSytem} que especifca uma cena que representa o sistema solar. Optamos também por implementar o modo de visualização \textit{First Person Camera} que adiciona um maior realismo ao programa. Dos aspetos a melhorar no trabalho realizado destaca-se a verificação da sintaxe do ficheiro XML em relação à sua correção. 
+Na terceira fase foi realizado os Bezier Patches bem como a translação usando Catmull Rom e a rotação de 360º durante algum tempo. Contudo algumas coisas a melhorar seria, verificação de sintaxe dos ficheiros .patch algo que não é realizado sendo que o generator assume que o ficheiro tem a sintaxe correta, logo quando não a tem o resultado é inesperado. Para além disso poderia ser adicionado as rotações também aos planetas e luas algo que só é feito ao Sol.
 
 \newpage
 
