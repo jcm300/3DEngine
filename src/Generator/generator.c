@@ -107,7 +107,7 @@ void generatePlane(int fd, char *l, char *c){
 }
 
 void printLine(int fd, char* array, float pos[], float normal[], float texture[]){
-    sprintf(array, "%f %f %f;%f %f %f;%f %f\n", pos[0], pos[1], pos[2], normal[0], normal[1], normal[2], texture[0], texture[1]);
+    sprintf(array, "%f %f %f %f %f %f %f %f\n", pos[0], pos[1], pos[2], normal[0], normal[1], normal[2], texture[0], texture[1]);
     write(fd,array,strlen(array));
 }
 
@@ -510,7 +510,7 @@ void calcPoint(float u, float v, float m[4][4][3], float *p, float *n){
     p[2] = aux[0][2]*v*v*v + aux[1][2]*v*v + aux[2][2]*v + aux[3][2];
 
     //calculo da normal do ponto
-    crossProduct(dU,dV,n);
+    crossProduct(dV,dU,n);
 }
 
 //buscar a controlPoints os pontos de controlo deste patch
