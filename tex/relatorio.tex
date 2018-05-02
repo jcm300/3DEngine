@@ -203,11 +203,8 @@ A esfera é o modelo mais complexo dos envolvidos. Neste modelo, mais uma vez, o
     \item cada \textit{stack} é formada por x \textit{slices}
     \item cada \textit{slice} possui 2 triângulos que formam a parede que liga à \textit{stack} superior
     \item cada triângulo tem 3 pontos
-    \item nro. total de pontos=6*x*y
+    \item nro. total de pontos=6*\textit{slices}*(2*\textit{stacks}-1)
 \end{enumerate}
-
-De notar que no código desenvolvido o número de \textit{stacks} é dividido por dois (metade para a parte superior, metade para a parte inferior) e, como tal, o cálculo é efetuado com 12*\textit{stacks}*\textit{slices}.
-
 
 O cálculo dos pontos que forma as laterais da esfera e do cone é feita com recurso à função:
 \begin{Verbatim}
@@ -284,10 +281,10 @@ Este mesmo processo é depois aplicado à metade inferior da esfera, permitindo 
 \subsection{Cone (Cone)}
 O cone, tal como a esfera, é um dos modelos mais complexos, tanto em termos de cálculo dos pontos necessários como também da quantidade dos mesmos. No caso do cone, o centro da base foi colocado na origem do referencial. O número de pontos necessário à configuração do modelo do cone é calculado da seguinte maneira:
 \begin{enumerate}
-    \item o número de pontos da superfície lateral é calculado da mesma maneira que o número de pontos usados para a esfera(6*\textit{stacks}*\textit{slices})
+    \item o número de pontos da superfície lateral é calculado da mesma maneira que o número de pontos usados para a esfera(6*(\textit{stacks}-1)*\textit{slices})
     \item a base é constituída por s \textit{slices}
     \item cada \textit{slice} (da base) é constituída por 3 pontos
-    \item nro. total de pontos=3*\textit{slices} + 6*\textit{stacks}*\textit{slices}
+    \item nro. total de pontos=6*\textit{slices}*\textit{stacks}
 \end{enumerate}
 
 Como já foi referido, a função \texttt{genWalls} é usada para calcular os pontos que compõem a superfície lateral do cone. No entanto, visto que no cone não existe a noção de raio, não é necessário normalizar os pontos, isto é conseguido através do parâmetro \texttt{deltaH} que corresponde à variação no eixo dos yy entre \textit{stacks} consecutivas e que, no caso da esfera, é igual ao valor de deltaR (variação do raio entre \textit{stacks} consecutivas) sendo por isso passado um valor menor ou igual a 0 caso se trate da metade superior ou inferior respetivamente, permitindo assim a seguinte condição:
