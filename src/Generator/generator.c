@@ -70,7 +70,7 @@ int writeConfig(int nParams, char **params){
 
 void generatePlane(int fd, char *l, char *c){
     float lf=atof(l),cf=atof(c);
-    float pos[3], normal[3], texture[3];
+    float pos[3], normal[3], texture[2];
     char arr[210];
     lf/=2.0f; 
     cf/=2.0f;
@@ -82,33 +82,37 @@ void generatePlane(int fd, char *l, char *c){
     normal[2]=0.f;
 
     pos[0]=-lf; pos[1]=0.f; pos[2]=cf;
-    //calcular texture:TODO
-    printLine(fd,arr,pos,normal,texture);
-    pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
-    //calcular texture:TODO
-    printLine(fd,arr,pos,normal,texture);
-    pos[0]=lf; pos[1]=0.f; pos[2]=cf;
-    //calcular texture:TODO
+    texture[0]=0.f; texture[1]=1.f;
     printLine(fd,arr,pos,normal,texture);
 
     pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
-    //calcular texture:TODO
+    texture[0]=0.f; texture[1]=0.f;
     printLine(fd,arr,pos,normal,texture);
-    pos[0]=lf; pos[1]=0.f; pos[2]=-cf;
-    //calcular texture:TODO
-    printLine(fd,arr,pos,normal,texture);
+
     pos[0]=lf; pos[1]=0.f; pos[2]=cf;
-    //calcular texture:TODO
+    texture[0]=1.f; texture[1]=0.f;
+    printLine(fd,arr,pos,normal,texture);
+
+    pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
+    texture[0]=0.f; texture[1]=1.f;
+    printLine(fd,arr,pos,normal,texture);
+
+    pos[0]=lf; pos[1]=0.f; pos[2]=-cf;
+    texture[0]=1.f; texture[1]=0.f;
+    printLine(fd,arr,pos,normal,texture);
+
+    pos[0]=lf; pos[1]=0.f; pos[2]=cf;
+    texture[0]=1.f; texture[1]=1.f;
     printLine(fd,arr,pos,normal,texture);
 }
 
 void printLine(int fd, char* array, float pos[], float normal[], float texture[]){
-    sprintf(array, "%f %f %f;%f %f %f;%f %f %f\n", pos[0], pos[1], pos[2], normal[0], normal[1], normal[2], texture[0], texture[1], texture[2]);
+    sprintf(array, "%f %f %f;%f %f %f;%f %f\n", pos[0], pos[1], pos[2], normal[0], normal[1], normal[2], texture[0], texture[1]);
     write(fd,array,strlen(array));
 }
 
 void faceXZ(int fd, char* array, float x1, float x2, float y, float z){
-	float pos[3], normal[3], texture[3];
+	float pos[3], normal[3], texture[2];
     
     pos[0]=x2; pos[1]=y; pos[2]=z;
     //calcular normal e texture:TODO
@@ -144,7 +148,7 @@ void faceXZ(int fd, char* array, float x1, float x2, float y, float z){
 }
 
 void faceYZ(int fd, char* array, float x, float y1, float y2, float z){
-    float pos[3], normal[3], texture[3];
+    float pos[3], normal[3], texture[2];
     
     pos[0]=x; pos[1]=y1; pos[2]=-z;
     //calcular normal e texture:TODO
@@ -180,7 +184,7 @@ void faceYZ(int fd, char* array, float x, float y1, float y2, float z){
 }
 
 void faceXY(int fd, char* array, float x, float y1, float y2, float z){
-	float pos[3], normal[3], texture[3];
+	float pos[3], normal[3], texture[2];
 
     pos[0]=x; pos[1]=y1; pos[2]=z;
     //calcular normal e texture:TODO
@@ -290,7 +294,7 @@ void generateCone(int fd, char *radiuss , char *heights, char *slicess, char *st
     float deltaH =height/stacks;
     float curRadius = radius;
     float deltaR = radius/stacks;
-    float pos[3], normal[3], texture[3];
+    float pos[3], normal[3], texture[2];
 
     sprintf(array, "%d\n", numVert);
     write(fd,array,strlen(array));
@@ -320,7 +324,7 @@ void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, fl
     int i;
     float curAngle;
     float nextStackY=delta+y, nextRadius=curRadius-delta;
-    float curP[3], normal[3], texture[3];
+    float curP[3], normal[3], texture[2];
     
     if(top==0.f) nextRadius=curRadius+delta;
     else if(top>0.f) nextStackY=y+top;
@@ -546,7 +550,7 @@ void generateBezierPatch(int fd, char *file, char *tessLevel){
         float controlPoints[numControlPoints*3];
         getControlPoints(fdI,controlPoints,numControlPoints);
         
-        float points[tL][tL][3], normal[tL][tL][3], texture[tL][tL][3];
+        float points[tL][tL][3], normal[tL][tL][3], texture[tL][tL][2];
        
         //print number of points
         sprintf(array,"%d\n", numPatches*(tL-1)*(tL-1)*6);
