@@ -336,6 +336,8 @@ void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, fl
             curP[2]=nextRadius*cos(curAngle);
             if(top<=0.f) normalize(curP,radius);
             //TODO: calcular normal e texture
+            texture[0]=0.f;
+            texture[1]=1.f;
             printLine(fd,array,curP,normal,texture);
 
             curP[0]=curRadius*sin(curAngle+angle);
@@ -343,6 +345,8 @@ void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, fl
             curP[2]=curRadius*cos(curAngle+angle);
             if(top<=0.f) normalize(curP,radius);
             //TODO: calcular normal e texture
+            texture[0]=1.f;
+            texture[1]=0.f;
             printLine(fd,array,curP,normal,texture);
 
             curP[0]=curRadius*sin(curAngle);
@@ -350,6 +354,8 @@ void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, fl
             curP[2]=curRadius*cos(curAngle);
             if(top<=0.f) normalize(curP,radius);
             //TODO: calcular normal e texture
+            texture[0]=0.f;
+            texture[1]=0.f;
             printLine(fd,array,curP,normal,texture);
         }
         
@@ -359,6 +365,8 @@ void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, fl
             curP[2]=nextRadius*cos(curAngle);
             if(top<=0.f) normalize(curP,radius);
             //calcular normal e texture:TODO
+            texture[0]=0.f; 
+            texture[1]=1.f; 
             printLine(fd,array,curP,normal,texture);
             
             curP[0]=nextRadius*sin(curAngle+angle);
@@ -366,6 +374,8 @@ void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, fl
             curP[2]=nextRadius*cos(curAngle+angle);
             if(top<=0.f) normalize(curP,radius);
             //calcular normal e texture:TODO
+            texture[0]=1.f; 
+            texture[1]=1.f; 
             printLine(fd,array,curP,normal,texture);
         
             curP[0]=curRadius*sin(curAngle+angle);
@@ -373,6 +383,8 @@ void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, fl
             curP[2]=curRadius*cos(curAngle+angle);
             if(top<=0.f) normalize(curP,radius);
             //calcular normal e texture:TODO
+            texture[0]=1.f; 
+            texture[1]=0.f; 
             printLine(fd,array,curP,normal,texture);
         }
     }

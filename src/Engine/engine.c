@@ -137,7 +137,7 @@ int parseModel(xmlChar * file, xmlChar *texture, Points *m, int textureCount) {
             auxM->points = (float*)malloc(sizeof(float)*auxM->size);
             auxM->normals = (float*)malloc(sizeof(float)*auxM->size);
             if(texture){ 
-                auxM->textureC = (float*)malloc(sizeof(float)*auxM->size);
+                auxM->textureC = (float*)malloc(sizeof(float)*(auxM->size-1));
                 auxM->textureId=GL_TEXTURE0+textureCount;
                 textureCount++;
                 loadTexture(texture, auxM->textureId);
@@ -171,11 +171,8 @@ int parseModel(xmlChar * file, xmlChar *texture, Points *m, int textureCount) {
                     coord[0] = atof(aux);
                     aux = strtok (NULL, " ");
                     coord[1] = atof(aux);
-                    aux = strtok (NULL, " ");
-                    coord[2] = atof(aux);
                     auxM->textureC[i]=coord[0];
                     auxM->textureC[i+1]=coord[1];
-                    auxM->textureC[i+2]=coord[2];
                 }
                 i+=3;
             }
