@@ -72,30 +72,34 @@ int writeConfig(int nParams, char **params){
 void generatePlane(int fd, char *l, char *c){
     float lf=atof(l),cf=atof(c);
     float pos[3], normal[3], texture[3];
-    char arr[70];
+    char arr[210];
     lf/=2.0f; 
     cf/=2.0f;
 
     write(fd,"6\n",2);
+    
+    normal[0]=0.f;
+    normal[1]=1.f;
+    normal[2]=0.f;
 
     pos[0]=-lf; pos[1]=0.f; pos[2]=cf;
-    //calcular normal e texture:TODO
+    //calcular texture:TODO
     printLine(fd,arr,pos,normal,texture);
     pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
-    //calcular normal e texture:TODO
+    //calcular texture:TODO
     printLine(fd,arr,pos,normal,texture);
     pos[0]=lf; pos[1]=0.f; pos[2]=cf;
-    //calcular normal e texture:TODO
+    //calcular texture:TODO
     printLine(fd,arr,pos,normal,texture);
 
     pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
-    //calcular normal e texture:TODO
+    //calcular texture:TODO
     printLine(fd,arr,pos,normal,texture);
     pos[0]=lf; pos[1]=0.f; pos[2]=-cf;
-    //calcular normal e texture:TODO
+    //calcular texture:TODO
     printLine(fd,arr,pos,normal,texture);
     pos[0]=lf; pos[1]=0.f; pos[2]=cf;
-    //calcular normal e texture:TODO
+    //calcular texture:TODO
     printLine(fd,arr,pos,normal,texture);
 }
 
