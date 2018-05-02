@@ -584,3 +584,19 @@ void generateBezierPatch(int fd, char *file, char *tessLevel){
         close(fdI);
     }else fprintf(stderr,"Wrong bezier file\n");
 }
+
+void createVec(float *a, float *b, float *res) {
+	res[0] = b[0] - a[0];
+	res[1] = b[1] - a[1];
+	res[2] = b[2] - a[2];
+}
+
+void computeNormal(float v1[], float v2[], float v3[], float v4[], float res[]) {
+    float aux1[3], aux2[3];
+
+    createVec(v1,v2,aux1);
+    createVec(v3,v4,aux2);
+
+    crossProduct(aux1,aux2,res);
+    normalize(res,1);
+}
