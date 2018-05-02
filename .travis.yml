@@ -1,3 +1,16 @@
+matrix:
+    include:
+        - os: linux
+          addons:
+              apt:
+                  source:
+                      - ubuntu-toolchain-r-test
+                  packages:
+                      - gcc-4.9
+        env:
+            - MATRIX_EVAL="CC=gcc-4.9"
+before_install:
+    - eval "${MATRIX_EVAL}"
 language: c
 compiler:
     - clang
