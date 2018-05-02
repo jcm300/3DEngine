@@ -36,6 +36,10 @@ if(NOT LIBXML2_FOUND)
     message(ERROR " LibXML2 not found!")
 endif(NOT LIBXML2_FOUND)
 
+find_package(DevIL REQUIRED)
+link_libraries(${IL_LIBRARIES})
+include_directories(${IL_INCLUDE_DIR})
+
 if(UNIX)
     set(MATH_LIB m)
 endif(UNIX)

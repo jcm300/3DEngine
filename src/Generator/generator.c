@@ -71,7 +71,7 @@ int writeConfig(int nParams, char **params){
 void generatePlane(int fd, char *l, char *c){
     float lf=atof(l),cf=atof(c);
     float pos[3], normal[3], texture[2];
-    char arr[210];
+    char arr[213];
     lf/=2.0f; 
     cf/=2.0f;
 
@@ -257,7 +257,7 @@ void generateSphere(int fd, char *rds, char *slc, char *stks){
     float step=radius/stacks;
    	float angle = (2*M_PI)/slices;
     float sliceSide=2*curRadius*sin(angle/2);
-    char array[210];
+    char array[213];
     sprintf(array,"%d\n", 6*slices*(2*stacks-1));
     write(fd,array,strlen(array));
     
@@ -287,7 +287,7 @@ void generateCone(int fd, char *radiuss , char *heights, char *slicess, char *st
     float slices = (float) atof(slicess);
     float stacks = (float) atof(stackss);
     int numVert =  6*slices*stacks,i;
-    char array[210];
+    char array[213];
     float curAngle;
     float deltaAngle = (2*M_PI)/slices;
     float curHeight;
@@ -320,7 +320,7 @@ void generateCone(int fd, char *radiuss , char *heights, char *slicess, char *st
 }
 
 void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, float angle, float delta, float top,int tpbt){
-    char array[210];
+    char array[213];
     int i;
     float curAngle;
     float nextStackY=delta+y, nextRadius=curRadius-delta;
@@ -531,7 +531,7 @@ void generateBezierPatch(int fd, char *file, char *tessLevel){
     int fdI=open(file,O_RDONLY,0777);
     int numPatches, numControlPoints;
     float cp[4][4][3], con[4][4][3];
-    char array[210];
+    char array[213];
     //need to be at least 4
     int tL = atoi(tessLevel);
     
