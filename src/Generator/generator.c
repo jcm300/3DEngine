@@ -29,7 +29,6 @@ void genWalls(int,int,float,float,float,float,float,float,int);
 void normalize(float[],float);
 
 int main(int argc, char *argv[]){
-
     if(argc<3){
         fprintf(stderr,"Invalid no. of arguments\n");
     }else{
@@ -222,7 +221,7 @@ void generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
     x/=2.0f;
     y/=2.0f;
     z/=2.0f;
-    char array[210];
+    char array[213];
     float y1 = -y;
     float y2 = y1 + var_y;
     float x1 = -x;
@@ -251,7 +250,7 @@ void generateSphere(int fd, char *rds, char *slc, char *stks){
    	float angle = (2*M_PI)/slices;
     float sliceSide=2*curRadius*sin(angle/2);
     char array[210];
-    sprintf(array,"%d\n", slices*stacks*12);
+    sprintf(array,"%d\n", 6*slices*(2*stacks-1));
     write(fd,array,strlen(array));
     
     for(i=0;i<stacks-1;i++){
@@ -279,7 +278,7 @@ void generateCone(int fd, char *radiuss , char *heights, char *slicess, char *st
     float height = (float) atof(heights);
     float slices = (float) atof(slicess);
     float stacks = (float) atof(stackss);
-    int numVert =  slices*stacks*6 + slices *3,i;
+    int numVert =  6*slices*stacks,i;
     char array[210];
     float curAngle;
     float deltaAngle = (2*M_PI)/slices;
@@ -328,21 +327,21 @@ void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, fl
             curP[1]=nextStackY;
             curP[2]=nextRadius*cos(curAngle);
             if(top<=0.f) normalize(curP,radius);
-            //calcular normal e texture:TODO
+            //TODO: calcular normal e texture
             printLine(fd,array,curP,normal,texture);
 
             curP[0]=curRadius*sin(curAngle+angle);
             curP[1]=y;
             curP[2]=curRadius*cos(curAngle+angle);
             if(top<=0.f) normalize(curP,radius);
-            //calcular normal e texture:TODO
+            //TODO: calcular normal e texture
             printLine(fd,array,curP,normal,texture);
 
             curP[0]=curRadius*sin(curAngle);
             curP[1]=y;
             curP[2]=curRadius*cos(curAngle);
             if(top<=0.f) normalize(curP,radius);
-            //calcular normal e texture:TODO
+            //TODO: calcular normal e texture
             printLine(fd,array,curP,normal,texture);
         }
         
