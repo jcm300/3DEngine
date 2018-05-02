@@ -36,6 +36,12 @@ typedef struct modelPoints {
      struct modelPoints *next;
 }*Points;
 
+typedef struct light {
+    char t;
+    float *args;
+    struct light *next;
+}*Lights;
+
 /* case t=u:
  *      start of group -> glPushMatrix();
  * case t=o:
@@ -77,6 +83,8 @@ GLuint buffers[3];
 GLenum mode = GL_FILL;
 Points *models; 
 Transforms *transforms;
+Lights *lights;
+int numLights=0;
 
 long readln (int fildes, void * buf, size_t nbyte){
 	int i,x;
@@ -225,6 +233,44 @@ void pop(Transforms *t){
     *t=auxT;
 }
 
+void parseLight(xmlNodePtr cur, Lights *l){
+    char *aux;
+    Lights auxL=(Lights)malloc(sizeof(struct light));
+    if(xmlGetProp(cur,(const xmlChar*)"type")!=NULL){
+       aux = (char*)xmlGetProp(cur,(const xmlChar*)"type");
+       if(strcmp(aux,"POINT")==0) auxL->t='p';
+       else if(strcmp(aux,"DIRECTIONAL")==0) auxL->t='d';
+            else if(strcmp(aux,"SPOT")==0) auxL->t='s';
+                 else auxL->t='d';
+    }
+
+    auxL->args =(float*)malloc(sizeof(float)*4);
+    switch(auxL->t){
+        case 'p':
+            auxL->args[0]= (xmlGetProp(cur,(const xmlChar*)"posX")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"posX")) : 0;
+            auxL->args[1]= (xmlGetProp(cur,(const xmlChar*)"posY")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"posY")) : 0;
+            auxL->args[2]= (xmlGetProp(cur,(const xmlChar*)"posZ")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"posZ")) : 0;
+            auxL->args[3]=0.f;
+            break;
+        case 'd':
+            auxL->args[0]= (xmlGetProp(cur,(const xmlChar*)"dirX")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"dirX")) : 0;
+            auxL->args[1]= (xmlGetProp(cur,(const xmlChar*)"dirY")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"dirY")) : 0;
+            auxL->args[2]= (xmlGetProp(cur,(const xmlChar*)"dirZ")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"dirZ")) : 0;
+            auxL->args[3]=1.f;
+            break;
+        case 's':
+            auxL->args[0]= (xmlGetProp(cur,(const xmlChar*)"posX")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"posX")) : 0;
+            auxL->args[1]= (xmlGetProp(cur,(const xmlChar*)"posY")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"posY")) : 0;
+            auxL->args[2]= (xmlGetProp(cur,(const xmlChar*)"posZ")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"posZ")) : 0;
+            auxL->args[3]= (xmlGetProp(cur,(const xmlChar*)"cutoff")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"cutoff")) : 0;
+            break;
+        default:
+            break;
+    }
+    auxL->next=NULL;
+    *l=auxL;
+}
+
 Transforms *parseGroup(xmlNodePtr cur, Points *m, Transforms *t){
     push(t);
     t = &((*t)->next);
@@ -258,14 +304,29 @@ Transforms *parseGroup(xmlNodePtr cur, Points *m, Transforms *t){
     return t;
 } 
 
-void parseNodes(xmlNodePtr cur, Points *ml, Transforms *tl){
+void parseLights(xmlNodePtr cur, Lights *l){
+    while(cur){
+        if(!xmlStrcmp(cur->name,(const xmlChar*)"light")){
+            parseLight(cur,l);
+            numLights++;
+            l = &((*l)->next);
+        }
+        cur = cur -> next;   
+    }
+}
+
+void parseNodes(xmlNodePtr cur, Points *ml, Transforms *tl, Lights *ll){
     Points * m=ml;
-    Transforms *t=tl; 
+    Transforms *t=tl;
+    Lights *l=ll;
     
     while(cur){
         if(!xmlStrcmp(cur->name,(const xmlChar*)"group")){
             t = parseGroup(cur -> xmlChildrenNode, m, t);
             t = &((*t)->next);
+        }
+        if(!xmlStrcmp(cur->name,(const xmlChar*)"lights")){
+            parseLights(cur->xmlChildrenNode,l);
         }
         cur = cur -> next;
     }
@@ -291,7 +352,9 @@ void xmlParser(char * file){
                 *models=NULL;
                 transforms=(Transforms *)malloc(sizeof(void*));
                 *transforms=NULL;
-                parseNodes(cur,models,transforms);
+                lights=(Lights *)malloc(sizeof(void*));
+                *lights=NULL;
+                parseNodes(cur,models,transforms,lights);
             }else{
                 fprintf(stderr, "Don't recognize sintax\n");
                 exit(1);
@@ -390,13 +453,19 @@ void drawModels(int begin, int end){
     glBindBuffer(GL_ARRAY_BUFFER,buffers[0]);
     glVertexPointer(3,GL_FLOAT,0,0);
     
+    glBindBuffer(GL_ARRAY_BUFFER,buffers[1]);
+    glNormalPointer(GL_FLOAT,0,0);
+
     while(auxM && i<begin) {
         auxM = auxM -> next;
         i++;
     }
 
     while(auxM && i<end){
+        glBindBuffer(GL_ARRAY_BUFFER,buffers[0]);
         glBufferData(GL_ARRAY_BUFFER,(auxM->size)*sizeof(float),auxM->points,GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER,buffers[1]);
+        glBufferData(GL_ARRAY_BUFFER,(auxM->size)*sizeof(float),auxM->normals,GL_STATIC_DRAW);
         glDrawArrays(GL_TRIANGLES,0,auxM->size);
         auxM = auxM->next;
         i++;
@@ -538,6 +607,18 @@ void draw(){
     }
 }
 
+void drawLights(){
+    Lights auxL=*lights;
+
+    for(int i=0;i<8 && i<numLights; i++){
+        if(auxL->t=='p' || auxL->t=='d'){
+            glLightfv(GL_LIGHT0+i, GL_POSITION, auxL->args);
+        }else if(auxL->t=='s'){
+            //TODO: spot light
+        }
+    }
+}
+
 void renderScene(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -557,6 +638,9 @@ void renderScene(void) {
     glCullFace(GL_FRONT);
     glFrontFace(GL_CCW);
     glPolygonMode(GL_FRONT_AND_BACK, mode); //change mode
+    
+    //draw lights
+    drawLights();
 
 	// drawing instructions
 	drawXYZ();
@@ -622,6 +706,15 @@ void processSpecialKeys(int key, int xx, int yy) {
 	glutPostRedisplay();
 }
 
+void glEnableLights(){
+    //openGl only have 8 lights
+    if(numLights>0){
+        glEnable(GL_LIGHTING);
+        for(int i=0; i<8 && i<numLights; i++){
+            glEnable(GL_LIGHT0+i);
+        }
+    }   
+}
 
 int main(int argc, char **argv) {
     if(argc==2){
@@ -646,9 +739,13 @@ int main(int argc, char **argv) {
 
 	    glEnable(GL_DEPTH_TEST);
 	    glEnable(GL_CULL_FACE);
+        
         glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_NORMAL_ARRAY);
+        
+        glEnableLights();
 
-        glGenBuffers(1,buffers);
+        glGenBuffers(3,buffers);
 
 	    glutMainLoop();
     }else fprintf(stderr, "Wrong number of arguments.\n");
