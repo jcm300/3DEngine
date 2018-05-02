@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
+#include <IL/il.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
@@ -32,6 +33,7 @@ typedef struct modelPoints {
      float *points;
      float *normals;
      float *textureC;
+     int textureId;
      int size;
      struct modelPoints *next;
 }*Points;
@@ -86,32 +88,88 @@ long readln (int fildes, void * buf, size_t nbyte){
 	return i;
 }
 
-int parseModel(xmlChar * file, xmlChar *texture, Points *m) {
+void loadTexture(xmlChar *texture, int textureId){
+    unsigned int t, tw, th;
+	unsigned char *texData;
+	ilGenImages(1, &t);
+	ilBindImage(t);
+	ilLoadImage((ILstring)texture);
+	tw = ilGetInteger(IL_IMAGE_WIDTH);
+	th = ilGetInteger(IL_IMAGE_HEIGHT);
+	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+	texData = ilGetData();
+
+	glGenTextures(1, &texture);
+
+	glBindTexture((GLenum)textureId, texture);
+	glTexParameteri((GLenum)textureId, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri((GLenum)textureId, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexParameteri((GLenum)textureId, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri((GLenum)textureId, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+
+	glTexImage2D((GLenum)textureId, 0, GL_RGBA, tw, th, 0, GL_RGBA, GL_UNSIGNED_BYTE, texData);
+	glGenerateMipmap((GLenum)textureId);
+}
+
+int parseModel(xmlChar * file, xmlChar *texture, Points *m, int textureCount) {
 	int fd,x,i=0,j=0,ret=0;
-	char buffer[100];
+	char buffer[213];
 	float coord[3];
 	char* aux;
         
     fd = open(file,O_RDONLY);
 
     if(fd>0){
-        x=readln(fd,buffer,100);
+        x=readln(fd,buffer,213);
         if(x>0){
             Points auxM=(Points)malloc(sizeof(struct modelPoints));
             buffer[x-1]=0;
             auxM->size=atoi(buffer)*3;
             auxM->points = (float*)malloc(sizeof(float)*auxM->size);
+            auxM->normals = (float*)malloc(sizeof(float)*auxM->size);
+            if(texture){ 
+                auxM->textureC = (float*)malloc(sizeof(float)*auxM->size);
+                auxM->textureId=GL_TEXTURE0+textureCount;
+                textureCount++;
+                loadTexture(texture, auxM->textureId);
+            }
+            else auxM->textureC=NULL;
             auxM->next = NULL;
-            while(j++<auxM->size && (x=readln(fd,buffer,100))>0){
+            while(j++<auxM->size && (x=readln(fd,buffer,213))>0){
+                //vertex
                 aux = strtok(buffer," ");
                 coord[0] = atof(aux);
                 aux = strtok (NULL, " ");
                 coord[1] = atof(aux);
                 aux = strtok (NULL, " ");
                 coord[2] = atof(aux);
-                auxM->points[i++]=coord[0];
-                auxM->points[i++]=coord[1];
-                auxM->points[i++]=coord[2];
+                auxM->points[i]=coord[0];
+                auxM->points[i+1]=coord[1];
+                auxM->points[i+2]=coord[2];
+                //normal vector
+                aux = strtok(NULL," ");
+                coord[0] = atof(aux);
+                aux = strtok (NULL, " ");
+                coord[1] = atof(aux);
+                aux = strtok (NULL, " ");
+                coord[2] = atof(aux);
+                auxM->normals[i]=coord[0];
+                auxM->normals[i+1]=coord[1];
+                auxM->normals[i+2]=coord[2];
+                //texture
+                if(texture){
+                    aux = strtok(NULL," ");
+                    coord[0] = atof(aux);
+                    aux = strtok (NULL, " ");
+                    coord[1] = atof(aux);
+                    aux = strtok (NULL, " ");
+                    coord[2] = atof(aux);
+                    auxM->textureC[i]=coord[0];
+                    auxM->textureC[i+1]=coord[1];
+                    auxM->textureC[i+2]=coord[2];
+                }
+                i+=3;
             }
             *m=auxM;
             ret = 1;
@@ -121,11 +179,11 @@ int parseModel(xmlChar * file, xmlChar *texture, Points *m) {
     return ret;
 }
 
-Points *parseModels(xmlNodePtr cur, Points *m, Transforms *t){
+Points *parseModels(xmlNodePtr cur, Points *m, Transforms *t, int textureCount){
     int models=0;
     while(cur){
         if(!xmlStrcmp(cur->name,(const xmlChar*)"model")){
-            if(parseModel(xmlGetProp(cur,(const xmlChar*)"file"),xmlGetProp(cur, (const xmlChar*)"texture"),m)){
+            if(parseModel(xmlGetProp(cur,(const xmlChar*)"file"),xmlGetProp(cur, (const xmlChar*)"texture"),m, textureCount)){
                 m = &((*m)->next);
                 models++;
             }
@@ -225,7 +283,7 @@ void pop(Transforms *t){
     *t=auxT;
 }
 
-Transforms *parseGroup(xmlNodePtr cur, Points *m, Transforms *t){
+Transforms *parseGroup(xmlNodePtr cur, Points *m, Transforms *t, int textureCount){
     push(t);
     t = &((*t)->next);
     while(cur){
@@ -245,11 +303,11 @@ Transforms *parseGroup(xmlNodePtr cur, Points *m, Transforms *t){
         }
         if(!xmlStrcmp(cur->name,(const xmlChar*)"models")){
             while(*m) m = &((*m)->next);
-            m = parseModels(cur -> xmlChildrenNode, m, t);
+            m = parseModels(cur -> xmlChildrenNode, m, t, textureCount);
             t = &((*t)->next);
         }
         if(!xmlStrcmp(cur->name,(const xmlChar*)"group")){
-            t = parseGroup(cur -> xmlChildrenNode, m, t);
+            t = parseGroup(cur -> xmlChildrenNode, m, t, textureCount);
             t = &((*t)->next);
         }
         cur = cur -> next;
@@ -261,10 +319,11 @@ Transforms *parseGroup(xmlNodePtr cur, Points *m, Transforms *t){
 void parseNodes(xmlNodePtr cur, Points *ml, Transforms *tl){
     Points * m=ml;
     Transforms *t=tl; 
+    int textureCount=0;
     
     while(cur){
         if(!xmlStrcmp(cur->name,(const xmlChar*)"group")){
-            t = parseGroup(cur -> xmlChildrenNode, m, t);
+            t = parseGroup(cur -> xmlChildrenNode, m, t, textureCount);
             t = &((*t)->next);
         }
         cur = cur -> next;
@@ -644,9 +703,11 @@ int main(int argc, char **argv) {
             glewInit();
         #endif
 
+        glEnable(GL_TEXTURE_2D);
 	    glEnable(GL_DEPTH_TEST);
 	    glEnable(GL_CULL_FACE);
         glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
         glGenBuffers(1,buffers);
 
