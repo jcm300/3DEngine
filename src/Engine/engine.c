@@ -27,9 +27,11 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
-//linked array, each element store all points of one model
+//linked array, each element stores all points of one model
 typedef struct modelPoints {
      float *points;
+     float *normals;
+     float *textureC;
      int size;
      struct modelPoints *next;
 }*Points;
@@ -71,7 +73,7 @@ float xLookAt=1.f;
 float yLookAt=1.5f; 
 float zLookAt=0.f;
 int fpc=0;
-GLuint buffers[1];
+GLuint buffers[3];
 GLenum mode = GL_FILL;
 Points *models; 
 Transforms *transforms;
@@ -84,7 +86,7 @@ long readln (int fildes, void * buf, size_t nbyte){
 	return i;
 }
 
-int parseModel(xmlChar * file, Points *m) {
+int parseModel(xmlChar * file, xmlChar *texture, Points *m) {
 	int fd,x,i=0,j=0,ret=0;
 	char buffer[100];
 	float coord[3];
@@ -123,7 +125,7 @@ Points *parseModels(xmlNodePtr cur, Points *m, Transforms *t){
     int models=0;
     while(cur){
         if(!xmlStrcmp(cur->name,(const xmlChar*)"model")){
-            if(parseModel(xmlGetProp(cur,(const xmlChar*)"file"),m)){
+            if(parseModel(xmlGetProp(cur,(const xmlChar*)"file"),xmlGetProp(cur, (const xmlChar*)"texture"),m)){
                 m = &((*m)->next);
                 models++;
             }
