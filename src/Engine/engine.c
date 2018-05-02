@@ -30,6 +30,8 @@
 //linked array, each element store all points of one model
 typedef struct modelPoints {
      float *points;
+     float *normals;
+     float *textureC;
      int size;
      struct modelPoints *next;
 }*Points;
