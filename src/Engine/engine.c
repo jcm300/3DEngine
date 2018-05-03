@@ -666,7 +666,7 @@ void draw(){
 void drawLights(){
     Lights auxL=*lights;
 
-    for(int i=0;i<8 && i<numLights; i++){
+    for(int i=0;i<8 && i<numLights; i++, auxL=auxL->next){
         if(auxL->t=='p' || auxL->t=='d'){
             glLightfv(GL_LIGHT0+i, GL_POSITION, auxL->args);
         }else if(auxL->t=='s'){
