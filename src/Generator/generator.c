@@ -121,34 +121,38 @@ void faceXZ(int fd, char* array, float x1, float x2, float y, float z){
     normal[2]=0.f;
 
     pos[0]=x1; pos[1]=y; pos[2]=-z;
-    //calcular texture:TODO
+    texture[0]=0.f;texture[1]=0.f;
     printLine(fd,array,pos,normal,texture);
+
     pos[0]=x2; pos[1]=y; pos[2]=z;
-    //calcular texture:TODO
+    texture[0]=1.f;texture[1]=1.f;
     printLine(fd,array,pos,normal,texture);
+
     if (y>0){
         pos[0]=x2; pos[1]=y; pos[2]=-z;
-        //calcular texture:TODO
+        texture[0]=1.f;texture[1]=0.f;
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=x1; pos[1]=y; pos[2]=z;
-        //calcular texture:TODO
+        texture[0]=0.f;texture[1]=1.f;
         printLine(fd,array,pos,normal,texture); 
     }
 
     pos[0]=x2; pos[1]=y; pos[2]=z;
-    //calcular texture:TODO
+    texture[0]=1.f;texture[1]=1.f;
     printLine(fd,array,pos,normal,texture);
+
     pos[0]=x1; pos[1]=y; pos[2]=-z;
-    //calcular texture:TODO
+    texture[0]=0.f;texture[1]=0.f;
     printLine(fd,array,pos,normal,texture);
+
     if (y>0){
         pos[0]=x1; pos[1]=y; pos[2]=z;
-        //calcular texture:TODO
+        texture[0]=0.f;texture[1]=1.f;
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=x2; pos[1]=y; pos[2]=-z;
-        //calcular texture:TODO
+        texture[0]=1.f;texture[1]=0.f;
         printLine(fd,array,pos,normal,texture);
     }
 }
@@ -162,34 +166,37 @@ void faceYZ(int fd, char* array, float x, float y1, float y2, float z){
     normal[2]=0.f;
     
     pos[0]=x; pos[1]=y2; pos[2]=z;
-    //calcular texture:TODO
+    texture[0]=1.f;texture[1]=1.f;
     printLine(fd,array,pos,normal,texture);
+
     pos[0]=x; pos[1]=y1; pos[2]=-z;
-    //calcular texture:TODO
+    texture[0]=0.f;texture[1]=0.f;
     printLine(fd,array,pos,normal,texture);
+
     if (x>0){
         pos[0]=x; pos[1]=y2; pos[2]=-z;
-        //calcular texture:TODO
+        texture[0]=1.f;texture[1]=0.f;
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=x; pos[1]=y1; pos[2]=z;
-        //calcular texture:TODO
+        texture[0]=0.f;texture[1]=1.f;
         printLine(fd,array,pos,normal,texture);
     }
 
     pos[0]=x; pos[1]=y1; pos[2]=-z;
-    //calcular texture:TODO
+    texture[0]=0.f;texture[1]=0.f;
     printLine(fd,array,pos,normal,texture);
+
     pos[0]=x; pos[1]=y2; pos[2]=z;
-    //calcular texture:TODO
+    texture[0]=1.f;texture[1]=1.f;
     printLine(fd,array,pos,normal,texture);
     if (x>0){
         pos[0]=x; pos[1]=y1; pos[2]=z;
-        //calcular texture:TODO
+        texture[0]=0.f;texture[1]=1.f;
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=x; pos[1]=y2; pos[2]=-z;
-        //calcular texture:TODO
+        texture[0]=1.f;texture[1]=0.f;
         printLine(fd,array,pos,normal,texture);
     }
 }
@@ -203,34 +210,38 @@ void faceXY(int fd, char* array, float x, float y1, float y2, float z){
     else normal[2]=-1.f;
     
     pos[0]=-x; pos[1]=y2; pos[2]=z;
-    //calcular texture:TODO
+    texture[0]=0.f;texture[1]=1.f;
     printLine(fd,array,pos,normal,texture);
+
     pos[0]=x; pos[1]=y1; pos[2]=z;
-    //calcular texture:TODO
+    texture[0]=1.f;texture[1]=0.f;
     printLine(fd,array,pos,normal,texture);
+
     if (z>0){
         pos[0]=x; pos[1]=y2; pos[2]=z;
-        //calcular texture:TODO
+        texture[0]=1.f;texture[1]=1.f;
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=-x; pos[1]=y1; pos[2]=z;
-        //calcular texture:TODO
+        texture[0]=0.f;texture[1]=0.f;
         printLine(fd,array,pos,normal,texture);
     }
 
     pos[0]=x; pos[1]=y1; pos[2]=z;
-    //calcular texture:TODO
+    texture[0]=1.f;texture[1]=0.f;
     printLine(fd,array,pos,normal,texture);
+
     pos[0]=-x; pos[1]=y2; pos[2]=z;
-    //calcular texture:TODO
+    texture[0]=0.f;texture[1]=1.f;
     printLine(fd,array,pos,normal,texture);
+
     if (z>0){
         pos[0]=-x; pos[1]=y1; pos[2]=z;
-        //calcular texture:TODO
+        texture[0]=0.f;texture[1]=0.f;
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=x; pos[1]=y2; pos[2]=z;
-        //calcular texture:TODO
+        texture[0]=1.f;texture[1]=1.f;
         printLine(fd,array,pos,normal,texture);
     }
 }

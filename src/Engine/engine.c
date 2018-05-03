@@ -182,9 +182,9 @@ int parseModel(xmlChar * file, xmlChar *texture, Points *m, int textureCount) {
                     coord[1] = atof(aux);
                     auxM->textureC[w]=coord[0];
                     auxM->textureC[w+1]=coord[1];
+                    w+=2;
                 }
                 i+=3;
-                w+=2;
             }
             *m=auxM;
             ret = 1;
