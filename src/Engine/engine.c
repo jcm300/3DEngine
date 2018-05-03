@@ -324,7 +324,7 @@ void parseLight(xmlNodePtr cur, Lights *l){
             auxL->args[0]= (xmlGetProp(cur,(const xmlChar*)"posX")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"posX")) : 0;
             auxL->args[1]= (xmlGetProp(cur,(const xmlChar*)"posY")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"posY")) : 0;
             auxL->args[2]= (xmlGetProp(cur,(const xmlChar*)"posZ")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"posZ")) : 0;
-            auxL->args[3]=0.f;
+            auxL->args[3]=1.f;
     }
 
     //all lights have diffuse color
@@ -340,7 +340,7 @@ void parseLight(xmlNodePtr cur, Lights *l){
                 auxL->args[11]= (xmlGetProp(cur,(const xmlChar*)"cutoff")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"cutoff")) : 0;
             }else{
                 i=0;
-                auxL->args[3]=1.f;
+                auxL->args[3]=0.f;
             }
             
             auxL->args[i]= (xmlGetProp(cur,(const xmlChar*)"dirX")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"dirX")) : 0;
@@ -706,7 +706,7 @@ void drawLights(){
             glLightfv(GL_LIGHT0+i, GL_SPOT_DIRECTION, auxL->args+8);
             glLightf(GL_LIGHT0+i, GL_SPOT_CUTOFF, auxL->args[11]);
         }
-         glLightfv(GL_LIGHT0+i, GL_DIFFUSE, auxL->args+4);
+        glLightfv(GL_LIGHT0+i, GL_DIFFUSE, auxL->args+4);
     }
 }
 
