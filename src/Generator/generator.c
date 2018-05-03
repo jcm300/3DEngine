@@ -25,8 +25,9 @@ void generateSphere(int, char *, char *, char *);
 void generateBezierPatch(int, char *, char *);
 void printLine(int, char*, float[], float[], float[]);
 void genSlice(int, int,float,float, float, float,int);
-void genWalls(int,int,float,float,float,float,float,float,int);
+void genWalls(int,int,float,float,float,float,float,float,int,float);
 void normalize(float[],float);
+void crossProduct(float *, float *, float *);
 
 int main(int argc, char *argv[]){
     if(argc<3){
@@ -277,23 +278,23 @@ void generateSphere(int fd, char *rds, char *slc, char *stks){
     write(fd,array,strlen(array));
     
     for(i=0;i<stacks-1;i++){
-        genWalls(fd,slices,radius,curRadius,curHeight,angle,step,-1.f,0);
+        genWalls(fd,slices,radius,curRadius,curHeight,angle,step,-1.f,0,0);
         curRadius-=step;
         curHeight+=step;
     }
     
-    genWalls(fd,slices,radius,curRadius,curHeight,angle,step,-1.f,1);
+    genWalls(fd,slices,radius,curRadius,curHeight,angle,step,-1.f,1,0);
 
 
     curHeight=-step;
     curRadius=radius-step;
     for(i=0;i<stacks-1;i++){
-        genWalls(fd,slices,radius,curRadius,curHeight,angle,step,0.f,0);
+        genWalls(fd,slices,radius,curRadius,curHeight,angle,step,0.f,0,0);
         curRadius-=step;
         curHeight-=step;
     }
 
-    genWalls(fd,slices,radius,curRadius,curHeight,angle,step,0.f,-1);
+    genWalls(fd,slices,radius,curRadius,curHeight,angle,step,0.f,-1,0);
 }
 
 void generateCone(int fd, char *radiuss , char *heights, char *slicess, char *stackss){
@@ -315,10 +316,10 @@ void generateCone(int fd, char *radiuss , char *heights, char *slicess, char *st
     write(fd,array,strlen(array));
     
     for(i=0,curHeight=0.f;i<stacks-1;i++,curHeight+=deltaH, curRadius-=deltaR){
-        genWalls(fd,slices,radius,curRadius,curHeight,deltaAngle,deltaR,deltaH,0);
+        genWalls(fd,slices,radius,curRadius,curHeight,deltaAngle,deltaR,deltaH,0,height);
     }
 
-    genWalls(fd,slices,radius,curRadius,curHeight,deltaAngle,deltaR,deltaH,1);
+    genWalls(fd,slices,radius,curRadius,curHeight,deltaAngle,deltaR,deltaH,1,height);
 
     //base
     normal[0]=0.f;
@@ -337,73 +338,52 @@ void generateCone(int fd, char *radiuss , char *heights, char *slicess, char *st
     }
 }
 
-void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, float angle, float delta, float top,int tpbt){
+void sectionWall(int fd, float radius, float pRadius, float y, float angle, float pAngle, float top, float height){
     char array[213];
+    float curP[3], normal[3], texture[2], vector[3], vector2[3]; 
+    
+    curP[0]=pRadius*sin(pAngle+angle);
+    curP[1]=y;
+    curP[2]=pRadius*cos(pAngle+angle);
+    if(top<=0.f){
+        normalize(curP,radius);
+        normal[0]=curP[0];
+        normal[1]=curP[1];
+        normal[2]=curP[2];
+    }else{
+        vector[0]=radius*sin(pAngle+angle);
+        vector[1]=height;
+        vector[2]=radius*cos(pAngle+angle);
+        vector2[0]=pRadius*sin(pAngle+angle+M_PI/4);
+        vector2[1]=0;
+        vector2[2]=pRadius*cos(pAngle+angle+M_PI/4);
+        
+        crossProduct(vector,vector2,normal);
+        normalize(normal,1);
+    }
+    //TODO: calcular texture
+    printLine(fd,array,curP,normal,texture);
+}
+
+void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, float angle, float delta, float top,int tpbt, float height){
     int i;
     float curAngle;
     float nextStackY=delta+y, nextRadius=curRadius-delta;
-    float curP[3], normal[3], texture[2];
-    
+   
     if(top==0.f) nextRadius=curRadius+delta;
     else if(top>0.f) nextStackY=y+top;
 
     for(i=0,curAngle=0.f;i<sliceCount;i++,curAngle+=angle){
         if(tpbt>=0){
-            curP[0]=curRadius*sin(curAngle+angle);
-            curP[1]=y;
-            curP[2]=curRadius*cos(curAngle+angle);
-            if(top<=0.f) normalize(curP,radius);
-            //TODO: calcular normal e texture
-            texture[0]=1.f;
-            texture[1]=0.f;
-            printLine(fd,array,curP,normal,texture);
-
-            curP[0]=nextRadius*sin(curAngle);
-            curP[1]=nextStackY;
-            curP[2]=nextRadius*cos(curAngle);
-            if(top<=0.f) normalize(curP,radius);
-            //TODO: calcular normal e texture
-            texture[0]=0.f;
-            texture[1]=1.f;
-            printLine(fd,array,curP,normal,texture);
-
-            curP[0]=curRadius*sin(curAngle);
-            curP[1]=y;
-            curP[2]=curRadius*cos(curAngle);
-            if(top<=0.f) normalize(curP,radius);
-            //TODO: calcular normal e texture
-            texture[0]=0.f;
-            texture[1]=0.f;
-            printLine(fd,array,curP,normal,texture);
+            sectionWall(fd,radius,curRadius,y,angle,curAngle,top,height);
+            sectionWall(fd,radius,nextRadius,nextStackY,0,curAngle,top,height);
+            sectionWall(fd,radius,curRadius,y,0,curAngle,top,height);
         }
-        
+
         if(tpbt<=0){
-            curP[0]=nextRadius*sin(curAngle+angle);
-            curP[1]=nextStackY;
-            curP[2]=nextRadius*cos(curAngle+angle);
-            if(top<=0.f) normalize(curP,radius);
-            //calcular normal e texture:TODO
-            texture[0]=1.f; 
-            texture[1]=1.f; 
-            printLine(fd,array,curP,normal,texture);
- 
-            curP[0]=nextRadius*sin(curAngle);
-            curP[1]=nextStackY;
-            curP[2]=nextRadius*cos(curAngle);
-            if(top<=0.f) normalize(curP,radius);
-            //calcular normal e texture:TODO
-            texture[0]=0.f; 
-            texture[1]=1.f; 
-            printLine(fd,array,curP,normal,texture);
-       
-            curP[0]=curRadius*sin(curAngle+angle);
-            curP[1]=y;
-            curP[2]=curRadius*cos(curAngle+angle);
-            if(top<=0.f) normalize(curP,radius);
-            //calcular normal e texture:TODO
-            texture[0]=1.f; 
-            texture[1]=0.f; 
-            printLine(fd,array,curP,normal,texture);
+            sectionWall(fd,radius,nextRadius,nextStackY,angle,curAngle,top,height);
+            sectionWall(fd,radius,nextRadius,nextStackY,0,curAngle,top,height);
+            sectionWall(fd,radius,curRadius,y,angle,curAngle,top,height);
         }
     }
 }

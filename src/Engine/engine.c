@@ -129,7 +129,7 @@ int loadTexture(xmlChar *texture){
 }
 
 int parseModel(xmlChar * file, xmlChar *texture, Points *m, int textureCount) {
-	int fd,x,i=0,j=0,ret=0;
+	int fd,x,i=0,j=0,w=0,ret=0;
 	char buffer[213];
 	float coord[3];
 	char* aux;
@@ -180,10 +180,11 @@ int parseModel(xmlChar * file, xmlChar *texture, Points *m, int textureCount) {
                     coord[0] = atof(aux);
                     aux = strtok (NULL, " ");
                     coord[1] = atof(aux);
-                    auxM->textureC[i]=coord[0];
-                    auxM->textureC[i+1]=coord[1];
+                    auxM->textureC[w]=coord[0];
+                    auxM->textureC[w+1]=coord[1];
                 }
                 i+=3;
+                w+=2;
             }
             *m=auxM;
             ret = 1;
