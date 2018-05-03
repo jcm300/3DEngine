@@ -33,7 +33,7 @@ typedef struct modelPoints {
      float *points;
      float *normals;
      float *textureC;
-     int textureId;
+     GLuint textureId;
      int size;
      struct modelPoints *next;
 }*Points;
@@ -96,7 +96,7 @@ long readln (int fildes, void * buf, size_t nbyte){
 	return i;
 }
 
-void loadTexture(xmlChar *texture, int textureId){
+int loadTexture(xmlChar *texture, int textureId){
     unsigned int t, tw, th;
 	unsigned char *texData;
 	ilGenImages(1, &t);
@@ -138,9 +138,8 @@ int parseModel(xmlChar * file, xmlChar *texture, Points *m, int textureCount) {
             auxM->normals = (float*)malloc(sizeof(float)*auxM->size);
             if(texture){ 
                 auxM->textureC = (float*)malloc(sizeof(float)*(auxM->size-1));
-                auxM->textureId=GL_TEXTURE0+textureCount;
+                auxM->textureId=loadTexture(texture, auxM->textureId);
                 textureCount++;
-                loadTexture(texture, auxM->textureId);
             }
             else auxM->textureC=NULL;
             auxM->next = NULL;
@@ -666,7 +665,7 @@ void draw(){
 void drawLights(){
     Lights auxL=*lights;
 
-    for(int i=0;i<8 && i<numLights; i++){
+    for(int i=0;i<8 && i<numLights; i++, auxL=auxL->next){
         if(auxL->t=='p' || auxL->t=='d'){
             glLightfv(GL_LIGHT0+i, GL_POSITION, auxL->args);
         }else if(auxL->t=='s'){
