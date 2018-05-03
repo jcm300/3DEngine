@@ -103,7 +103,6 @@ int loadTexture(xmlChar *texture){
 
 	ilInit();
 	ilEnable(IL_ORIGIN_SET);
-	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
 	ilGenImages(1,&t);
 	ilBindImage(t);
 	ilLoadImage((ILstring)texture);
@@ -113,14 +112,13 @@ int loadTexture(xmlChar *texture){
 	texData = ilGetData();
 
 	glGenTextures(1,&texID);
-    glGetError();
 	
 	glBindTexture(GL_TEXTURE_2D,texID);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST_MIPMAP_NEAREST);
 		
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tw, th, 0, GL_RGBA, GL_UNSIGNED_BYTE, texData);
 	glGenerateMipmap(GL_TEXTURE_2D);
@@ -143,11 +141,11 @@ int parseModel(xmlChar * file, xmlChar *texture, Points *m, int textureCount) {
         if(x>0){
             Points auxM=(Points)malloc(sizeof(struct modelPoints));
             buffer[x-1]=0;
-            auxM->size=atoi(buffer)*3;
-            auxM->points = (float*)malloc(sizeof(float)*auxM->size);
-            auxM->normals = (float*)malloc(sizeof(float)*auxM->size);
+            auxM->size=atoi(buffer);
+            auxM->points = (float*)malloc(sizeof(float)*auxM->size*3);
+            auxM->normals = (float*)malloc(sizeof(float)*auxM->size*3);
             if(texture){ 
-                auxM->textureC = (float*)malloc((sizeof(float)*auxM->size/3)*2);
+                auxM->textureC = (float*)malloc(sizeof(float)*auxM->size*2);
                 auxM->textureId=loadTexture(texture);
             }
             else{ 
@@ -155,7 +153,7 @@ int parseModel(xmlChar * file, xmlChar *texture, Points *m, int textureCount) {
                 auxM->textureId=0;
             }
             auxM->next = NULL;
-            while(j++<auxM->size && (x=readln(fd,buffer,213))>0){
+            while(j++<auxM->size*3 && (x=readln(fd,buffer,213))>0){
                 //vertex
                 aux = strtok(buffer," ");
                 coord[0] = atof(aux);
@@ -532,12 +530,6 @@ void drawModels(int begin, int end){
 
     glColor3f(1.0,1.0,1.0); //white color
 
-    glBindBuffer(GL_ARRAY_BUFFER,buffers[0]);
-    glVertexPointer(3,GL_FLOAT,0,0);
-    
-    glBindBuffer(GL_ARRAY_BUFFER,buffers[1]);
-    glNormalPointer(GL_FLOAT,0,0);
-    
     while(auxM && i<begin) {
         auxM = auxM -> next;
         i++;
@@ -545,15 +537,20 @@ void drawModels(int begin, int end){
 
     while(auxM && i<end){
         glBindBuffer(GL_ARRAY_BUFFER,buffers[0]);
-        glBufferData(GL_ARRAY_BUFFER,(auxM->size)*sizeof(float),auxM->points,GL_STATIC_DRAW);
+        glVertexPointer(3,GL_FLOAT,0,0);
+        glBufferData(GL_ARRAY_BUFFER,(auxM->size)*3*sizeof(float),auxM->points,GL_STATIC_DRAW);
+
         glBindBuffer(GL_ARRAY_BUFFER,buffers[1]);
-        glBufferData(GL_ARRAY_BUFFER,(auxM->size)*sizeof(float),auxM->normals,GL_STATIC_DRAW);
+        glNormalPointer(GL_FLOAT,0,0);
+        glBufferData(GL_ARRAY_BUFFER,(auxM->size)*3*sizeof(float),auxM->normals,GL_STATIC_DRAW);
+
         if(auxM->textureC){
             glBindBuffer(GL_ARRAY_BUFFER,buffers[2]); 
-            glBufferData(GL_ARRAY_BUFFER,((auxM->size)/3)*2*sizeof(float),auxM->textureC,GL_STATIC_DRAW);
             glTexCoordPointer(2,GL_FLOAT,0,0);
+            glBufferData(GL_ARRAY_BUFFER,auxM->size*2*sizeof(float),auxM->textureC,GL_STATIC_DRAW);
             glBindTexture(GL_TEXTURE_2D, auxM->textureId); 
         }
+
         glDrawArrays(GL_TRIANGLES,0,auxM->size);
         glBindTexture(GL_TEXTURE_2D, 0);
         auxM = auxM->next;
