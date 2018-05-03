@@ -34,6 +34,7 @@ typedef struct modelPoints {
      float *normals;
      float *textureC;
      GLuint textureId;
+     float *colours;
      int size;
      struct modelPoints *next;
 }*Points;
@@ -128,7 +129,55 @@ int loadTexture(xmlChar *texture){
 	return texID;
 }
 
-int parseModel(xmlChar * file, xmlChar *texture, Points *m, int textureCount) {
+void getVals(xmlNodePtr cur, float *aux, int i, int *existColour, char *type){
+    type[4]='R'; type[5]='\0';
+    xmlChar *a1 = xmlGetProp(cur,(const xmlChar*)type);
+    type[4]='G'; type[5]='\0';
+    xmlChar *a2 = xmlGetProp(cur,(const xmlChar*)type);
+    type[4]='B'; type[5]='\0';
+    xmlChar *a3 = xmlGetProp(cur,(const xmlChar*)type);
+
+    if(a1!=NULL || a2!=NULL || a3!=NULL){
+        *existColour=1;
+        aux[i]= (a1!=NULL) ? atof(a1) : 0;
+        aux[i+1]= (a2!=NULL) ? atof(a2) : 0;
+        aux[i+2]= (a3!=NULL) ? atof(a3) : 0;
+        aux[i+3]= 1.f;
+    }else{
+        aux[i]=aux[i+1]=aux[i+2]=aux[i+3]=-1;
+    }
+}
+
+void getColours(xmlNodePtr cur, float **colours){
+    float *aux=(float*)malloc(sizeof(float)*17);
+    int existColour = 0, i=0;
+    char type[6];
+
+    strcpy(type,"diff");
+    getVals(cur,aux,i,&existColour,type);
+    i=i+4;
+    
+    strcpy(type,"spec");
+    getVals(cur,aux,i,&existColour,type);
+    aux[8] = (xmlGetProp(cur,(const xmlChar*)"shininess")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"shininess")) : 0;
+    i=i+5;
+
+    strcpy(type,"emis");
+    getVals(cur,aux,i,&existColour,type);
+    i=i+4;   
+
+    strcpy(type,"ambi");
+    getVals(cur,aux,i,&existColour,type);
+
+    if(existColour==1){
+        *colours = aux;
+    }else{
+        free(aux);
+        *colours = NULL;
+    }
+}
+
+int parseModel(xmlNodePtr cur, xmlChar * file, xmlChar *texture, Points *m, int textureCount) {
 	int fd,x,i=0,j=0,w=0,ret=0;
 	char buffer[213];
 	float coord[3];
@@ -144,6 +193,7 @@ int parseModel(xmlChar * file, xmlChar *texture, Points *m, int textureCount) {
             auxM->size=atoi(buffer);
             auxM->points = (float*)malloc(sizeof(float)*auxM->size*3);
             auxM->normals = (float*)malloc(sizeof(float)*auxM->size*3);
+            getColours(cur,&auxM->colours);
             if(texture){ 
                 auxM->textureC = (float*)malloc(sizeof(float)*auxM->size*2);
                 auxM->textureId=loadTexture(texture);
@@ -198,7 +248,7 @@ Points *parseModels(xmlNodePtr cur, Points *m, Transforms *t, int textureCount){
     int models=0;
     while(cur){
         if(!xmlStrcmp(cur->name,(const xmlChar*)"model")){
-            if(parseModel(xmlGetProp(cur,(const xmlChar*)"file"),xmlGetProp(cur, (const xmlChar*)"texture"),m, textureCount)){
+            if(parseModel(cur,xmlGetProp(cur,(const xmlChar*)"file"),xmlGetProp(cur, (const xmlChar*)"texture"),m, textureCount)){
                 m = &((*m)->next);
                 models++;
             }
@@ -528,15 +578,30 @@ void drawXYZ(){
 void drawModels(int begin, int end){
     Points auxM=*models;
     int i=0;
-
-    glColor3f(1.0,1.0,1.0); //white color
-
+    
     while(auxM && i<begin) {
         auxM = auxM -> next;
         i++;
     }
 
     while(auxM && i<end){
+        glColor3f(1.0,1.0,1.0); //white color if dont have colour atributes
+        if(auxM->colours){
+            if(auxM->colours[0]!=-1){
+                glMaterialfv(GL_FRONT, GL_DIFFUSE, auxM->colours);
+            }
+            if(auxM->colours[4]!=-1){
+                glMaterialf(GL_FRONT,GL_SHININESS,auxM->colours[8]);
+                glMaterialfv(GL_FRONT, GL_SPECULAR, auxM->colours+4);
+            }
+            if(auxM->colours[9]!=-1){
+                glMaterialfv(GL_FRONT, GL_EMISSION, auxM->colours+9);
+            }
+            if(auxM->colours[13]!=-1){
+                glMaterialfv(GL_FRONT, GL_AMBIENT, auxM->colours+13);
+            }
+        }
+
         glBindBuffer(GL_ARRAY_BUFFER,buffers[0]);
         glVertexPointer(3,GL_FLOAT,0,0);
         glBufferData(GL_ARRAY_BUFFER,(auxM->size)*3*sizeof(float),auxM->points,GL_STATIC_DRAW);
@@ -710,7 +775,8 @@ void drawLights(){
 }
 
 void renderScene(void) {
-
+    
+    glClearColor(0.0f,0.0f,0.0f,0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Camera
