@@ -82,11 +82,11 @@ void generatePlane(int fd, char *l, char *c){
     normal[2]=0.f;
 
     pos[0]=-lf; pos[1]=0.f; pos[2]=cf;
-    texture[0]=0.f; texture[1]=1.f;
+    texture[0]=0.f; texture[1]=0.f;
     printLine(fd,arr,pos,normal,texture);
 
     pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
-    texture[0]=0.f; texture[1]=0.f;
+    texture[0]=0.f; texture[1]=1.f;
     printLine(fd,arr,pos,normal,texture);
 
     pos[0]=lf; pos[1]=0.f; pos[2]=cf;
@@ -98,11 +98,11 @@ void generatePlane(int fd, char *l, char *c){
     printLine(fd,arr,pos,normal,texture);
 
     pos[0]=lf; pos[1]=0.f; pos[2]=-cf;
-    texture[0]=1.f; texture[1]=0.f;
+    texture[0]=1.f; texture[1]=1.f;
     printLine(fd,arr,pos,normal,texture);
 
     pos[0]=lf; pos[1]=0.f; pos[2]=cf;
-    texture[0]=1.f; texture[1]=1.f;
+    texture[0]=1.f; texture[1]=0.f;
     printLine(fd,arr,pos,normal,texture);
 }
 

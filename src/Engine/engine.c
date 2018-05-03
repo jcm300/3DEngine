@@ -96,10 +96,15 @@ long readln (int fildes, void * buf, size_t nbyte){
 	return i;
 }
 
-int loadTexture(xmlChar *texture, int textureId){
-    unsigned int t, tw, th;
+int loadTexture(xmlChar *texture){
+    unsigned int t,tw,th;
 	unsigned char *texData;
-	ilGenImages(1, &t);
+	unsigned int texID;
+
+	ilInit();
+	ilEnable(IL_ORIGIN_SET);
+	ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
+	ilGenImages(1,&t);
 	ilBindImage(t);
 	ilLoadImage((ILstring)texture);
 	tw = ilGetInteger(IL_IMAGE_WIDTH);
@@ -107,17 +112,22 @@ int loadTexture(xmlChar *texture, int textureId){
 	ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
 	texData = ilGetData();
 
-	glGenTextures(1, &texture);
+	glGenTextures(1,&texID);
+    glGetError();
+	
+	glBindTexture(GL_TEXTURE_2D,texID);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
-	glBindTexture((GLenum)textureId, texture);
-	glTexParameteri((GLenum)textureId, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri((GLenum)textureId, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+		
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tw, th, 0, GL_RGBA, GL_UNSIGNED_BYTE, texData);
+	glGenerateMipmap(GL_TEXTURE_2D);
 
-	glTexParameteri((GLenum)textureId, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri((GLenum)textureId, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
-	glTexImage2D((GLenum)textureId, 0, GL_RGBA, tw, th, 0, GL_RGBA, GL_UNSIGNED_BYTE, texData);
-	glGenerateMipmap((GLenum)textureId);
+	return texID;
 }
 
 int parseModel(xmlChar * file, xmlChar *texture, Points *m, int textureCount) {
@@ -137,11 +147,13 @@ int parseModel(xmlChar * file, xmlChar *texture, Points *m, int textureCount) {
             auxM->points = (float*)malloc(sizeof(float)*auxM->size);
             auxM->normals = (float*)malloc(sizeof(float)*auxM->size);
             if(texture){ 
-                auxM->textureC = (float*)malloc(sizeof(float)*(auxM->size-1));
-                auxM->textureId=loadTexture(texture, auxM->textureId);
-                textureCount++;
+                auxM->textureC = (float*)malloc(sizeof(float)*auxM->size/2);
+                auxM->textureId=loadTexture(texture);
             }
-            else auxM->textureC=NULL;
+            else{ 
+                auxM->textureC=NULL;
+                auxM->textureId=0;
+            }
             auxM->next = NULL;
             while(j++<auxM->size && (x=readln(fd,buffer,213))>0){
                 //vertex
@@ -168,8 +180,10 @@ int parseModel(xmlChar * file, xmlChar *texture, Points *m, int textureCount) {
                 if(texture){
                     aux = strtok(NULL," ");
                     coord[0] = atof(aux);
+                    fprintf(stderr,"%f\n",coord[0]);
                     aux = strtok (NULL, " ");
                     coord[1] = atof(aux);
+                    fprintf(stderr,"%f\n",coord[1]);
                     auxM->textureC[i]=coord[0];
                     auxM->textureC[i+1]=coord[1];
                 }
@@ -536,7 +550,14 @@ void drawModels(int begin, int end){
         glBufferData(GL_ARRAY_BUFFER,(auxM->size)*sizeof(float),auxM->points,GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER,buffers[1]);
         glBufferData(GL_ARRAY_BUFFER,(auxM->size)*sizeof(float),auxM->normals,GL_STATIC_DRAW);
+        if(auxM->textureC){
+            glBindBuffer(GL_ARRAY_BUFFER,buffers[2]); 
+            glBufferData(GL_ARRAY_BUFFER,(auxM->size)/2*sizeof(float),auxM->textureC,GL_STATIC_DRAW);
+            glTexCoordPointer(2,GL_FLOAT,0,0);
+            glBindTexture(GL_TEXTURE_2D, auxM->textureId); 
+        }
         glDrawArrays(GL_TRIANGLES,0,auxM->size);
+        glBindTexture(GL_TEXTURE_2D, 0);
         auxM = auxM->next;
         i++;
     }
@@ -791,7 +812,6 @@ void glEnableLights(){
 
 int main(int argc, char **argv) {
     if(argc==2){
-        xmlParser(argv[1]);
 	    
         glutInit(&argc, argv);
 	    glutInitDisplayMode(GLUT_DEPTH|GLUT_DOUBLE|GLUT_RGBA);
@@ -810,7 +830,6 @@ int main(int argc, char **argv) {
             glewInit();
         #endif
 
-        glEnable(GL_TEXTURE_2D);
 	    glEnable(GL_DEPTH_TEST);
 	    glEnable(GL_CULL_FACE);
         
@@ -818,9 +837,12 @@ int main(int argc, char **argv) {
         glEnableClientState(GL_NORMAL_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);        
 
-        glEnableLights();
+        glEnable(GL_TEXTURE_2D);
 
         glGenBuffers(3,buffers);
+
+        xmlParser(argv[1]);
+        glEnableLights();
 
 	    glutMainLoop();
     }else fprintf(stderr, "Wrong number of arguments.\n");
