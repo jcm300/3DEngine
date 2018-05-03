@@ -724,8 +724,6 @@ void renderScene(void) {
             0.0f,1.0f,0.0f);
     }
 	    
-    glCullFace(GL_FRONT);
-    glFrontFace(GL_CCW);
     glPolygonMode(GL_FRONT_AND_BACK, mode); //change mode
     
     //draw lights

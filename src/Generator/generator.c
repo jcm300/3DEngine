@@ -81,24 +81,24 @@ void generatePlane(int fd, char *l, char *c){
     normal[1]=1.f;
     normal[2]=0.f;
 
-    pos[0]=-lf; pos[1]=0.f; pos[2]=cf;
-    texture[0]=0.f; texture[1]=1.f;
-    printLine(fd,arr,pos,normal,texture);
-
     pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
     texture[0]=0.f; texture[1]=0.f;
+    printLine(fd,arr,pos,normal,texture);
+
+    pos[0]=-lf; pos[1]=0.f; pos[2]=cf;
+    texture[0]=0.f; texture[1]=1.f;
     printLine(fd,arr,pos,normal,texture);
 
     pos[0]=lf; pos[1]=0.f; pos[2]=cf;
     texture[0]=1.f; texture[1]=1.f;
     printLine(fd,arr,pos,normal,texture);
+    
+    pos[0]=lf; pos[1]=0.f; pos[2]=-cf;
+    texture[0]=1.f; texture[1]=0.f;
+    printLine(fd,arr,pos,normal,texture);
 
     pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
     texture[0]=0.f; texture[1]=0.f;
-    printLine(fd,arr,pos,normal,texture);
-
-    pos[0]=lf; pos[1]=0.f; pos[2]=-cf;
-    texture[0]=1.f; texture[1]=0.f;
     printLine(fd,arr,pos,normal,texture);
 
     pos[0]=lf; pos[1]=0.f; pos[2]=cf;
@@ -119,10 +119,10 @@ void faceXZ(int fd, char* array, float x1, float x2, float y, float z){
     else normal[1]=-1.f;
     normal[2]=0.f;
 
-    pos[0]=x2; pos[1]=y; pos[2]=z;
+    pos[0]=x1; pos[1]=y; pos[2]=-z;
     //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
-    pos[0]=x1; pos[1]=y; pos[2]=-z;
+    pos[0]=x2; pos[1]=y; pos[2]=z;
     //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
     if (y>0){
@@ -138,6 +138,9 @@ void faceXZ(int fd, char* array, float x1, float x2, float y, float z){
     pos[0]=x2; pos[1]=y; pos[2]=z;
     //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
+    pos[0]=x1; pos[1]=y; pos[2]=-z;
+    //calcular texture:TODO
+    printLine(fd,array,pos,normal,texture);
     if (y>0){
         pos[0]=x1; pos[1]=y; pos[2]=z;
         //calcular texture:TODO
@@ -147,9 +150,6 @@ void faceXZ(int fd, char* array, float x1, float x2, float y, float z){
         //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
     }
-    pos[0]=x1; pos[1]=y; pos[2]=-z;
-    //calcular texture:TODO
-    printLine(fd,array,pos,normal,texture);
 }
 
 void faceYZ(int fd, char* array, float x, float y1, float y2, float z){
@@ -159,11 +159,11 @@ void faceYZ(int fd, char* array, float x, float y1, float y2, float z){
     else normal[0]=-1.f;
     normal[1]=0.f;
     normal[2]=0.f;
-
-    pos[0]=x; pos[1]=y1; pos[2]=-z;
+    
+    pos[0]=x; pos[1]=y2; pos[2]=z;
     //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
-    pos[0]=x; pos[1]=y2; pos[2]=z;
+    pos[0]=x; pos[1]=y1; pos[2]=-z;
     //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
     if (x>0){
@@ -179,6 +179,9 @@ void faceYZ(int fd, char* array, float x, float y1, float y2, float z){
     pos[0]=x; pos[1]=y1; pos[2]=-z;
     //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
+    pos[0]=x; pos[1]=y2; pos[2]=z;
+    //calcular texture:TODO
+    printLine(fd,array,pos,normal,texture);
     if (x>0){
         pos[0]=x; pos[1]=y1; pos[2]=z;
         //calcular texture:TODO
@@ -188,9 +191,6 @@ void faceYZ(int fd, char* array, float x, float y1, float y2, float z){
         //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
     }
-    pos[0]=x; pos[1]=y2; pos[2]=z;
-    //calcular texture:TODO
-    printLine(fd,array,pos,normal,texture);
 }
 
 void faceXY(int fd, char* array, float x, float y1, float y2, float z){
@@ -200,11 +200,11 @@ void faceXY(int fd, char* array, float x, float y1, float y2, float z){
     normal[1]=0.f;
     if(z>0) normal[2]=1.f;
     else normal[2]=-1.f;
-
-    pos[0]=x; pos[1]=y1; pos[2]=z;
+    
+    pos[0]=-x; pos[1]=y2; pos[2]=z;
     //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
-    pos[0]=-x; pos[1]=y2; pos[2]=z;
+    pos[0]=x; pos[1]=y1; pos[2]=z;
     //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
     if (z>0){
@@ -220,6 +220,9 @@ void faceXY(int fd, char* array, float x, float y1, float y2, float z){
     pos[0]=x; pos[1]=y1; pos[2]=z;
     //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
+    pos[0]=-x; pos[1]=y2; pos[2]=z;
+    //calcular texture:TODO
+    printLine(fd,array,pos,normal,texture);
     if (z>0){
         pos[0]=-x; pos[1]=y1; pos[2]=z;
         //calcular texture:TODO
@@ -229,9 +232,6 @@ void faceXY(int fd, char* array, float x, float y1, float y2, float z){
         //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
     }
-    pos[0]=-x; pos[1]=y2; pos[2]=z;
-    //calcular texture:TODO
-    printLine(fd,array,pos,normal,texture);
 }
 
 void generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
@@ -328,10 +328,10 @@ void generateCone(int fd, char *radiuss , char *heights, char *slicess, char *st
         pos[0]=0.f; pos[1]=0.f; pos[2]=0.f;
         //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
-        pos[0]=radius*sin(curAngle); pos[1]=0.f; pos[2]=radius*cos(curAngle);
+        pos[0]=radius*sin(curAngle+deltaAngle); pos[1]=0.f; pos[2]=radius*cos(curAngle+deltaAngle);
         //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
-        pos[0]=radius*sin(curAngle+deltaAngle); pos[1]=0.f; pos[2]=radius*cos(curAngle+deltaAngle);
+        pos[0]=radius*sin(curAngle); pos[1]=0.f; pos[2]=radius*cos(curAngle);
         //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
     }
@@ -349,15 +349,6 @@ void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, fl
 
     for(i=0,curAngle=0.f;i<sliceCount;i++,curAngle+=angle){
         if(tpbt>=0){
-            curP[0]=nextRadius*sin(curAngle);
-            curP[1]=nextStackY;
-            curP[2]=nextRadius*cos(curAngle);
-            if(top<=0.f) normalize(curP,radius);
-            //TODO: calcular normal e texture
-            texture[0]=0.f;
-            texture[1]=1.f;
-            printLine(fd,array,curP,normal,texture);
-
             curP[0]=curRadius*sin(curAngle+angle);
             curP[1]=y;
             curP[2]=curRadius*cos(curAngle+angle);
@@ -365,6 +356,15 @@ void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, fl
             //TODO: calcular normal e texture
             texture[0]=1.f;
             texture[1]=0.f;
+            printLine(fd,array,curP,normal,texture);
+
+            curP[0]=nextRadius*sin(curAngle);
+            curP[1]=nextStackY;
+            curP[2]=nextRadius*cos(curAngle);
+            if(top<=0.f) normalize(curP,radius);
+            //TODO: calcular normal e texture
+            texture[0]=0.f;
+            texture[1]=1.f;
             printLine(fd,array,curP,normal,texture);
 
             curP[0]=curRadius*sin(curAngle);
@@ -378,15 +378,6 @@ void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, fl
         }
         
         if(tpbt<=0){
-            curP[0]=nextRadius*sin(curAngle);
-            curP[1]=nextStackY;
-            curP[2]=nextRadius*cos(curAngle);
-            if(top<=0.f) normalize(curP,radius);
-            //calcular normal e texture:TODO
-            texture[0]=0.f; 
-            texture[1]=1.f; 
-            printLine(fd,array,curP,normal,texture);
-            
             curP[0]=nextRadius*sin(curAngle+angle);
             curP[1]=nextStackY;
             curP[2]=nextRadius*cos(curAngle+angle);
@@ -395,7 +386,16 @@ void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, fl
             texture[0]=1.f; 
             texture[1]=1.f; 
             printLine(fd,array,curP,normal,texture);
-        
+ 
+            curP[0]=nextRadius*sin(curAngle);
+            curP[1]=nextStackY;
+            curP[2]=nextRadius*cos(curAngle);
+            if(top<=0.f) normalize(curP,radius);
+            //calcular normal e texture:TODO
+            texture[0]=0.f; 
+            texture[1]=1.f; 
+            printLine(fd,array,curP,normal,texture);
+       
             curP[0]=curRadius*sin(curAngle+angle);
             curP[1]=y;
             curP[2]=curRadius*cos(curAngle+angle);
@@ -606,12 +606,12 @@ void generateBezierPatch(int fd, char *file, char *tessLevel){
             for(int t=0; t<tL-1; t++){
                 for(int q=0; q<tL-1; q++){
                     printLine(fd,array,points[t][q],normal[t][q],texture[t][q]);
-                    printLine(fd,array,points[t+1][q],normal[t+1][q],texture[t+1][q]);
                     printLine(fd,array,points[t][q+1],normal[t][q+1],texture[t][q+1]);
+                    printLine(fd,array,points[t+1][q],normal[t+1][q],texture[t+1][q]);
                     
                     printLine(fd,array,points[t+1][q],normal[t+1][q],texture[t+1][q]);
-                    printLine(fd,array,points[t+1][q+1],normal[t+1][q+1],texture[t+1][q+1]);
                     printLine(fd,array,points[t][q+1],normal[t][q+1],texture[t][q+1]);
+                    printLine(fd,array,points[t+1][q+1],normal[t+1][q+1],texture[t+1][q+1]);
                 }
             }
         }
