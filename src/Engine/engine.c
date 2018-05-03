@@ -289,38 +289,53 @@ void pop(Transforms *t){
 
 void parseLight(xmlNodePtr cur, Lights *l){
     char *aux;
+    int i;
     Lights auxL=(Lights)malloc(sizeof(struct light));
+    
     if(xmlGetProp(cur,(const xmlChar*)"type")!=NULL){
        aux = (char*)xmlGetProp(cur,(const xmlChar*)"type");
-       if(strcmp(aux,"POINT")==0) auxL->t='p';
-       else if(strcmp(aux,"DIRECTIONAL")==0) auxL->t='d';
-            else if(strcmp(aux,"SPOT")==0) auxL->t='s';
-                 else auxL->t='d';
+       
+       if(strcmp(aux,"POINT")==0){
+           auxL->t='p';
+           auxL->args =(float*)malloc(sizeof(float)*8);
+       }else if(strcmp(aux,"DIRECTIONAL")==0){
+           auxL->t='d';
+           auxL->args =(float*)malloc(sizeof(float)*8);
+       }else if(strcmp(aux,"SPOT")==0){
+           auxL->t='s';
+           auxL->args =(float*)malloc(sizeof(float)*12);
+       }
     }
-
-    auxL->args =(float*)malloc(sizeof(float)*4);
-    switch(auxL->t){
-        case 'p':
+   
+    //lights with position
+    if(auxL->t=='p' || auxL->t=='s'){
             auxL->args[0]= (xmlGetProp(cur,(const xmlChar*)"posX")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"posX")) : 0;
             auxL->args[1]= (xmlGetProp(cur,(const xmlChar*)"posY")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"posY")) : 0;
             auxL->args[2]= (xmlGetProp(cur,(const xmlChar*)"posZ")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"posZ")) : 0;
             auxL->args[3]=0.f;
-            break;
-        case 'd':
-            auxL->args[0]= (xmlGetProp(cur,(const xmlChar*)"dirX")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"dirX")) : 0;
-            auxL->args[1]= (xmlGetProp(cur,(const xmlChar*)"dirY")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"dirY")) : 0;
-            auxL->args[2]= (xmlGetProp(cur,(const xmlChar*)"dirZ")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"dirZ")) : 0;
-            auxL->args[3]=1.f;
-            break;
-        case 's':
-            auxL->args[0]= (xmlGetProp(cur,(const xmlChar*)"posX")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"posX")) : 0;
-            auxL->args[1]= (xmlGetProp(cur,(const xmlChar*)"posY")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"posY")) : 0;
-            auxL->args[2]= (xmlGetProp(cur,(const xmlChar*)"posZ")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"posZ")) : 0;
-            auxL->args[3]= (xmlGetProp(cur,(const xmlChar*)"cutoff")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"cutoff")) : 0;
-            break;
-        default:
-            break;
     }
+
+    //all lights have diffuse color
+    auxL->args[4]= (xmlGetProp(cur,(const xmlChar*)"diffR")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"diffR")) : 0;
+    auxL->args[5]= (xmlGetProp(cur,(const xmlChar*)"diffG")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"diffG")) : 0;
+    auxL->args[6]= (xmlGetProp(cur,(const xmlChar*)"diffB")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"diffB")) : 0;
+    auxL->args[7]= (xmlGetProp(cur,(const xmlChar*)"diffA")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"diffA")) : 0;
+    
+    //lights with direction
+    if(auxL->t=='d' || auxL->t=='s'){
+            if(auxL->t=='s'){
+                i=8;
+                auxL->args[11]= (xmlGetProp(cur,(const xmlChar*)"cutoff")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"cutoff")) : 0;
+            }else{
+                i=0;
+                auxL->args[3]=1.f;
+            }
+            
+            auxL->args[i]= (xmlGetProp(cur,(const xmlChar*)"dirX")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"dirX")) : 0;
+            auxL->args[i+1]= (xmlGetProp(cur,(const xmlChar*)"dirY")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"dirY")) : 0;
+            auxL->args[i+2]= (xmlGetProp(cur,(const xmlChar*)"dirZ")!=NULL) ? atof(xmlGetProp(cur,(const xmlChar*)"dirZ")) : 0;
+    }
+
     auxL->next=NULL;
     *l=auxL;
 }
@@ -669,8 +684,11 @@ void drawLights(){
         if(auxL->t=='p' || auxL->t=='d'){
             glLightfv(GL_LIGHT0+i, GL_POSITION, auxL->args);
         }else if(auxL->t=='s'){
-            //TODO: spot light
+            glLightfv(GL_LIGHT0+i, GL_POSITION, auxL->args);
+            glLightfv(GL_LIGHT0+i, GL_SPOT_DIRECTION, auxL->args+8);
+            glLightf(GL_LIGHT0+i, GL_SPOT_CUTOFF, auxL->args[11]);
         }
+         glLightfv(GL_LIGHT0+i, GL_DIFFUSE, auxL->args+4);
     }
 }
 
