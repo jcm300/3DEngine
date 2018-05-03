@@ -147,7 +147,7 @@ int parseModel(xmlChar * file, xmlChar *texture, Points *m, int textureCount) {
             auxM->points = (float*)malloc(sizeof(float)*auxM->size);
             auxM->normals = (float*)malloc(sizeof(float)*auxM->size);
             if(texture){ 
-                auxM->textureC = (float*)malloc(sizeof(float)*auxM->size/2);
+                auxM->textureC = (float*)malloc((sizeof(float)*auxM->size/3)*2);
                 auxM->textureId=loadTexture(texture);
             }
             else{ 
@@ -180,10 +180,8 @@ int parseModel(xmlChar * file, xmlChar *texture, Points *m, int textureCount) {
                 if(texture){
                     aux = strtok(NULL," ");
                     coord[0] = atof(aux);
-                    fprintf(stderr,"%f\n",coord[0]);
                     aux = strtok (NULL, " ");
                     coord[1] = atof(aux);
-                    fprintf(stderr,"%f\n",coord[1]);
                     auxM->textureC[i]=coord[0];
                     auxM->textureC[i+1]=coord[1];
                 }
@@ -539,7 +537,7 @@ void drawModels(int begin, int end){
     
     glBindBuffer(GL_ARRAY_BUFFER,buffers[1]);
     glNormalPointer(GL_FLOAT,0,0);
-
+    
     while(auxM && i<begin) {
         auxM = auxM -> next;
         i++;
@@ -552,7 +550,7 @@ void drawModels(int begin, int end){
         glBufferData(GL_ARRAY_BUFFER,(auxM->size)*sizeof(float),auxM->normals,GL_STATIC_DRAW);
         if(auxM->textureC){
             glBindBuffer(GL_ARRAY_BUFFER,buffers[2]); 
-            glBufferData(GL_ARRAY_BUFFER,(auxM->size)/2*sizeof(float),auxM->textureC,GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER,((auxM->size)/3)*2*sizeof(float),auxM->textureC,GL_STATIC_DRAW);
             glTexCoordPointer(2,GL_FLOAT,0,0);
             glBindTexture(GL_TEXTURE_2D, auxM->textureId); 
         }

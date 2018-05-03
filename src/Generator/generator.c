@@ -82,27 +82,27 @@ void generatePlane(int fd, char *l, char *c){
     normal[2]=0.f;
 
     pos[0]=-lf; pos[1]=0.f; pos[2]=cf;
+    texture[0]=0.f; texture[1]=1.f;
+    printLine(fd,arr,pos,normal,texture);
+
+    pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
     texture[0]=0.f; texture[1]=0.f;
     printLine(fd,arr,pos,normal,texture);
 
-    pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
-    texture[0]=0.f; texture[1]=1.f;
-    printLine(fd,arr,pos,normal,texture);
-
     pos[0]=lf; pos[1]=0.f; pos[2]=cf;
-    texture[0]=1.f; texture[1]=0.f;
-    printLine(fd,arr,pos,normal,texture);
-
-    pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
-    texture[0]=0.f; texture[1]=1.f;
-    printLine(fd,arr,pos,normal,texture);
-
-    pos[0]=lf; pos[1]=0.f; pos[2]=-cf;
     texture[0]=1.f; texture[1]=1.f;
     printLine(fd,arr,pos,normal,texture);
 
-    pos[0]=lf; pos[1]=0.f; pos[2]=cf;
+    pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
+    texture[0]=0.f; texture[1]=0.f;
+    printLine(fd,arr,pos,normal,texture);
+
+    pos[0]=lf; pos[1]=0.f; pos[2]=-cf;
     texture[0]=1.f; texture[1]=0.f;
+    printLine(fd,arr,pos,normal,texture);
+
+    pos[0]=lf; pos[1]=0.f; pos[2]=cf;
+    texture[0]=1.f; texture[1]=1.f;
     printLine(fd,arr,pos,normal,texture);
 }
 
@@ -113,109 +113,124 @@ void printLine(int fd, char* array, float pos[], float normal[], float texture[]
 
 void faceXZ(int fd, char* array, float x1, float x2, float y, float z){
 	float pos[3], normal[3], texture[2];
-    
+   
+    normal[0]=0.f;
+    if(y>0) normal[1]=1.f;
+    else normal[1]=-1.f;
+    normal[2]=0.f;
+
     pos[0]=x2; pos[1]=y; pos[2]=z;
-    //calcular normal e texture:TODO
+    //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
     pos[0]=x1; pos[1]=y; pos[2]=-z;
-    //calcular normal e texture:TODO
+    //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
     if (y>0){
         pos[0]=x2; pos[1]=y; pos[2]=-z;
-        //calcular normal e texture:TODO
+        //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=x1; pos[1]=y; pos[2]=z;
-        //calcular normal e texture:TODO
+        //calcular texture:TODO
         printLine(fd,array,pos,normal,texture); 
     }
 
     pos[0]=x2; pos[1]=y; pos[2]=z;
-    //calcular normal e texture:TODO
+    //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
     if (y>0){
         pos[0]=x1; pos[1]=y; pos[2]=z;
-        //calcular normal e texture:TODO
+        //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=x2; pos[1]=y; pos[2]=-z;
-        //calcular normal e texture:TODO
+        //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
     }
     pos[0]=x1; pos[1]=y; pos[2]=-z;
-    //calcular normal e texture:TODO
+    //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
 }
 
 void faceYZ(int fd, char* array, float x, float y1, float y2, float z){
     float pos[3], normal[3], texture[2];
-    
+   
+    if(x>0) normal[0]=1.f;
+    else normal[0]=-1.f;
+    normal[1]=0.f;
+    normal[2]=0.f;
+
     pos[0]=x; pos[1]=y1; pos[2]=-z;
-    //calcular normal e texture:TODO
+    //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
     pos[0]=x; pos[1]=y2; pos[2]=z;
-    //calcular normal e texture:TODO
+    //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
     if (x>0){
         pos[0]=x; pos[1]=y2; pos[2]=-z;
-        //calcular normal e texture:TODO
+        //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=x; pos[1]=y1; pos[2]=z;
-        //calcular normal e texture:TODO
+        //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
     }
 
     pos[0]=x; pos[1]=y1; pos[2]=-z;
-    //calcular normal e texture:TODO
+    //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
     if (x>0){
         pos[0]=x; pos[1]=y1; pos[2]=z;
-        //calcular normal e texture:TODO
+        //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=x; pos[1]=y2; pos[2]=-z;
-        //calcular normal e texture:TODO
+        //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
     }
     pos[0]=x; pos[1]=y2; pos[2]=z;
-    //calcular normal e texture:TODO
+    //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
 }
 
 void faceXY(int fd, char* array, float x, float y1, float y2, float z){
 	float pos[3], normal[3], texture[2];
+    
+    normal[0]=0.f;
+    normal[1]=0.f;
+    if(z>0) normal[2]=1.f;
+    else normal[2]=-1.f;
 
     pos[0]=x; pos[1]=y1; pos[2]=z;
-    //calcular normal e texture:TODO
+    //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
     pos[0]=-x; pos[1]=y2; pos[2]=z;
-    //calcular normal e texture:TODO
+    //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
     if (z>0){
         pos[0]=x; pos[1]=y2; pos[2]=z;
-        //calcular normal e texture:TODO
+        //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=-x; pos[1]=y1; pos[2]=z;
-        //calcular normal e texture:TODO
+        //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
     }
 
     pos[0]=x; pos[1]=y1; pos[2]=z;
-    //calcular normal e texture:TODO
+    //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
     if (z>0){
         pos[0]=-x; pos[1]=y1; pos[2]=z;
-        //calcular normal e texture:TODO
+        //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=x; pos[1]=y2; pos[2]=z;
-        //calcular normal e texture:TODO
+        //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
     }
     pos[0]=-x; pos[1]=y2; pos[2]=z;
-    //calcular normal e texture:TODO
+    //calcular texture:TODO
     printLine(fd,array,pos,normal,texture);
 }
 
@@ -306,15 +321,18 @@ void generateCone(int fd, char *radiuss , char *heights, char *slicess, char *st
     genWalls(fd,slices,radius,curRadius,curHeight,deltaAngle,deltaR,deltaH,1);
 
     //base
+    normal[0]=0.f;
+    normal[1]=-1.f;
+    normal[2]=0.f;
     for(i=0, curAngle=0.f;i<slices;i++,curAngle+=deltaAngle){
         pos[0]=0.f; pos[1]=0.f; pos[2]=0.f;
-        //calcular normal e texture:TODO
+        //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
         pos[0]=radius*sin(curAngle); pos[1]=0.f; pos[2]=radius*cos(curAngle);
-        //calcular normal e texture:TODO
+        //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
         pos[0]=radius*sin(curAngle+deltaAngle); pos[1]=0.f; pos[2]=radius*cos(curAngle+deltaAngle);
-        //calcular normal e texture:TODO
+        //calcular texture:TODO
         printLine(fd,array,pos,normal,texture);
     }
 }
