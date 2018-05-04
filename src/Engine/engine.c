@@ -576,17 +576,33 @@ void drawXYZ(){
 
 }
 
+void colorClear(int t){
+    float black[4]={0,0,0,0};
+    float white[4]={1,1,1,1};
+    
+    if(t==1){
+        glMaterialfv(GL_FRONT, GL_DIFFUSE, black);
+    }else{
+        glMaterialfv(GL_FRONT, GL_DIFFUSE, white);
+    }
+    glMaterialf(GL_FRONT,GL_SHININESS,0);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, black);
+    glMaterialfv(GL_FRONT, GL_EMISSION, black);
+    glMaterialfv(GL_FRONT, GL_AMBIENT, black);
+}
+
 void drawModels(int begin, int end){
     Points auxM=*models;
     int i=0;
-    
+
     while(auxM && i<begin) {
         auxM = auxM -> next;
         i++;
     }
 
     while(auxM && i<end){
-        glColor3f(1.0,1.0,1.0); //white color
+        //clean colors but define diffuse as white
+        colorClear(0);
         if(auxM->colours && numLights>0){
             if(auxM->colours[0]!=-1){
                 float color[4]={auxM->colours[0],auxM->colours[1],auxM->colours[2],auxM->colours[3]};
@@ -626,6 +642,8 @@ void drawModels(int begin, int end){
         glBindTexture(GL_TEXTURE_2D, 0);
         auxM = auxM->next;
         i++;
+        //clean colors
+        colorClear(1);
     }
 }
 
@@ -671,7 +689,7 @@ void getCatmullRomPoint(float t, float *p0, float *p1, float *p2, float *p3, flo
     for(int i=0;i<3;i++)
         pos[i]=powf(t,3)*a[0][i]+powf(t,2)*a[1][i]+t*a[2][i]+a[3][i];
         
-    // compute deriv = T' * A
+    // compute deriv = T'] * A
     for(int i=0;i<3;i++)
         deriv[i]=3*powf(t,2)*a[0][i]+2*t*a[1][i]+a[2][i];
 }
