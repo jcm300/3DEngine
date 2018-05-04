@@ -1,0 +1,10 @@
+<scene>
+    <lights>
+        <light type="DIRECTIONAL" dirX="0" dirY="-1" dirZ="0" diffR="1" diffG="1" diffB="1" diffA="1"/>
+    </lights>
+    <group>
+        <models>
+            <model file="sphere.3d" />
+        </models>
+    </group>
+</scene>

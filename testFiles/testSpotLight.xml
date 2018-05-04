@@ -1,0 +1,10 @@
+<scene>
+    <lights>
+        <light type="SPOT" posX="0" posY="15" posZ="0" diffR="1" diffG="1" diffB="1" diffA="1" dirX="0" dirY="-1" dirZ="0" cutoff="5"/>
+    </lights>
+    <group>
+        <models>
+            <model file="sphere.3d" />
+        </models>
+    </group>
+</scene>

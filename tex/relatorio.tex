@@ -27,9 +27,7 @@ Este documento serve de documentação à implementação do generator bem como 
 
 \newpage
 
-\section{1ª Fase}
-
-\subsection{Generator}
+\section{Generator}
 
 O Generator é o programa responsável por criar os ficheiros pretendidos pelo utilizador, estes contêm os pontos necessários para o Engine conseguir interpretar e "desenhar" os modelos pretendidos.
 O programa está construído de forma a poder responder a pedidos relacionados com 4 objetos:
@@ -74,14 +72,14 @@ De modo a desenhar 2 triângulos são necessários 6 pontos:
 \begin{itemize}
     \item triângulo 1
         \begin{itemize}
-            \item ponto 1: (-x/2,0,z/2)
-            \item ponto 2: (-x/2,0,-z/2)
+            \item ponto 1: (-x/2,0,-z/2)
+            \item ponto 2: (-x/2,0,z/2)
             \item ponto 3: (x/2,0,z/2)
         \end{itemize}
     \item triângulo 2
         \begin{itemize}
-            \item ponto 1: (-x/2,0,-z/2)
-            \item ponto 2: (x/2,0,-z/2)
+            \item ponto 1: (x/2,0,-z/2)
+            \item ponto 2: (-x/2,0,-z/2)
             \item ponto 3: (x/2,0,z/2)
         \end{itemize}
 \end{itemize}
@@ -90,6 +88,10 @@ De modo a desenhar 2 triângulos são necessários 6 pontos:
 \centering
 \includegraphics[height=7cm]{planeMath.png}
 \end{figure}
+
+\subsubsection{Normais}
+
+\subsubsection{Texturas}
 
 \subsection{Caixa (Box)}
 
@@ -159,16 +161,16 @@ Para desenhar as faces(2 triângulos por cada face) as ordens dos pontos seria, 
 Entre os pontos B e G e entre os pontos C e E apenas é alterado a coordenada z que é simétrica. Sendo assim, na função faceXY podemos (chamando duas vezes a função, uma com zParâmetro=z e outra com zParâmetro=-z) desenhar as duas faces sendo que, os pontos B e G são desenhados pela mesma expressão(x,-y,zParâmetro) e os C e E também(-x,y,zParâmetro). Para os outros pontos é usado um if e consoante o valor de z é desenhado os pontos correspondentes:
 \begin{verbatim}
 //triângulo 1 da face ABCD(z>0) ou triângulo 2 da face EFGH(z<0)
+(-x,y,zParâmetro) // desenhar C ou E
+(x,-y,zParâmetro) //desenhar B ou G
+if(z>0) (x,y,zParâmetro) //desenhar D
+else (-x,-y,zParâmetro) //desenhar F
+
+//triângulo 2 da face ABCD(z>0) ou triângulo 1 da face EFGH(z<0)
 (x,-y,zParâmetro) //desenhar B ou G
 (-x,y,zParâmetro) // desenhar C ou E
 if(z>0) (-x,-y,zParâmetro) //desenhar A
 else (x,y,zParâmetro) //desenhar H
-
-//triângulo 2 da face ABCD(z>0) ou triângulo 1 da face EFGH(z<0)
-(x,-y,zParâmetro) //desenhar B ou G
-if(z>0) (x,y,zParâmetro) //desenhar D
-else (-x,-y,zParâmetro) //desenhar F
-(-x,y,zParâmetro) // desenhar C ou E
 \end{verbatim}
 Isto é aplicado às outras faces mudando a coordenada simétrica:
 \begin{itemize}
@@ -196,6 +198,10 @@ Na próxima iteração passamos a desenhar o retângulo [A' B' B'' A''] e por a�
 \newline
 Nesta face, o eixo que faz variar as divisões é o y, já no caso da face superior e da inferior este eixo passa a ser o x, mas seguindo sempre a mesma teoria.
 
+\subsubsection{Normais}
+
+\subsubsection{Texturas}
+
 \subsection{Esfera (Sphere)}
 A esfera é o modelo mais complexo dos envolvidos. Neste modelo, mais uma vez, o centro foi colocado na origem. O número de vértices necessários para a esfera é calculado da seguinte maneira:
 \begin{enumerate}
@@ -209,7 +215,7 @@ A esfera é o modelo mais complexo dos envolvidos. Neste modelo, mais uma vez, o
 O cálculo dos pontos que forma as laterais da esfera e do cone é feita com recurso à função:
 \begin{Verbatim}
     void genWalls(int fd, int sliceCount, float radius, float curRadius, 
-                    float y, float angle, float delta, float top,int tpbt)
+        float y, float angle, float delta, float top,int tpbt, float height)
 \end{Verbatim}
 
 Para tal esta calcula os dois triângulos que formam a superfície de cada uma das figuras (cone e esfera).
@@ -253,15 +259,11 @@ Inicialmente são calculados os pontos que formam a metade superior da esfera. V
 \end{figure}
 
 \begin{Verbatim}[fontsize=\small]    
-    float dist=sqrt(cur.x*cur.x+cur.y*cur.y+cur.z*cur.z);
-    float dx,dy,dz;
-    dx=(cur.x*radius)/dist;
-    dy=(cur.y*radius)/dist;
-    dz=(cur.z*radius)/dist;
-    normPoint.x=dx;
-    normPoint.y=dy;
-    normPoint.z=dz;
-    return normPoint;
+    float dist=sqrt(cur[0]*cur[0]+cur[1]*cur[1]+cur[2]*cur[2]);
+      
+    cur[0]=(cur[0]*radius)/dist;
+    cur[1]=(cur[1]*radius)/dist;
+    cur[2]=(cur[2]*radius)/dist;
 \end{Verbatim}
 
 \begin{figure}[H]
@@ -277,6 +279,10 @@ Este mesmo processo é depois aplicado à metade inferior da esfera, permitindo 
     \includegraphics[height=7cm]{sphereFinal.png}
     \caption{Resultado obtido usando como parâmetros 1 50 50}
 \end{figure}
+
+\subsubsection{Normais}
+
+\subsubsection{Texturas}
 
 \subsection{Cone (Cone)}
 O cone, tal como a esfera, é um dos modelos mais complexos, tanto em termos de cálculo dos pontos necessários como também da quantidade dos mesmos. No caso do cone, o centro da base foi colocado na origem do referencial. O número de pontos necessário à configuração do modelo do cone é calculado da seguinte maneira:
@@ -312,7 +318,42 @@ Por fim é gerada a base do cone que consiste em numa aproximação a um círcul
 
 \newpage
 
-\subsection{Engine}
+\subsubsection{Normais}
+
+\subsubsection{Texturas}
+
+\subsection{Bezier Patches}
+De modo a gerar no generator os triângulos correpondentes à figura presente num ficheiro \textit{.patch} inicialmente é necessário carregar os valores presentes no mesmo para memória daí a existência de \textit{getNumber} que obtém o número de \textit{Patches} ou o número de \textit{Control Points}, de \textit{getPatches} que guarda os índices dos pontos de controlo e por fim de \textit{getControlPoints} que guarda os pontos de controlo.
+
+Após esta fase de recolha de dados, imprime-se no ficheiro de \textit{output} o número de pontos que irão ser gerados: $numPatches*(tesselationLevel-1)*(tesselationLevel-1)*6$, em que \textit{tesselationLevel} é o número de tesselagem passado como parâmetro, que \textit{numPatches} é o número de \textit{patches}, que 6 deriva do facto de que para cada 2 triângulos são necessários 6 pontos, e por fim é multiplicado pelo número de secções(2 triângulos) que irão existir em cada patch ($(tesselationLevel-1)*(tesselationLevel-1)$) visto que o que será gerado é uma malha destas secções na superficie delimitada pelos pontos extremos de controlo (os 4 pontos de controlo presentes em cada canto da matriz com os pontos de controlo).
+
+De seguida para cada \textit{patch} é recolhido os pontos de controlo a partir dos índices de cada \textit{patch} com a função \textit{getPatchPoints} para logo de seguida ser calculada a matriz constante $RES=M*CP*M^T$, sendo CP a matriz dos pontos de controlo recolhidos anteriormente, na função \textit{mMultCpMultM}. Portanto com a matriz resultante (RES) é calculado os ``novos'' pontos de modo a gerar os triângulos a partir dos mesmos. 
+
+Tendo em conta que u e v só podem variar de 0 a 1 e que recebemos como parâmetro o nivel de tesselagem (\textit{tesselationLevel}) que tem de ser no mínimo 4, caso em que os pontos resultantes são os próprios pontos de controlo, é calculado cada ponto com a função \textit{calcPoint} sendo guardado em \textit{points} para posterior criação de triângulos. Esta função (\textit{calcPoint}) é chamada num loop duplo que, varia v entre 0 e 1 aumentando v em $1/(tesselationLevel-1)$ em cada iteração no loop externo e no loop interno u varia entre 0 e 1 aumentado u também em $1/(tesselationLevel-1)$ em cada iteração. 
+
+A função calcPoints calcula a posição do ponto atravês da fórmula de Bezier: $\begin{bmatrix} u^3 & u^2 & u & 1 \end{bmatrix}*RES*\begin{bmatrix} v^3 \\ v^2 \\ v \\ 1 \end{bmatrix}$
+em que como visto anteriormente $RES=M*CP*M^T$, com CP sendo os pontos de controlo.
+
+Por fim sao percorridos os pontos guardados em \textit{points} de modo a criar os triângulos:
+\begin{verbatim}
+for(int t=0; t<tL-1; t++){
+    for(int q=0; q<tL-1; q++){
+        printLine(fd,array,points[t][q][0],points[t][q][1],points[t][q][2]);
+        printLine(fd,array,points[t][q+1][0],points[t][q+1][1],points[t][q+1][2]);
+        printLine(fd,array,points[t+1][q][0],points[t+1][q][1],points[t+1][q][2]);
+
+        printLine(fd,array,points[t+1][q][0],points[t+1][q][1],points[t+1][q][2]);
+        printLine(fd,array,points[t][q+1][0],points[t][q+1][1],points[t][q+1][2]);
+        printLine(fd,array,points[t+1][q+1][0],points[t+1][q+1][1],points[t+1][q+1][2]);
+    }
+}
+\end{verbatim}
+
+\subsubsection{Normais}
+
+\subsubsection{Texturas}
+
+\section{Engine}
 Em termos de bibliotecas, no engine são utilizadas as seguintes:
 \begin{itemize}
     \item Libxml2: Parser XML utilizado devido à sua alta utilização bem como simplicidade
@@ -340,8 +381,6 @@ Foi também implementado, recorrendo a coordenadas polares, a possibilidade de m
 Para além disso, carregando na tecla 'm' é alterado consecutivamente o modo de display dos polígonos, alternando entre FILL (a cheio), LINE (em linhas) e POINT (apenas pontos).
 
 \newpage
-
-\section{2ª Fase}
 
 \subsection{Objetivo}
 A segunda fase do projeto consiste em implementar, no componente \textit{Engine}, a possbilidade de tratar os ficheiros \textit{XML} que especificam transformações geométricas aplicadas a um conjunto de modelos que pertençam ao mesmo grupo. 
@@ -448,7 +487,7 @@ A função \textit{draw} decide qual das tranformações/ações tomar tendo com
 No caso do tipo ser 'm' é utilizada a função \textit{drawModels} que desenha os modelos correspondentes:
 \begin{verbatim}
 while(auxM && i<end){
-    glBufferData(GL_ARRAY_BUFFER,(auxM->size)*sizeof(float),auxM->points,GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,(auxM->size)*3*sizeof(float),auxM->points,GL_STATIC_DRAW);
     glDrawArrays(GL_TRIANGLES,0,auxM->size);
     auxM = auxM->next;
     i++;
@@ -467,35 +506,6 @@ Dentro deste modo de visualização, utilizamos as teclas:
     \item \textit{'d'} para mover a câmara para a direita
     \item setas direita e esquerda para efetuar rotação no sentido pretendido
 \end{itemize}
-
-\section{3º Fase}
-
-\subsection{Bezier Patches}
-De modo a gerar no generator os triângulos correpondentes à figura presente num ficheiro \textit{.patch} inicialmente é necessário carregar os valores presentes no mesmo para memória daí a existência de \textit{getNumber} que obtém o número de \textit{Patches} ou o número de \textit{Control Points}, de \textit{getPatches} que guarda os índices dos pontos de controlo e por fim de \textit{getControlPoints} que guarda os pontos de controlo.
-
-Após esta fase de recolha de dados, imprime-se no ficheiro de \textit{output} o número de pontos que irão ser gerados: $numPatches*(tesselationLevel-1)*(tesselationLevel-1)*6$, em que \textit{tesselationLevel} é o número de tesselagem passado como parâmetro, que \textit{numPatches} é o número de \textit{patches}, que 6 deriva do facto de que para cada 2 triângulos são necessários 6 pontos, e por fim é multiplicado pelo número de secções(2 triângulos) que irão existir em cada patch ($(tesselationLevel-1)*(tesselationLevel-1)$) visto que o que será gerado é uma malha destas secções na superficie delimitada pelos pontos extremos de controlo (os 4 pontos de controlo presentes em cada canto da matriz com os pontos de controlo).
-
-De seguida para cada \textit{patch} é recolhido os pontos de controlo a partir dos índices de cada \textit{patch} com a função \textit{getPatchPoints} para logo de seguida ser calculada a matriz constante $RES=M*CP*M^T$, sendo CP a matriz dos pontos de controlo recolhidos anteriormente, na função \textit{mMultCpMultM}. Portanto com a matriz resultante (RES) é calculado os ``novos'' pontos de modo a gerar os triângulos a partir dos mesmos. 
-
-Tendo em conta que u e v só podem variar de 0 a 1 e que recebemos como parâmetro o nivel de tesselagem (\textit{tesselationLevel}) que tem de ser no mínimo 4, caso em que os pontos resultantes são os próprios pontos de controlo, é calculado cada ponto com a função \textit{calcPoint} sendo guardado em \textit{points} para posterior criação de triângulos. Esta função (\textit{calcPoint}) é chamada num loop duplo que, varia v entre 0 e 1 aumentando v em $1/(tesselationLevel-1)$ em cada iteração no loop externo e no loop interno u varia entre 0 e 1 aumentado u também em $1/(tesselationLevel-1)$ em cada iteração. 
-
-A função calcPoints calcula a posição do ponto atravês da fórmula de Bezier: $\begin{bmatrix} u^3 & u^2 & u & 1 \end{bmatrix}*RES*\begin{bmatrix} v^3 \\ v^2 \\ v \\ 1 \end{bmatrix}$
-em que como visto anteriormente $RES=M*CP*M^T$, com CP sendo os pontos de controlo.
-
-Por fim sao percorridos os pontos guardados em \textit{points} de modo a criar os triângulos:
-\begin{verbatim}
-for(int t=0; t<tL-1; t++){
-    for(int q=0; q<tL-1; q++){
-        printLine(fd,array,points[t][q][0],points[t][q][1],points[t][q][2]);
-        printLine(fd,array,points[t+1][q][0],points[t+1][q][1],points[t+1][q][2]);
-        printLine(fd,array,points[t][q+1][0],points[t][q+1][1],points[t][q+1][2]);
-
-        printLine(fd,array,points[t+1][q][0],points[t+1][q][1],points[t+1][q][2]);
-        printLine(fd,array,points[t+1][q+1][0],points[t+1][q+1][1],points[t+1][q+1][2]);
-        printLine(fd,array,points[t][q+1][0],points[t][q+1][1],points[t][q+1][2]);
-    }
-}
-\end{verbatim}
 
 \subsection{Catmull Rom - Translação}
 O uso de translações com uma duração predefinida é usada para introduzir movimento(animação) na cena. Estas translações seguem uma trajetória definida por uma curva cúbica de Catmull-Rom.
@@ -608,7 +618,11 @@ else if(abs(rot)==1){ //yy rotation
 \end{verbatim}
 Sendo que \texttt{betafpc} corresponde ao angulo de rotação. Adicionalmente o movimento da FPC tem agora em conta a direção em que a mesma está a olhar no eixo dos yy para condicionar a posição seguinte.
 
-\subsection{Demo Scene - Sistema Solar}
+\subsection{Luzes(Lightning)}
+
+\subsection{Materiais}
+
+\section{Demo Scene - Sistema Solar}
 A partir da versão do Sistema Solar (solarSystem) realizado na fase anterior onde está presente o Sol, os 8 planetas(Mercúrio, Vénus, Terra, Marte, Júpiter, Saturno, Neptuno e Urano) e 6 dos principais satélites(Lua, Ganimedes, Io, Europa, Titã e Tritão) é agora adicionado o cometa Halley's. Esta cometa é contruído com base no ficheiro fornecido pelo docentes (\textit{teapot.patch} agora chamado de \textit{comet.patch}) em que no mesmo foram apagadas patches e alterados valores de pontos de controlo, permitindo assim gerar o \textit{comet.3d} que possui os triângulos que representa o cometa. Para a criação do caminho e o movimento pelo caminho foi utilizado \textit{Catmull Rom} Translação já referido anteriormente. Foram também criadas as translações de todos os planetas e luas através do mesmo método. Por fim, adicionou-se rotação ao Sol.
 
 \section{Glossário}
@@ -617,7 +631,7 @@ A partir da versão do Sistema Solar (solarSystem) realizado na fase anterior on
 \label{PolarCoordinates}
 No OpenGL as coordenadas são cartesianas e como tal é necessário realizar a conversão caso as coordenadas polares forem usadas. Esta mesma conversão pode ser realizada tendo em atenção o seguinte:
 
-\begin{figure}[ht!]
+\begin{figure}[H]
 \centering
 \includegraphics[height=12cm]{scan.png}
 \end{figure}
@@ -642,7 +656,7 @@ Numa fase inicial do trabalho foi tomada a decisão de ler o ficheiro XML a cada
 Os modelos encontram-se armazenados numa lista ligada que é percorrida na fase de renderização. Nesta altura são usados VBOs que permitem armazenar os dados para renderização na memória do GPU ao invés da memória central apresentando, por isso, ganhos de performance significativos em relação à renderização imediata.
 
 \begin{Verbatim}
-    glBufferData(GL_ARRAY_BUFFER,(auxM->size)*sizeof(float),auxM->points,GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,(auxM->size)*3*sizeof(float),auxM->points,GL_STATIC_DRAW);
     glDrawArrays(GL_TRIANGLES,0,auxM->size);
     auxM = auxM->next;
 \end{Verbatim}

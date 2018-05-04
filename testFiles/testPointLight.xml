@@ -1,0 +1,11 @@
+<scene>
+    <lights>
+        <light type="POINT" posX="0" posY="15" posZ="0" diffR="1" diffG="1" diffB="1" diffA="1"/>
+        <light type="POINT" posX="0" posY="-15" posZ="0" diffR="1" diffG="1" diffB="1" diffA="1"/>   
+    </lights>
+    <group>
+        <models>
+            <model file="sphere.3d" />
+        </models>
+    </group>
+</scene>

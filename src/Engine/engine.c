@@ -132,9 +132,9 @@ int loadTexture(xmlChar *texture){
 void getVals(xmlNodePtr cur, float *aux, int i, int *existColour, char *type){
     type[4]='R'; type[5]='\0';
     xmlChar *a1 = xmlGetProp(cur,(const xmlChar*)type);
-    type[4]='G'; type[5]='\0';
+    type[4]='G'; 
     xmlChar *a2 = xmlGetProp(cur,(const xmlChar*)type);
-    type[4]='B'; type[5]='\0';
+    type[4]='B';
     xmlChar *a3 = xmlGetProp(cur,(const xmlChar*)type);
 
     if(a1!=NULL || a2!=NULL || a3!=NULL){
@@ -586,20 +586,24 @@ void drawModels(int begin, int end){
     }
 
     while(auxM && i<end){
-        glColor3f(1.0,1.0,1.0); //white color if dont have colour atributes
-        if(auxM->colours){
+        glColor3f(1.0,1.0,1.0); //white color
+        if(auxM->colours && numLights>0){
             if(auxM->colours[0]!=-1){
-                glMaterialfv(GL_FRONT, GL_DIFFUSE, auxM->colours);
+                float color[4]={auxM->colours[0],auxM->colours[1],auxM->colours[2],auxM->colours[3]};
+                glMaterialfv(GL_FRONT, GL_DIFFUSE, color);
             }
             if(auxM->colours[4]!=-1){
+                float color[4]={auxM->colours[4],auxM->colours[5],auxM->colours[6],auxM->colours[7]};
                 glMaterialf(GL_FRONT,GL_SHININESS,auxM->colours[8]);
-                glMaterialfv(GL_FRONT, GL_SPECULAR, auxM->colours+4);
+                glMaterialfv(GL_FRONT, GL_SPECULAR, color);
             }
             if(auxM->colours[9]!=-1){
-                glMaterialfv(GL_FRONT, GL_EMISSION, auxM->colours+9);
+                float color[4]={auxM->colours[9],auxM->colours[10],auxM->colours[11],auxM->colours[12]};
+                glMaterialfv(GL_FRONT, GL_EMISSION, color);
             }
             if(auxM->colours[13]!=-1){
-                glMaterialfv(GL_FRONT, GL_AMBIENT, auxM->colours+13);
+                float color[4]={auxM->colours[13],auxM->colours[14],auxM->colours[15],auxM->colours[16]};
+                glMaterialfv(GL_FRONT, GL_AMBIENT, color);
             }
         }
 

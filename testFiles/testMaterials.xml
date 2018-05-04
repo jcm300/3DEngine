@@ -1,0 +1,10 @@
+<scene>
+    <lights>
+        <light type="POINT" posX="20" posY="20" posZ="0" diffR="1" diffG="1" diffB="1" diffA="1" />
+    </lights>
+    <group>
+        <models>
+            <model file="box.3d" diffR="0.5" diffG="0.8" diffB="0.8" specR="1" specG="1" specB="1" shininess="80" />
+        </models>
+    </group>
+</scene>

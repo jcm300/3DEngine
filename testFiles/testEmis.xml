@@ -1,0 +1,10 @@
+<scene>
+    <lights>
+        <light type="POINT" posX="0" posY="20" posZ="0" diffR="1" diffG="1" diffB="1" diffA="1" />
+    </lights>
+    <group>
+        <models>
+            <model file="plane.3d" emisR="1" emisG="0.3" emisB="0.3"/>
+        </models>
+    </group>
+</scene>
