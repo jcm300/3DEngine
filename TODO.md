@@ -2,5 +2,5 @@
 - [x] Plane
 - [x] Box
 - [x] Sphere
-- [ ] Cone
+- [x] Cone
 - [ ] Patches

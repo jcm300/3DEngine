@@ -339,13 +339,15 @@ void generateCone(int fd, char *radiuss , char *heights, char *slicess, char *st
     normal[2]=0.f;
     for(i=0, curAngle=0.f;i<slices;i++,curAngle+=deltaAngle){
         pos[0]=0.f; pos[1]=0.f; pos[2]=0.f;
-        //calcular texture:TODO
+        texture[0]=curAngle/(2*M_PI); texture[1]=0.f;
         printLine(fd,array,pos,normal,texture);
+
         pos[0]=radius*sin(curAngle+deltaAngle); pos[1]=0.f; pos[2]=radius*cos(curAngle+deltaAngle);
-        //calcular texture:TODO
+        texture[0]=(curAngle+deltaAngle)/(2*M_PI); texture[1]=1.f;
         printLine(fd,array,pos,normal,texture);
+
         pos[0]=radius*sin(curAngle); pos[1]=0.f; pos[2]=radius*cos(curAngle);
-        //calcular texture:TODO
+        texture[0]=curAngle/(2*M_PI); texture[1]=1.f;
         printLine(fd,array,pos,normal,texture);
     }
 }
@@ -371,6 +373,8 @@ void sectionWall(int fd, float radius, float pRadius, float y, float angle, floa
         vector2[0]=pRadius*sin(pAngle+angle+M_PI/4);
         vector2[1]=0;
         vector2[2]=pRadius*cos(pAngle+angle+M_PI/4);
+        texture[0]=(angle+pAngle)/(2*M_PI);
+        texture[1]=y/height;
         
         crossProduct(vector,vector2,normal);
         normalize(normal,1);
