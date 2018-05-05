@@ -582,8 +582,10 @@ void colorClear(int t){
     
     if(t==1){
         glMaterialfv(GL_FRONT, GL_DIFFUSE, black);
+        glColor3f(0,0,0);
     }else{
         glMaterialfv(GL_FRONT, GL_DIFFUSE, white);
+        glColor3f(1.0,1.0,1.0);
     }
     glMaterialf(GL_FRONT,GL_SHININESS,0);
     glMaterialfv(GL_FRONT, GL_SPECULAR, black);
@@ -689,7 +691,7 @@ void getCatmullRomPoint(float t, float *p0, float *p1, float *p2, float *p3, flo
     for(int i=0;i<3;i++)
         pos[i]=powf(t,3)*a[0][i]+powf(t,2)*a[1][i]+t*a[2][i]+a[3][i];
         
-    // compute deriv = T'] * A
+    // compute deriv = T' * A
     for(int i=0;i<3;i++)
         deriv[i]=3*powf(t,2)*a[0][i]+2*t*a[1][i]+a[2][i];
 }
