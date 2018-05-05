@@ -112,7 +112,7 @@ void printLine(int fd, char* array, float pos[], float normal[], float texture[]
     write(fd,array,strlen(array));
 }
 
-void faceXZ(int fd, char* array, float x1, float x2, float y, float z){
+void faceXZ(int fd, char* array, float x1, float x2, float y, float z, float xLength){
 	float pos[3], normal[3], texture[2];
    
     normal[0]=0.f;
@@ -121,43 +121,43 @@ void faceXZ(int fd, char* array, float x1, float x2, float y, float z){
     normal[2]=0.f;
 
     pos[0]=x1; pos[1]=y; pos[2]=-z;
-    texture[0]=0.f;texture[1]=0.f;
+    texture[0]=x1/xLength;texture[1]=0.f;
     printLine(fd,array,pos,normal,texture);
 
     pos[0]=x2; pos[1]=y; pos[2]=z;
-    texture[0]=1.f;texture[1]=1.f;
+    texture[0]=x2/xLength;texture[1]=1.f;
     printLine(fd,array,pos,normal,texture);
 
     if (y>0){
         pos[0]=x2; pos[1]=y; pos[2]=-z;
-        texture[0]=1.f;texture[1]=0.f;
+        texture[0]=x2/xLength;texture[1]=0.f;
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=x1; pos[1]=y; pos[2]=z;
-        texture[0]=0.f;texture[1]=1.f;
+        texture[0]=x1/xLength;texture[1]=1.f;
         printLine(fd,array,pos,normal,texture); 
     }
 
     pos[0]=x2; pos[1]=y; pos[2]=z;
-    texture[0]=1.f;texture[1]=1.f;
+    texture[0]=x2/xLength;texture[1]=1.f;
     printLine(fd,array,pos,normal,texture);
 
     pos[0]=x1; pos[1]=y; pos[2]=-z;
-    texture[0]=0.f;texture[1]=0.f;
+    texture[0]=x1/xLength;texture[1]=0.f;
     printLine(fd,array,pos,normal,texture);
 
     if (y>0){
         pos[0]=x1; pos[1]=y; pos[2]=z;
-        texture[0]=0.f;texture[1]=1.f;
+        texture[0]=x1/xLength;texture[1]=1.f;
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=x2; pos[1]=y; pos[2]=-z;
-        texture[0]=1.f;texture[1]=0.f;
+        texture[0]=x2/xLength;texture[1]=0.f;
         printLine(fd,array,pos,normal,texture);
     }
 }
 
-void faceYZ(int fd, char* array, float x, float y1, float y2, float z){
+void faceYZ(int fd, char* array, float x, float y1, float y2, float z, float yLength){
     float pos[3], normal[3], texture[2];
    
     if(x>0) normal[0]=1.f;
@@ -166,42 +166,42 @@ void faceYZ(int fd, char* array, float x, float y1, float y2, float z){
     normal[2]=0.f;
     
     pos[0]=x; pos[1]=y2; pos[2]=z;
-    texture[0]=1.f;texture[1]=1.f;
+    texture[0]=y2/yLength;texture[1]=1.f;
     printLine(fd,array,pos,normal,texture);
 
     pos[0]=x; pos[1]=y1; pos[2]=-z;
-    texture[0]=0.f;texture[1]=0.f;
+    texture[0]=y1/yLength;texture[1]=0.f;
     printLine(fd,array,pos,normal,texture);
 
     if (x>0){
         pos[0]=x; pos[1]=y2; pos[2]=-z;
-        texture[0]=1.f;texture[1]=0.f;
+        texture[0]=y2/yLength;texture[1]=0.f;
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=x; pos[1]=y1; pos[2]=z;
-        texture[0]=0.f;texture[1]=1.f;
+        texture[0]=y1/yLength;texture[1]=1.f;
         printLine(fd,array,pos,normal,texture);
     }
 
     pos[0]=x; pos[1]=y1; pos[2]=-z;
-    texture[0]=0.f;texture[1]=0.f;
+    texture[0]=y1/yLength;texture[1]=0.f;
     printLine(fd,array,pos,normal,texture);
 
     pos[0]=x; pos[1]=y2; pos[2]=z;
-    texture[0]=1.f;texture[1]=1.f;
+    texture[0]=y2/yLength;texture[1]=1.f;
     printLine(fd,array,pos,normal,texture);
     if (x>0){
         pos[0]=x; pos[1]=y1; pos[2]=z;
-        texture[0]=0.f;texture[1]=1.f;
+        texture[0]=y1/yLength;texture[1]=1.f;
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=x; pos[1]=y2; pos[2]=-z;
-        texture[0]=1.f;texture[1]=0.f;
+        texture[0]=y2/yLength;texture[1]=0.f;
         printLine(fd,array,pos,normal,texture);
     }
 }
 
-void faceXY(int fd, char* array, float x, float y1, float y2, float z){
+void faceXY(int fd, char* array, float x, float y1, float y2, float z, float yLength){
 	float pos[3], normal[3], texture[2];
     
     normal[0]=0.f;
@@ -210,38 +210,38 @@ void faceXY(int fd, char* array, float x, float y1, float y2, float z){
     else normal[2]=-1.f;
     
     pos[0]=-x; pos[1]=y2; pos[2]=z;
-    texture[0]=0.f;texture[1]=1.f;
+    texture[0]=0.f;texture[1]=y2/yLength;
     printLine(fd,array,pos,normal,texture);
 
     pos[0]=x; pos[1]=y1; pos[2]=z;
-    texture[0]=1.f;texture[1]=0.f;
+    texture[0]=1.f;texture[1]=y1/yLength;
     printLine(fd,array,pos,normal,texture);
 
     if (z>0){
         pos[0]=x; pos[1]=y2; pos[2]=z;
-        texture[0]=1.f;texture[1]=1.f;
+        texture[0]=1.f;texture[1]=y2/yLength;
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=-x; pos[1]=y1; pos[2]=z;
-        texture[0]=0.f;texture[1]=0.f;
+        texture[0]=0.f;texture[1]=y1/yLength;
         printLine(fd,array,pos,normal,texture);
     }
 
     pos[0]=x; pos[1]=y1; pos[2]=z;
-    texture[0]=1.f;texture[1]=0.f;
+    texture[0]=1.f;texture[1]=y1/yLength;
     printLine(fd,array,pos,normal,texture);
 
     pos[0]=-x; pos[1]=y2; pos[2]=z;
-    texture[0]=0.f;texture[1]=1.f;
+    texture[0]=0.f;texture[1]=y2/yLength;
     printLine(fd,array,pos,normal,texture);
 
     if (z>0){
         pos[0]=-x; pos[1]=y1; pos[2]=z;
-        texture[0]=0.f;texture[1]=0.f;
+        texture[0]=0.f;texture[1]=y1/yLength;
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=x; pos[1]=y2; pos[2]=z;
-        texture[0]=1.f;texture[1]=1.f;
+        texture[0]=1.f;texture[1]=y2/yLength;
         printLine(fd,array,pos,normal,texture);
     }
 }
@@ -253,6 +253,7 @@ void generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
     int d = atoi(dd);
     float var_y = y/d;
     float var_x = x/d;
+    float yLength=y, xLength=x;
     x/=2.0f;
     y/=2.0f;
     z/=2.0f;
@@ -267,14 +268,14 @@ void generateBox(int fd, char *xx, char *yy, char *zz, char *dd){
     write(fd,array,strlen(array));
 
 	for(i=0;i<d;i++,y1+=var_y,y2+=var_y,x1+=var_x,x2+=var_x){
-		faceXZ(fd,array,x1,x2,-y,z);
-		faceXZ(fd,array,x1,x2,y,z);
+		faceXZ(fd,array,x1,x2,-y,z,xLength);
+		faceXZ(fd,array,x1,x2,y,z,xLength);
         
-        faceYZ(fd,array,-x,y1,y2,z);
-        faceYZ(fd,array,x,y1,y2,z);
+        faceYZ(fd,array,-x,y1,y2,z,yLength);
+        faceYZ(fd,array,x,y1,y2,z,yLength);
         
-        faceXY(fd,array,x,y1,y2,z);
-		faceXY(fd,array,x,y1,y2,-z);
+        faceXY(fd,array,x,y1,y2,z,yLength);
+		faceXY(fd,array,x,y1,y2,-z,yLength);
     }
 }
 
@@ -361,6 +362,8 @@ void sectionWall(int fd, float radius, float pRadius, float y, float angle, floa
         normal[0]=curP[0];
         normal[1]=curP[1];
         normal[2]=curP[2];
+        texture[0]=pAngle/(2*M_PI);
+        texture[1]=0.5f+0.5f*y/radius;
     }else{
         vector[0]=radius*sin(pAngle+angle);
         vector[1]=height;
@@ -390,7 +393,6 @@ void genWalls(int fd, int sliceCount, float radius, float curRadius, float y, fl
             sectionWall(fd,radius,nextRadius,nextStackY,0,curAngle,top,height);
             sectionWall(fd,radius,curRadius,y,0,curAngle,top,height);
         }
-
         if(tpbt<=0){
             sectionWall(fd,radius,nextRadius,nextStackY,angle,curAngle,top,height);
             sectionWall(fd,radius,nextRadius,nextStackY,0,curAngle,top,height);
