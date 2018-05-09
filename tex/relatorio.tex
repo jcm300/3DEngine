@@ -35,7 +35,7 @@ O projecto em mãos é composto por duas componentes principais:
 \end{description}
 
 \section{Generator}
-Esta componente do projeto é responsável por criar ficheiros que representam modelos/objetos em particular, estes objetos variam de acordo com os argumetnos passados pelo utilizador. Este ficheiros contêm informação necessária para o Engine conseguir interpretar e "desenhar" os modelos pretendidos nomeadamente as coordenadas dos vértices que constituem o modelo em questão bem como as normais a estes vértices e ainda as coordenadas correspondentes às texturas. 
+Esta componente do projeto é responsável por criar ficheiros que representam modelos/objetos em particular, estes objetos variam de acordo com os argumentos passados pelo utilizador. Este ficheiros contêm informação necessária para o Engine conseguir interpretar e "desenhar" os modelos pretendidos nomeadamente as coordenadas dos vértices que constituem o modelo em questão bem como as normais a estes vértices e ainda as coordenadas correspondentes às texturas. 
 O programa está construído de forma a poder responder a pedidos relacionados com 4 objetos:
 \begin{itemize}
     \item Um plano em XZ, que recebe como parâmetros x e z
@@ -55,13 +55,17 @@ exº : ./generator sphere 3 10 20 sphere.3d
         \begin{verbatim}
 exº : ./generator cone 2 4 10 20 cone.3d
         \end{verbatim}
+    \item Um conjunto de patches, que recebe o ficheiro com os pontos de controlo e as patches e o nível de tesselagem
+        \begin{verbatim}
+exº : ./generator bezierPatch teapot.patch 10 teapot.3d
+        \end{verbatim}
 \end{itemize}
 Para além disto, optámos por seguir a sugestão do enunciado e imprimir, na primeira linha dos ficheiros (que contém os pontos a desenhar), o número de vértices que este contém. Isto permitirá alocar o espaço necessário aos \textit{arrays} usados para VBO's por forma a aumentar a performance do motor.
 
 \subsection{Plano (Plane)}
 O plano é o modelo mais simples das opções apresentadas, sabendo logo de partida que recebendo apenas os seus dois parâmetros (x e z) apenas é necessário desenhar 2 triângulos para representar o mesmo, ou seja, apenas necessitámos de preencher o ficheiro desejado com 6 pontos, de modo a ser tratado de forma pretendida pelo Engine.
 
-\begin{figure}[ht!]
+\begin{figure}[H]
 \centering
 \includegraphics[height=7cm]{plane.png}
 \caption{Resultado obtido passando o ficheiro gerado pelo Generator com os parâmetros x=2 e z=4 ao Engine}
@@ -89,7 +93,7 @@ De modo a desenhar 2 triângulos são necessários 6 pontos:
         \end{itemize}
 \end{itemize}
 
-\begin{figure}[ht!]
+\begin{figure}[H]
 \centering
 \includegraphics[height=7cm]{planeMath.png}
 \end{figure}
@@ -118,7 +122,7 @@ O processo com as divisões é simples, por exemplo, nas faces laterais da caixa
 \end{itemize}
 A partir daqui e com a utilização de um ciclo com a inicialização da uma variável i a 0 e enquanto a mesma for menor que o número de divisões pretendidas d, utilizamos as funções criadas por nós para obter os pontos dos paralelogramos cujos lados formam um ângulo de 90º entre si/divisões das faces da caixa progressivamente (neste caso, faceYZ() e faceXY()), incrementando o valor de i, e aumentando em var\_y os valores de y1 e y2 no fim de cada iteração.
 
-\begin{figure}[ht!]
+\begin{figure}[H]
 \centering
 \includegraphics[height=7cm]{box.png}
 \caption{Resultado obtido passando o ficheiro gerado pelo Generator com os parâmetros correspondentes a uma box com 5 divisões ao Engine}
@@ -253,7 +257,7 @@ $D=(curRadius*\sin(curAngle+angle),y,curRadius*\cos(curAngle+angle))$
 (\textbf{conf.} \ref{PolarCoordinates}-Coordenadas Polares)
 \\
 
-O parametro \texttt{tpbt} é usado para indicar se a \textit{stack} a ser desenhada pertence ao extremo superior(1), extremo inferior(-1) ou se é uma \textit{stack} intermédia por forma a impedir que nos extremos sejam calculados o dobro dos pontos necessários. O parâmetro \texttt{top} é usado para determinar se a função está a ser chamada para gerar parte da esfera ou parte do cone para poder realizar a normalização quando se tratar do primeiro caso, sendo também usado, no caso da esfera, para determinar se está a ser calculada a metade superior ou a metade inferior.
+O parâmetro \texttt{tpbt} é usado para indicar se a \textit{stack} a ser desenhada pertence ao extremo superior(1), extremo inferior(-1) ou se é uma \textit{stack} intermédia por forma a impedir que nos extremos sejam calculados o dobro dos pontos necessários. O parâmetro \texttt{top} é usado para determinar se a função está a ser chamada para gerar parte da esfera ou parte do cone para poder realizar a normalização quando se tratar do primeiro caso, sendo também usado, no caso da esfera, para determinar se está a ser calculada a metade superior ou a metade inferior.
 
 Inicialmente são calculados os pontos que formam a metade superior da esfera. Visto tratar-se de uma esfera procedemos à normalização dos pontos antes de os escrevermos no ficheiro de configuração. A normalização tem como objetivo manter a distância dos triângulos a serem desenhados em relação à origem (\textbf{i.e} centro da esfera) igual ao raio mantendo, no entanto, o ângulo entre estes.
 
@@ -367,7 +371,7 @@ Para que isto seja possível recorremos às seguintes bibliotecas:
     \item [Glut] Biblioteca de "colagem" entre OpenGL e SO
     \item [Glew] Necessário para a utilização de VBO's
 \end{description}
-Portanto, com recurso ao mesmo (libxml2) obtivémos do ficheiro XML e pela ordem apresentada no mesmo, os ficheiros em que cada um possui pontos referentes a um poliedro/polígono, sendo este ficheiros possíveis de ser gerados pelo generator atrás referido. 
+Portanto, com recurso ao mesmo (libxml2) obtemos do ficheiro XML e pela ordem apresentada no mesmo, os ficheiros em que cada um possui pontos referentes a um poliedro/polígono, sendo este ficheiros possíveis de ser gerados pelo generator atrás referido. 
 Para guardar estes pontos é utilizado uma estrutura (Points) que é uma lista ligada, sendo cada elemento constituído por:
 \begin{itemize}
     \item Um array com todas as coordenadas dos pontos disponibilizados por determinado ficheiro
