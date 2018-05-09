@@ -560,7 +560,7 @@ void generateBezierPatch(int fd, char *file, char *tessLevel){
     float cp[4][4][3], con[4][4][3];
     char array[213];
     //need to be at least 4
-    int tL = atoi(tessLevel);
+    int tessLvl = atoi(tessLevel);
     
     //matriz de Bezier
     float m[4][4] = {{-1.f,  3.f, -3.f, 1.f},
@@ -577,10 +577,10 @@ void generateBezierPatch(int fd, char *file, char *tessLevel){
         float controlPoints[numControlPoints*3];
         getControlPoints(fdI,controlPoints,numControlPoints);
         
-        float points[tL][tL][3], normal[tL][tL][3], texture[tL][tL][2];
+        float points[tessLvl][tessLvl][3], normal[tessLvl][tessLvl][3], texture[tessLvl][tessLvl][2];
        
         //print number of points
-        sprintf(array,"%d\n", numPatches*(tL-1)*(tL-1)*6);
+        sprintf(array,"%d\n", numPatches*(tessLvl-1)*(tessLvl-1)*6);
         write(fd,array,strlen(array));
 
         for(int i=0;i<numPatches;i++){
@@ -589,19 +589,19 @@ void generateBezierPatch(int fd, char *file, char *tessLevel){
             
             //gerar os pontos para cada patch
             float u=0,v;
-            for(int t=0; t<tL; t++){
+            for(int t=0; t<tessLvl; t++){
                 v=0;
-                for(int q=0; q<tL; q++){
+                for(int q=0; q<tessLvl; q++){
                     calcPoint(u,v,con,points[t][q],normal[t][q]);
                     //calcular texture:TODO
-                    v+=(1.f/(tL-1));
+                    v+=(1.f/(tessLvl-1));
                 }
-                u+=(1.f/(tL-1));
+                u+=(1.f/(tessLvl-1));
             }
             
             //desenhar os triangulos a partir dos pontos gerados
-            for(int t=0; t<tL-1; t++){
-                for(int q=0; q<tL-1; q++){
+            for(int t=0; t<tessLvl-1; t++){
+                for(int q=0; q<tessLvl-1; q++){
                     printLine(fd,array,points[t][q],normal[t][q],texture[t][q]);
                     printLine(fd,array,points[t][q+1],normal[t][q+1],texture[t][q+1]);
                     printLine(fd,array,points[t+1][q],normal[t+1][q],texture[t+1][q]);

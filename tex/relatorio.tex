@@ -23,13 +23,19 @@
 \newpage
 
 \section{Introdução}
-Este documento serve de documentação à implementação do generator bem como engine desenvolvidos com o intuito de no futuro ser possível a construção de sistemas planetários virtualmente e graficamente.
+O presente relatório servirá de documentação ao processo de desenvolvimento de um motor gráfico 3D que permita a renderização de diversas cenas, nomeadamente a de um sistema planetário, bem como de um gerador de ficheiros que descrevam modelos individuais.
 
 \newpage
 
-\section{Generator}
+\section{Estrutura}
+O projecto em mãos é composto por duas componentes principais: 
+\begin{description}
+    \item [Generator] gerador de ficheiros que descrevem modelos gráficos \textbf{i.e.} um conjunto de vértices(seguidos da sua normal e coordenadas da textura) 
+    \item [Engine] motor gráfico que lê ficheiros XML que descrevem determinadas cenas (compostas pelos modelos acima referidos) e renderiza as mesmas
+\end{description}
 
-O Generator é o programa responsável por criar os ficheiros pretendidos pelo utilizador, estes contêm os pontos necessários para o Engine conseguir interpretar e "desenhar" os modelos pretendidos.
+\section{Generator}
+Esta componente do projeto é responsável por criar ficheiros que representam modelos/objetos em particular, estes objetos variam de acordo com os argumetnos passados pelo utilizador. Este ficheiros contêm informação necessária para o Engine conseguir interpretar e "desenhar" os modelos pretendidos nomeadamente as coordenadas dos vértices que constituem o modelo em questão bem como as normais a estes vértices e ainda as coordenadas correspondentes às texturas. 
 O programa está construído de forma a poder responder a pedidos relacionados com 4 objetos:
 \begin{itemize}
     \item Um plano em XZ, que recebe como parâmetros x e z
@@ -50,10 +56,9 @@ exº : ./generator sphere 3 10 20 sphere.3d
 exº : ./generator cone 2 4 10 20 cone.3d
         \end{verbatim}
 \end{itemize}
-Para além disto, optamos por também seguir a sugestão do enunciado e imprimir na primeira linha dos ficheiros (que contém os pontos a desenhar) o número de pontos que este contém. Isto permitirá alocar o espaço necessário aos \textit{arrays} usados para VBO's por forma a aumentar a performance do motor.
+Para além disto, optámos por seguir a sugestão do enunciado e imprimir, na primeira linha dos ficheiros (que contém os pontos a desenhar), o número de vértices que este contém. Isto permitirá alocar o espaço necessário aos \textit{arrays} usados para VBO's por forma a aumentar a performance do motor.
 
 \subsection{Plano (Plane)}
-
 O plano é o modelo mais simples das opções apresentadas, sabendo logo de partida que recebendo apenas os seus dois parâmetros (x e z) apenas é necessário desenhar 2 triângulos para representar o mesmo, ou seja, apenas necessitámos de preencher o ficheiro desejado com 6 pontos, de modo a ser tratado de forma pretendida pelo Engine.
 
 \begin{figure}[ht!]
@@ -354,14 +359,15 @@ for(int t=0; t<tL-1; t++){
 \subsubsection{Texturas}
 
 \section{Engine}
-Em termos de bibliotecas, no engine são utilizadas as seguintes:
-\begin{itemize}
-    \item Libxml2: Parser XML utilizado devido à sua alta utilização bem como simplicidade
-    \item OpenGL: Usado para desenhar sendo a sua utilização justificada por ser open-source e devido à presença de boa documentação
-    \item Glut: Biblioteca de "colagem" entre OpenGL e SO
-    \item Glew: Necessário para a utilização de VBO's
-\end{itemize}
-Portanto, com recurso ao mesmo (libxml2) obtivemos do ficheiro XML e pela ordem apresentada no mesmo, os ficheiros em que cada um possui pontos referentes a um poliedro/polígono, sendo este ficheiros possíveis de ser gerados pelo generator atrás referido. 
+A componente Engine é fundamental no projeto visto que é esta que realiza a renderização das cenas descritas em ficheiros XML com uma sintaxe predefinida.
+Para que isto seja possível recorremos às seguintes bibliotecas:
+\begin{description}
+    \item [Libxml2] Parser XML utilizado devido à sua familiaridade com o mesmo bem como simplicidade
+    \item [OpenGL] Usado para desenhar sendo a sua utilização justificada por ser open-source e devido à presença de boa documentação
+    \item [Glut] Biblioteca de "colagem" entre OpenGL e SO
+    \item [Glew] Necessário para a utilização de VBO's
+\end{description}
+Portanto, com recurso ao mesmo (libxml2) obtivémos do ficheiro XML e pela ordem apresentada no mesmo, os ficheiros em que cada um possui pontos referentes a um poliedro/polígono, sendo este ficheiros possíveis de ser gerados pelo generator atrás referido. 
 Para guardar estes pontos é utilizado uma estrutura (Points) que é uma lista ligada, sendo cada elemento constituído por:
 \begin{itemize}
     \item Um array com todas as coordenadas dos pontos disponibilizados por determinado ficheiro
