@@ -100,6 +100,29 @@ De modo a desenhar 2 triângulos são necessários 6 pontos:
 
 \subsubsection{Normais}
 
+Sendo que o \textit{Generator} também imprime informações relacionadas com o valor da normal de cada ponto no seu ficheiro de output, consideramos também necessário explicar o processo por detrás do cálculo destes valores impressos.\\
+O cálculo das normais é dependente e diferente em cada um dos quatro objetos possíveis de desenhar (plano, caixa, cone e esfera):
+
+\begin{itemize}
+\item \textbf{Plano}\\
+Sendo que o plano é o objeto mais simples que o programa oferece, também o cálculo das normais dos pontos do plano é trivial. Sendo que o plano é desenhado em XZ, então a normal dos seus pontos será sempre com x = 0, y = 1 e z = 0.
+\begin{verbatim}
+normal[0]=0.f; normal[1]=1.f; normal[2]=0.f;
+\end{verbatim}
+
+\item \textbf{Caixa}\\
+Para calcular as normais dos pontos que representam uma caixa, é necessário ter em atenção a face da caixa a que determinado ponto pertence.\\
+Desta forma, se um ponto pertencer a uma face no plano XZ, então o vetor da normal tem como valores x = 0 e z = 0, sendo que o valor de y depende da coordenada y deste mesmo ponto, se este valor for maior que zero, então o valor de y no vetor normal é 1 (face superior do cubo), caso contrário este y toma como valor -1 (face inferior).\\
+Se o ponto pertencer a uma face no plano YZ, então no vetor normal deste ponto y = 0 e z = 0, enquanto que x toma o valor de 1, caso o valor da coordenada y do ponto seja superior a 0, e toma o valor de -1 no caso contrário.\\
+Por fim, quanto à face XY, é sabido que no vetor normal x = 0 e y = 0, e o valor de z pode também tomar o valor de 1 ou -1, para o caso de o valor da coordenada z do ponto em causa ser superior ou inferior a 0.
+
+\item \textbf{Cone}\\
+
+\item \textbf{Esfera}\\
+Para o cálculo das normais nos pontos de uma esfera, apenas é necessário ter em conta que o vetor normal de um determinado ponto numa esfera toma o valor das coordenadas desse mesmo ponto subtraindo as coordenadas do centro da mesma.\\
+Desta forma, como no problema em questão, o centro das esferas desenhadas toma sempre o valor da origem do gráfico (0,0,0), o vetor normal em todos os pontos de uma esfera é o próprio valor das coordenadas do mesmo.
+\end{itemize}
+
 \subsubsection{Texturas}
 
 \subsection{Caixa (Box)}
