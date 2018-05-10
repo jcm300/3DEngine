@@ -661,7 +661,7 @@ glRotatef(360 * gt,auxT->args[1],auxT->args[2],auxT->args[3]);
 \end{verbatim}
 
 \subsection{Luzes(Lightning)}
-De modo a adicionar luzes houve a necessidade de criar uma nova lista ligada:
+De modo a adicionar o suporte e a capacidade de reproduzir luzes no projeto desenvolvido houve a necessidade de criar uma nova lista ligada como estrutura de suporte ao Engine:
 \begin{verbatim}
 typedef struct light {
     char t;
@@ -669,14 +669,14 @@ typedef struct light {
     struct light *next;
 }*Lights;
 \end{verbatim}
-permitindo assim guardar, o tipo (char t) e as caracteristicas(float *args) de cada luz. Os atributos presentes no ficheiro XML é carregado pra memória de forma semelhante ao que é feito nos restantes atributos já lidos(por exemplo no translate, rotate, etc) sendo guardados como já referido no array args. Decidimos que todas os tipos de luzes devem ter a definição da cor difusa(diffR,diffG,diffB,diffA), tornando assim possível definir a cor difusa da luz. Já em relação aos restantes atributos:
-\begin{verbatim}
-    \item Point light deve ter também posição (posX, posY, posZ)
-    \item Directional light deve ter também direção (dirX, dirY, dirZ)
-    \item Spot light deve ter também posição (posX, posY, posZ) e cutoff
-\end{verbatim}
-Existe também um inteiro numLights que diz quantas luzes foram lidas no ficheiro XML sendo que no máximo só podem ser usadas 8 luzes(restrição do OpenGL, contudo possível de contornar).
-Com este valor é inicializado as luzes necessárias através da função glEnableLights:
+permitindo assim guardar o tipo (char t) e as caracteristicas (float *args) de cada luz. Os atributos presentes no ficheiro XML processado são carregados para a memória de forma semelhante ao que é executado nos restantes atributos já lidos (como por exemplo no translate, rotate, etc) sendo guardados como já referido no array args. Decidimos que todas os tipos de luzes devem ter a definição da cor difusa (\texttt{diffR},\texttt{diffG},\texttt{diffB},\texttt{diffA}), tornando assim possível definir a cor difusa da luz. Já em relação aos restantes atributos:
+\begin{itemize}
+    \item Point light deve ter também posição (\texttt{posX}, \texttt{posY}, \texttt{posZ})
+    \item Directional light deve ter também direção (\texttt{dirX}, \texttt{dirY}, \texttt{dirZ})
+    \item Spot light deve ter também posição (\texttt{posX}, \texttt{posY}, \texttt{posZ}) e \texttt{cutoff}
+\end{itemize}
+Existe também um inteiro \texttt{numLights} que regista o número luzes processadas no ficheiro XML lido,  sendo que no máximo só podem ser usadas 8 luzes (restrição do OpenGL, ainda assim possível de contornar).
+Com este valor são inicializadas as luzes necessárias através da função \texttt{glEnableLights}:
 \begin{verbatim}
 if(numLights>0){
     glEnable(GL_LIGHTING);
@@ -685,7 +685,7 @@ if(numLights>0){
     }
 } 
 \end{verbatim}
-Por fim as luzes são "desenhadas" no renderScene antes de desenhar os modelos e após a câmera através da função drawLights que percorre a estrutura Lights atualizando as suas componentes usando os parâmetros correspondentes(float *args) para cada tipo de luz:
+Por fim as luzes são "desenhadas" no renderScene antes de desenhar os modelos e após a câmera, através da função \texttt{drawLights} que percorre a estrutura \texttt{Lights} atualizando as suas componentes usando os parâmetros correspondentes (float *args) para cada tipo de luz:
 \begin{verbatim}
 Lights auxL=*lights;
 
