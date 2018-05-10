@@ -351,7 +351,7 @@ Já no que diz respeito às faces laterais do cone, os valores das normais do po
     \includegraphics[height=7cm]{normal_cone.png} 
 \end{figure}
 
-Desta forma para calcular o vetor normal do ponto \texttt{A} tem que se ter em conta que o vetor $\overrightarrow{u}$ é o vetor que liga o vértice máximo do cone ao ponto em causa 
+Desta forma para calcular o vetor normal do ponto \texttt{A} tem que se ter em conta que o vetor $\overrightarrow{u}$ é o vetor que liga o ponto C ao ponto B do cone, sendo que $\overrightarrow{u}$ = B - C = (x, 0, z) - (0, y, 0) = (x, -y, z).
 
 \begin{verbatim}
 vector[0]=radius*sin(pAngle+angle);
@@ -359,7 +359,7 @@ vector[1]=-height;
 vector[2]=radius*cos(pAngle+angle);
 \end{verbatim}
 
-, para além do vetor $\overrightarrow{v}$, que pode basicamente ser calculado pelos valores das coordenadas x e y do ponto \texttt{P}, já que vetor $\overrightarrow{v}$ = P - O = (x, y, z) - (0, y, 0) = (x, 0, z).\\
+, para além do vetor $\overrightarrow{v}$, que pode basicamente ser calculado pelos valores das coordenadas x e y do ponto \texttt{P}, já que $\overrightarrow{v}$ = P - O = (x, y, z) - (0, y, 0) = (x, 0, z).\\
 
 \begin{verbatim}
 vector2[0]=pRadius*sin(pAngle+angle+M_PI/2);
