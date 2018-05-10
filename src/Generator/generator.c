@@ -368,11 +368,11 @@ void sectionWall(int fd, float radius, float pRadius, float y, float angle, floa
         texture[1]=0.5f+0.5f*y/radius;
     }else{
         vector[0]=radius*sin(pAngle+angle);
-        vector[1]=height;
+        vector[1]=-height;
         vector[2]=radius*cos(pAngle+angle);
-        vector2[0]=pRadius*sin(pAngle+angle+M_PI/4);
+        vector2[0]=pRadius*sin(pAngle+angle+M_PI/2);
         vector2[1]=0;
-        vector2[2]=pRadius*cos(pAngle+angle+M_PI/4);
+        vector2[2]=pRadius*cos(pAngle+angle+M_PI/2);
         texture[0]=(angle+pAngle)/(2*M_PI);
         texture[1]=y/height;
         

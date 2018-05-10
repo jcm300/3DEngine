@@ -396,7 +396,7 @@ Para guardar estes pontos é utilizado uma estrutura (Points) que é uma lista l
 \end{itemize}
 De modo a desenhar os pontos/normais/coordenadas de textura correspondentes aos presentes nos ficheiros e agora também nos arrays, é usado VBO's facilitando e melhorando a performance. As figuras são desenhadas por um conjunto de triângulos, e, como tal, a cada 3 pontos é desenhado um. 
 
-\subsection{Câmaras}
+\subsection{Câmeras}
 Foi implementado, recorrendo a coordenadas polares, a possibilidade de mover a câmara:
 \begin{itemize}
     \item Rodar horizontalmente à esquerda: tecla seta esquerda
@@ -661,11 +661,102 @@ glRotatef(360 * gt,auxT->args[1],auxT->args[2],auxT->args[3]);
 \end{verbatim}
 
 \subsection{Luzes(Lightning)}
+De modo a adicionar luzes houve a necessidade de criar uma nova lista ligada:
+\begin{verbatim}
+typedef struct light {
+    char t;
+    float *args;
+    struct light *next;
+}*Lights;
+\end{verbatim}
+permitindo assim guardar, o tipo (char t) e as caracteristicas(float *args) de cada luz. Os atributos presentes no ficheiro XML é carregado pra memória de forma semelhante ao que é feito nos restantes atributos já lidos(por exemplo no translate, rotate, etc) sendo guardados como já referido no array args. Decidimos que todas os tipos de luzes devem ter a definição da cor difusa(diffR,diffG,diffB,diffA), tornando assim possível definir a cor difusa da luz. Já em relação aos restantes atributos:
+\begin{verbatim}
+    \item Point light deve ter também posição (posX, posY, posZ)
+    \item Directional light deve ter também direção (dirX, dirY, dirZ)
+    \item Spot light deve ter também posição (posX, posY, posZ) e cutoff
+\end{verbatim}
+Existe também um inteiro numLights que diz quantas luzes foram lidas no ficheiro XML sendo que no máximo só podem ser usadas 8 luzes(restrição do OpenGL, contudo possível de contornar).
+Com este valor é inicializado as luzes necessárias através da função glEnableLights:
+\begin{verbatim}
+if(numLights>0){
+    glEnable(GL_LIGHTING);
+    for(int i=0; i<8 && i<numLights; i++){
+        glEnable(GL_LIGHT0+i);
+    }
+} 
+\end{verbatim}
+Por fim as luzes são "desenhadas" no renderScene antes de desenhar os modelos e após a câmera através da função drawLights que percorre a estrutura Lights atualizando as suas componentes usando os parâmetros correspondentes(float *args) para cada tipo de luz:
+\begin{verbatim}
+Lights auxL=*lights;
+
+for(int i=0;i<8 && i<numLights; i++, auxL=auxL->next){
+    if(auxL->t=='p' || auxL->t=='d'){
+        glLightfv(GL_LIGHT0+i, GL_POSITION, auxL->args);
+    }else if(auxL->t=='s'){
+        glLightfv(GL_LIGHT0+i, GL_POSITION, auxL->args);
+        glLightfv(GL_LIGHT0+i, GL_SPOT_DIRECTION, auxL->args+8);
+        glLightf(GL_LIGHT0+i, GL_SPOT_CUTOFF, auxL->args[11]);
+    }
+    glLightfv(GL_LIGHT0+i, GL_DIFFUSE, auxL->args+4);
+}
+\end{verbatim}
 
 \subsection{Materiais}
+Com esta nova funcionalidade é possivel definir as cores dos objetos, seja a cor difusa, especular, emissiva ou ambiente. Para cada tipo é necessário os seguintes atributos:
+\begin{itemize}
+    \item difusa: diffR, diffG e diffB
+    \item especular: specR, specG, specB e shininess
+    \item emissiva: emisR, emisG e emisB
+    \item ambiente: ambiR, ambiG e ambiB
+\end{itemize}
+São estes os atributos compreendidos pelo engine ao ler o ficheiro XML, sendo que é necessário existir os atributos correspondentes de modo ao tipo ser considerado, ou seja, por exemplo a cor difusa apenas é considerada se for difinido o diffR, o diffG e o diffB. O mesmo acontece para os outros tipos. É importante referir também que pode-se definir todos os tipos ou apenas alguns ou até apenas um. Estes atributos são guardados junto ao modelo correspondente na estrutura modelPoints em float *colours.
+Já na altura de desenhar os modelos antes de ler este array colours é definida a cor branca e realizado o clean das cores (função colorClear) no eventual caso de nenhum tipo ser definido e evitando que haja conflitos entre modelos diferentes(um modelo ser pintado com a cor do modelo anterior por exemplo). Após isto são definidas as cores que foram guardadas em memória:
+\begin{verbatim}
+if(auxM->colours && numLights>0){
+    if(auxM->colours[0]!=-1){ // se foi definido
+        float color[4]={auxM->colours[0],auxM->colours[1],auxM->colours[2],auxM->colours[3]};
+        glMaterialfv(GL_FRONT, GL_DIFFUSE, color);
+    }
+    if(auxM->colours[4]!=-1){ // se foi definido
+        float color[4]={auxM->colours[4],auxM->colours[5],auxM->colours[6],auxM->colours[7]};
+        glMaterialf(GL_FRONT,GL_SHININESS,auxM->colours[8]);
+        glMaterialfv(GL_FRONT, GL_SPECULAR, color);
+    }
+    if(auxM->colours[9]!=-1){ // se foi definido
+        float color[4]={auxM->colours[9],auxM->colours[10],auxM->colours[11],auxM->colours[12]};
+        glMaterialfv(GL_FRONT, GL_EMISSION, color);
+    }
+    if(auxM->colours[13]!=-1){ // se foi definido
+        float color[4]={auxM->colours[13],auxM->colours[14],auxM->colours[15],auxM->colours[16]};
+        glMaterialfv(GL_FRONT, GL_AMBIENT, color);
+    }
+}
+\end{verbatim}
+É importante referir que isto é apenas aplicado caso haja luzes.
+No fim de desenhar os triângulos do modelo é realizado nova limpeza às cores (função colorClear).
+A função colorClear limpa os vários tipos de cores e consoante o inteiro passado limpa também o glColor3f.
+\begin{verbatim}
+void colorClear(int t){
+    float black[4]={0,0,0,0};
+    float white[4]={1,1,1,1};
+
+    if(t==1){
+        glMaterialfv(GL_FRONT, GL_DIFFUSE, black);
+        glColor3f(0,0,0);
+    }else{
+        glMaterialfv(GL_FRONT, GL_DIFFUSE, white);
+        glColor3f(1.0,1.0,1.0);
+    }
+    glMaterialf(GL_FRONT,GL_SHININESS,0);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, black);
+    glMaterialfv(GL_FRONT, GL_EMISSION, black);
+    glMaterialfv(GL_FRONT, GL_AMBIENT, black);
+}
+\end{verbatim}
 
 \section{Demo Scene - Sistema Solar}
-O Sistema Solar (solarSystem) apresenta o Sol, os 8 planetas(Mercúrio, Vénus, Terra, Marte, Júpiter, Saturno, Neptuno e Urano) e 6 dos principais satélites(Lua, Ganimedes, Io, Europa, Titã e Tritão) bem como o cometa Halley's. Esta cometa é contruído com base no ficheiro fornecido pelo docentes (\textit{teapot.patch} agora chamado de \textit{comet.patch}) em que no mesmo foram apagadas patches e alterados valores de pontos de controlo, permitindo assim gerar o \textit{comet.3d} que possui os triângulos que representa o cometa. Para a criação do caminho e o movimento pelo caminho foi utilizado \textit{Catmull Rom} Translação já referido anteriormente. Foram também criadas as translações de todos os planetas e luas através do mesmo método. Por fim, adicionou-se rotação ao Sol.
+O Sistema Solar (solarSystem) apresenta o Sol, os 8 planetas(Mercúrio, Vénus, Terra, Marte, Júpiter, Saturno, Neptuno e Urano) e 6 dos principais satélites(Lua, Ganimedes, Io, Europa, Titã e Tritão) bem como o cometa Halley's. Esta cometa é contruído com base no ficheiro fornecido pelo docentes (\textit{teapot.patch} agora chamado de \textit{comet.patch}) em que no mesmo foram apagadas patches e alterados valores de pontos de controlo, permitindo assim gerar o \textit{comet.3d} que possui os triângulos que representa o cometa. Para a criação do caminho e o movimento pelo caminho foi utilizado \textit{Catmull Rom} Translação já referido anteriormente. Foram também criadas as translações de todos os planetas e luas através do mesmo método. Por fim, adicionou-se rotação ao Sol. 
+De modo a dar um ar mais realista ao Sistema Solar, foi adicionado texturas aos planetas, luas, Sol e cometa, para além de uma luz do tipo Point no centro do Sol, graças às normais(importante para iluminar de forma convincente os objetos) e às coordenadas de textura(para as texturas) calculadas.
 
 \section{Glossário}
 

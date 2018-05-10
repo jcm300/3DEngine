@@ -603,7 +603,8 @@ void drawModels(int begin, int end){
     }
 
     while(auxM && i<end){
-        glColor3f(1.0,1.0,1.0); //white color
+        //clean colors but define diffuse as white
+        colorClear(0);
         if(auxM->colours && numLights>0){
             if(auxM->colours[0]!=-1){
                 float color[4]={auxM->colours[0],auxM->colours[1],auxM->colours[2],auxM->colours[3]};
@@ -643,6 +644,8 @@ void drawModels(int begin, int end){
         glBindTexture(GL_TEXTURE_2D, 0);
         auxM = auxM->next;
         i++;
+        //clean colors
+        colorClear(1);
     }
 }
 
