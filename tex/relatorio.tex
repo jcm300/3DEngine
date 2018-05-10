@@ -372,6 +372,8 @@ for(int t=0; t<tL-1; t++){
 
 \subsubsection{Texturas}
 
+\newpage
+
 \section{Engine}
 A componente Engine é fundamental no projeto visto que é esta que realiza a renderização das cenas descritas em ficheiros XML com uma sintaxe predefinida.
 Para que isto seja possível recorremos às seguintes bibliotecas:
@@ -381,15 +383,21 @@ Para que isto seja possível recorremos às seguintes bibliotecas:
     \item [Glut] Biblioteca de "colagem" entre OpenGL e SO
     \item [Glew] Necessário para a utilização de VBO's
 \end{description}
-Portanto, com recurso ao mesmo (libxml2) obtemos do ficheiro XML e pela ordem apresentada no mesmo, os ficheiros em que cada um possui pontos referentes a um objeto tridimensional, sendo este ficheiros possíveis de ser gerados pelo generator atrás referido. 
+Portanto, com recurso ao mesmo (libxml2) obtemos do ficheiro XML e pela ordem apresentada no mesmo, os ficheiros em que cada um possui pontos/normais/coordenadas de textura referentes a um objeto tridimensional, sendo estes ficheiros possíveis de ser gerados pelo generator atrás referido. 
 Para guardar estes pontos é utilizado uma estrutura (Points) que é uma lista ligada, sendo cada elemento constituído por:
 \begin{itemize}
     \item Um array com todas as coordenadas dos pontos disponibilizados por determinado ficheiro
+    \item Um array com todas as normais dos pontos
+    \item Um array com as coordenadas de textura
+    \item O id da textura a usar
+    \item Um array com as cores do objeto (ver-se-á mais à frente na secção Materials a sua necessidade)
     \item O número de pontos que essas coordenadas "geram"
     \item Um apontador para a próxima estrutura (ficheiro seguinte)
 \end{itemize}
-De modo a desenhar os pontos correspondentes aos presentes nos ficheiros e agora também nos arrays, é usado VBO's facilitando e melhorando a performance. As figuras são desenhadas por um conjunto de triângulos, e, como tal, a cada 3 pontos é desenhado um. 
-Foi também implementado, recorrendo a coordenadas polares, a possibilidade de mover a câmara:
+De modo a desenhar os pontos/normais/coordenadas de textura correspondentes aos presentes nos ficheiros e agora também nos arrays, é usado VBO's facilitando e melhorando a performance. As figuras são desenhadas por um conjunto de triângulos, e, como tal, a cada 3 pontos é desenhado um. 
+
+\subsection{Câmaras}
+Foi implementado, recorrendo a coordenadas polares, a possibilidade de mover a câmara:
 \begin{itemize}
     \item Rodar horizontalmente à esquerda: tecla seta esquerda
     \item Rodar horizontalmente à direita: tecla seta direita
@@ -400,20 +408,53 @@ Foi também implementado, recorrendo a coordenadas polares, a possibilidade de m
 \end{itemize}
 Para além disso, carregando na tecla 'm' é alterado consecutivamente o modo de display dos polígonos, alternando entre FILL (a cheio), LINE (em linhas) e POINT (apenas pontos).
 
-\newpage
+Para além disso, optamos por implementar o modo de \textit{First Person Camera} (FPC). Este sistema de visualização permite observar os modelos construídos de um modo diferente e confere um maior realismo ao \textit{Engine}, tornando o programa um pouco mais completo. A implementação desta mesma câmara foi realizada de modo a que ao clicar na tecla \textit{'t'} se possa alterar entre o modo de vista por nós já implementado anteriormente e este novo modo.
+\newline
+Dentro deste modo de visualização, utilizamos as teclas:
+\begin{itemize}
+    \item \textit{'w'} para mover a câmara para a frente
+    \item \textit{'s'} para mover a câmara para trás
+    \item \textit{'a'} para mover a câmara para a esquerda
+    \item \textit{'d'} para mover a câmara para a direita
+    \item setas direita e esquerda para efetuar rotação no sentido pretendido
+\end{itemize}
 
-\subsection{Objetivo}
-A segunda fase do projeto consiste em implementar, no componente \textit{Engine}, a possbilidade de tratar os ficheiros \textit{XML} que especificam transformações geométricas aplicadas a um conjunto de modelos que pertençam ao mesmo grupo. 
+Por forma a permitir efetuar uma rotação no eixo dos xx ou dos zz (rotação vertical) com recurso às setas para cima e para baixo:
+\begin{verbatim}
+case GLUT_KEY_UP:
+    if(fpc) updateFstPrsn(0,0,-2);
+    ...
+case GLUT_KEY_DOWN:
+   if(fpc) updateFstPrsn(0,0,2);
+\end{verbatim}
+
+O último parametro é usado para fazer a distinção entre a rotação vertical e a rotação segundo o eixo dos yy (anteriomente implementada):
+\begin{verbatim}
+else if(abs(rot)==1){ //yy rotation 
+    alfafpc = alfafpc + rot;
+    xLookAt = xLocation + sin(alfafpc * 3.14 /180);
+    zLookAt = zLocation + cos(alfafpc * 3.14 /180);
+}else if(abs(rot)==2){ //xx or zz rotation 
+    betafpc = betafpc + rot/2;
+    yLookAt = yLocation + cos(betafpc * 3.14 /180);
+}
+\end{verbatim}
+Sendo que \texttt{betafpc} corresponde ao angulo de rotação. Adicionalmente o movimento da FPC tem agora em conta a direção em que a mesma está a olhar no eixo dos yy para condicionar a posição seguinte.
+
+\subsection{Transformações geométricas}
+O componente \textit{Engine}, trata também ficheiros \textit{XML} que especificam transformações geométricas aplicadas a um conjunto de modelos que pertençam ao mesmo grupo. 
 \newline
 As transformações geométricas suportadas são:
 \begin{itemize}
     \item \textit{translate}: translação 
     \item \textit{rotate}: rotação
-    \item \textit{scale}: escala 
+    \item \textit{scale}: escala
+    \item Catmull Rom - Translação
+    \item Catmull Rom - Rotação
 \end{itemize}
 sendo estas obrigatoriamente referentes a um determinado grupo indicado pela \textit{tag} \textit{$<$group$>$} tendo ainda em conta que a sua ordem é relevante.
 
-\subsection{Tratamento de dados}
+\subsubsection{Tratamento de dados}
 Tendo em conta a nova estrutura dos ficheiros \textit{XML} foi implementada uma nova estrutura de dados(\textit{transforms}) para guardar informações relativas às transformações indicadas nestes que, em conjunto com a estrutura já definida(\textit{modelPoints}) permite armazenar todos os dados necessários à renderização das cenas descritas.
 Sendo assim, a estrutura de dados \textit{transforms} tem a seguinte forma:
 \begin{verbatim}
@@ -440,7 +481,7 @@ Já o \textit{array} de \textit{float's (args)} guarda os parâmetros a utilizar
     \item 1: grupo models guardando o número de modelos
 \end{itemize}
 
-\subsection{Implementação}
+\subsubsection{Implementação}
 Para o tratamento dos conjuntos de transformações possíveis de utlização numa cena, para o tipo de transformação em uso é chamada uma das seguintes funções:
 \begin{itemize}
     \item void translate(xmlNodePtr cur, Transforms *t)
@@ -474,7 +515,7 @@ precisamos de guardar o valor 5 em auxT-$>$args[0], 0 em auxT-$>$args[1] e 2 em 
 As funções para as outras duas transformações geométricas seguem a mesma lógica e raciocínio.
 Para o caso do caracter 'm' (grupo models) é chamada a função parseModels de modo a guardar os modelos na estrutura Points *models referida na fase anterior.
 
-\subsection{Renderização}
+\subsubsection{Renderização}
 A função \textit{draw} decide qual das tranformações/ações tomar tendo como base o caracter 't' de tipo das transformações:
 \begin{verbatim}
     while(auxT){
@@ -507,27 +548,31 @@ A função \textit{draw} decide qual das tranformações/ações tomar tendo com
 No caso do tipo ser 'm' é utilizada a função \textit{drawModels} que desenha os modelos correspondentes:
 \begin{verbatim}
 while(auxM && i<end){
+    ...
+    glBindBuffer(GL_ARRAY_BUFFER,buffers[0]);
+    glVertexPointer(3,GL_FLOAT,0,0);
     glBufferData(GL_ARRAY_BUFFER,(auxM->size)*3*sizeof(float),auxM->points,GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER,buffers[1]);
+    glNormalPointer(GL_FLOAT,0,0);
+    glBufferData(GL_ARRAY_BUFFER,(auxM->size)*3*sizeof(float),auxM->normals,GL_STATIC_DRAW);
+
+    if(auxM->textureC){ //se existir textura
+        glBindBuffer(GL_ARRAY_BUFFER,buffers[2]);
+        glTexCoordPointer(2,GL_FLOAT,0,0);
+        glBufferData(GL_ARRAY_BUFFER,auxM->size*2*sizeof(float),auxM->textureC,GL_STATIC_DRAW);
+        glBindTexture(GL_TEXTURE_2D, auxM->textureId);
+    }
+
     glDrawArrays(GL_TRIANGLES,0,auxM->size);
+    glBindTexture(GL_TEXTURE_2D, 0);
     auxM = auxM->next;
     i++;
 }
 \end{verbatim}
 O número de modelos presente em args quando o tipo é 'm' permite saber que modelos presentes em Points *models deve-se desenhar, visto que os mesmos são guardados na altura do parse pela ordem de receção, basta assim saber em cada grupo models quantos havia. É com o intuito de gerir esta situação que exite a variável local init na função \textit{draw}, no qual guarda a partir de que modelo se deve desenhar no preciso momento.
 
-\subsection{First Person Camera - FPC}
-Na segunda fase deste projeto optamos por implementar o modo de \textit{First Person Camera}. Este sistema de visualização permite observar os modelos construídos de um modo diferente e confere um maior realismo ao \textit{Engine}, tornando o programa um pouco mais completo. A implementação desta mesma câmara foi realizada de modo a que ao clicar na tecla \textit{'t'} se possa alterar entre o modo de vista por nós já implementado anteriormente e este novo modo.
-\newline
-Dentro deste modo de visualização, utilizamos as teclas:
-\begin{itemize}
-    \item \textit{'w'} para mover a câmara para a frente
-    \item \textit{'s'} para mover a câmara para trás
-    \item \textit{'a'} para mover a câmara para a esquerda
-    \item \textit{'d'} para mover a câmara para a direita
-    \item setas direita e esquerda para efetuar rotação no sentido pretendido
-\end{itemize}
-
-\subsection{Catmull Rom - Translação}
+\subsubsection{Catmull Rom - Translação}
 O uso de translações com uma duração predefinida é usada para introduzir movimento(animação) na cena. Estas translações seguem uma trajetória definida por uma curva cúbica de Catmull-Rom.
 \begin{verbatim}
 <translate time="365">
@@ -584,9 +629,9 @@ buildRotMatrix(deriv,lY,z,m);
 glTranslatef(pos[0],pos[1],pos[2]);
 \end{verbatim}
 
-\subsection{Catmull Rom - Rotação}
+\subsubsection{Catmull Rom - Rotação}
 
-Outra funcionalidade adicionada nesta fase de desenvolvimento do projeto passa pela introdução da capacidade de realizar rotações de modelos durante um determinado período de tempo definido no ficheiro \textit{XML} a ler.
+Outra funcionalidade adicionada passa pela introdução da capacidade de realizar rotações de modelos durante um determinado período de tempo definido no ficheiro \textit{XML} a ler.
 \begin{verbatim}
 <rotate time="10" axisX="1" axisY="1" axisZ="0" />
 \end{verbatim}
@@ -615,35 +660,12 @@ Sendo assim, basta apenas de seguida ser efetuada a rotação tendo em conta est
 glRotatef(360 * gt,auxT->args[1],auxT->args[2],auxT->args[3]);
 \end{verbatim}
 
-\subsection{First Person Camera - Melhorias/Funcionalidades adicionais}
-A FPC desenvolvida na fase anterior foi modificada por forma a permitir efetuar uma rotação no eixo dos xx ou dos zz (rotação vertical) com recurso às setas para cima e para baixo:
-\begin{verbatim}
-case GLUT_KEY_UP:
-    if(fpc) updateFstPrsn(0,0,-2);
-    ...
-case GLUT_KEY_DOWN:
-   if(fpc) updateFstPrsn(0,0,2);
-\end{verbatim}
-
-O último parametro é usado para fazer a distinção entre a rotação vertical e a rotação segundo o eixo dos yy (anteriomente implementada):
-\begin{verbatim}
-else if(abs(rot)==1){ //yy rotation 
-    alfafpc = alfafpc + rot;
-    xLookAt = xLocation + sin(alfafpc * 3.14 /180);
-    zLookAt = zLocation + cos(alfafpc * 3.14 /180);
-}else if(abs(rot)==2){ //xx or zz rotation 
-    betafpc = betafpc + rot/2;
-    yLookAt = yLocation + cos(betafpc * 3.14 /180);
-}
-\end{verbatim}
-Sendo que \texttt{betafpc} corresponde ao angulo de rotação. Adicionalmente o movimento da FPC tem agora em conta a direção em que a mesma está a olhar no eixo dos yy para condicionar a posição seguinte.
-
 \subsection{Luzes(Lightning)}
 
 \subsection{Materiais}
 
 \section{Demo Scene - Sistema Solar}
-A partir da versão do Sistema Solar (solarSystem) realizado na fase anterior onde está presente o Sol, os 8 planetas(Mercúrio, Vénus, Terra, Marte, Júpiter, Saturno, Neptuno e Urano) e 6 dos principais satélites(Lua, Ganimedes, Io, Europa, Titã e Tritão) é agora adicionado o cometa Halley's. Esta cometa é contruído com base no ficheiro fornecido pelo docentes (\textit{teapot.patch} agora chamado de \textit{comet.patch}) em que no mesmo foram apagadas patches e alterados valores de pontos de controlo, permitindo assim gerar o \textit{comet.3d} que possui os triângulos que representa o cometa. Para a criação do caminho e o movimento pelo caminho foi utilizado \textit{Catmull Rom} Translação já referido anteriormente. Foram também criadas as translações de todos os planetas e luas através do mesmo método. Por fim, adicionou-se rotação ao Sol.
+O Sistema Solar (solarSystem) apresenta o Sol, os 8 planetas(Mercúrio, Vénus, Terra, Marte, Júpiter, Saturno, Neptuno e Urano) e 6 dos principais satélites(Lua, Ganimedes, Io, Europa, Titã e Tritão) bem como o cometa Halley's. Esta cometa é contruído com base no ficheiro fornecido pelo docentes (\textit{teapot.patch} agora chamado de \textit{comet.patch}) em que no mesmo foram apagadas patches e alterados valores de pontos de controlo, permitindo assim gerar o \textit{comet.3d} que possui os triângulos que representa o cometa. Para a criação do caminho e o movimento pelo caminho foi utilizado \textit{Catmull Rom} Translação já referido anteriormente. Foram também criadas as translações de todos os planetas e luas através do mesmo método. Por fim, adicionou-se rotação ao Sol.
 
 \section{Glossário}
 
@@ -665,14 +687,7 @@ Sendo assim os valores das coordenadas cartesianas do ponto P bem como de w são
 \end{itemize}
 
 \subsection{Vertex Buffer Objects (VBOs)}
-Numa fase inicial do trabalho foi tomada a decisão de ler o ficheiro XML a cada chamada da função \texttt{renderScene}, ou seja, no pior dos casos, tantas vezes quanto o \textit{refresh rate} do monitor. Isto representava no entanto um grande \textit{bottleneck} em casos em que o ficheiro fosse de tamanho considerável e os modelos em causa complexos. Para limitar este comportamento recorreu-se ao uso de \texttt{arrays} que armazenam as coordenadas de cada ponto sendo que cada modelo, representado por um conjunto de pontos, se encontra armazenado numa estrutura do tipo \texttt{modelPoints}:
-\begin{Verbatim}
-    typedef struct modelPoints {
-        float *points;
-        int size;
-        struct modelPoints *next;
-    }*Points;
-\end{Verbatim}
+Numa fase inicial do trabalho foi tomada a decisão de ler o ficheiro XML a cada chamada da função \texttt{renderScene}, ou seja, no pior dos casos, tantas vezes quanto o \textit{refresh rate} do monitor. Isto representava no entanto um grande \textit{bottleneck} em casos em que o ficheiro fosse de tamanho considerável e os modelos em causa complexos. Para limitar este comportamento recorreu-se ao uso de \texttt{arrays} que armazenam as coordenadas de cada ponto sendo que cada modelo, representado por um conjunto de pontos, se encontra armazenado numa estrutura do tipo \texttt{modelPoints}.
 Os modelos encontram-se armazenados numa lista ligada que é percorrida na fase de renderização. Nesta altura são usados VBOs que permitem armazenar os dados para renderização na memória do GPU ao invés da memória central apresentando, por isso, ganhos de performance significativos em relação à renderização imediata.
 
 \begin{Verbatim}
@@ -681,13 +696,12 @@ Os modelos encontram-se armazenados numa lista ligada que é percorrida na fase 
     auxM = auxM->next;
 \end{Verbatim}
 
-
 \newpage
 
 \section{Conclusão}
 Tendo em conta o trabalho realizado e o uso de VBO's de modo a desenhar os pontos fica por realizar a validação dos parâmetros passados como input ao \textit{Generator} nomeadamente a verificação da positividade do número de slices e stacks do cone. 
-A segunda fase compreendeu a construção de novos ficheiros de teste visto que os anteriormente apresentados não cumpriam a nova sintaxe. É de destacar o ficheiro \textit{solarSytem} que especifca uma cena que representa o sistema solar. Optamos também por implementar o modo de visualização \textit{First Person Camera} que adiciona um maior realismo ao programa. Dos aspetos a melhorar no trabalho realizado destaca-se a verificação da sintaxe do ficheiro XML em relação à sua correção. 
-Na terceira fase foi realizado os Bezier Patches bem como a translação usando Catmull Rom e a rotação de 360º durante algum tempo. Contudo, possíveis melhorias passariam pela verificação de sintaxe dos ficheiros \textit{.patch}, algo que não é realizado, sendo que o generator assume que o ficheiro tem a sintaxe correta e, desta forma, quando não a tem o resultado é inesperado. Para além disso, poderiam ser adicionadas rotações também aos planetas e luas, algo que de momento só é realizado no Sol.
+É de destacar o ficheiro \textit{solarSytem} que especifca uma cena que representa o sistema solar. Optamos também por implementar o modo de visualização \textit{First Person Camera} que adiciona um maior realismo ao programa. Dos aspetos a melhorar no trabalho realizado destaca-se a verificação da sintaxe do ficheiro XML em relação à sua correção. 
+Para além disso, foi realizado os Bezier Patches bem como a translação usando Catmull Rom e a rotação de 360º durante algum tempo. Contudo, possíveis melhorias passariam pela verificação de sintaxe dos ficheiros \textit{.patch}, algo que não é realizado, sendo que o generator assume que o ficheiro tem a sintaxe correta e, desta forma, quando não a tem o resultado é inesperado. Para além disso, poderiam ser adicionadas rotações também aos planetas e luas, algo que de momento só é realizado no Sol.
 
 \newpage
 
