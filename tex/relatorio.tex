@@ -710,7 +710,7 @@ Com esta nova funcionalidade é possivel definir as cores dos objetos, seja a co
     \item ambiente: ambiR, ambiG e ambiB
 \end{itemize}
 São estes os atributos compreendidos pelo engine ao ler o ficheiro XML, sendo que é necessário existir os atributos correspondentes de modo ao tipo ser considerado, ou seja, por exemplo a cor difusa apenas é considerada se for difinido o diffR, o diffG e o diffB. O mesmo acontece para os outros tipos. É importante referir também que pode-se definir todos os tipos ou apenas alguns ou até apenas um. Estes atributos são guardados junto ao modelo correspondente na estrutura modelPoints em float *colours.
-Já na altura de desenhar os modelos antes de ler este array colours é definida a cor branca e realizado o clean das cores (função colorClear) no eventual caso de nenhum tipo ser definido e evitando que haja conflitos entre modelos diferentes(um modelo ser pintado com a cor do modelo anterior por exemplo). Após isto são definidas as cores que foram guardadas em memória:
+Já na altura de desenhar os modelos antes de ler este array colours é definida a cor branca e realizado o clean das cores (função colorClear) no eventual caso de nenhum tipo ser definido (ou as luzes não estarem ativadas) e evitando que haja conflitos entre modelos diferentes(um modelo ser pintado com a cor do modelo anterior por exemplo). Após isto são definidas as cores que foram guardadas em memória correspondente a cada modelo:
 \begin{verbatim}
 if(auxM->colours && numLights>0){
     if(auxM->colours[0]!=-1){ // se foi definido
