@@ -338,6 +338,41 @@ Por fim é gerada a base do cone que consiste em numa aproximação a um círcul
 \newpage
 
 \subsubsection{Normais}
+A obtenção dos valores normais do cone para os pontos da sua base é simples, sendo que é um plano em XZ, estes vetores tomam os valores x = 0, y = -1 e z = 0.
+
+\begin{verbatim}
+normal[0]=0.f; normal[1]=-1.f; normal[2]=0.f;
+\end{verbatim}
+
+Já no que diz respeito às faces laterais do cone, os valores das normais do pontos inseridos nestas fase são calculados tendo em conta:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=7cm]{normal_cone.png} 
+\end{figure}
+
+Desta forma para calcular o vetor normal do ponto \texttt{A} tem que se ter em conta que o vetor $\overrightarrow{u}$ é o vetor que liga o vértice máximo do cone ao ponto em causa 
+
+\begin{verbatim}
+vector[0]=radius*sin(pAngle+angle);
+vector[1]=-height;
+vector[2]=radius*cos(pAngle+angle);
+\end{verbatim}
+
+, para além do vetor $\overrightarrow{v}$, que pode basicamente ser calculado pelos valores das coordenadas x e y do ponto \texttt{P}, já que vetor $\overrightarrow{v}$ = P - O = (x, y, z) - (0, y, 0) = (x, 0, z).\\
+
+\begin{verbatim}
+vector2[0]=pRadius*sin(pAngle+angle+M_PI/2);
+vector2[1]=0;
+vector2[2]=pRadius*cos(pAngle+angle+M_PI/2);
+\end{verbatim}
+
+Sendo assim, o resultado de fazer \textit{cross} destes dois vetores \texttt{u} e \texttt{v} com a normalização deste vai devolver-nos o vetor normal no ponto \texttt{A}.
+
+\begin{verbatim}
+crossProduct(vector,vector2,normal);
+normalize(normal,1);
+\end{verbatim}
 
 \subsubsection{Texturas}
 
