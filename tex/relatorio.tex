@@ -470,8 +470,12 @@ Nesta mesma função, são calculadas as derivadas parciais tanto de \texttt{u} 
 float dU[3];
 float dV[3];
 \end{verbatim}
+utilizando as expressões:\\
 
-Após este cálculo ser efetuado, basta obter o produto resultante de fazer \textit{cross} deste dois \textit{array's}.
+$\overrightarrow{dU}$ = $\begin{bmatrix} 3u^2 & 2u & 1 & 0 \end{bmatrix} * m * \begin{bmatrix} v^3 \\ v^2 \\ v \\ 1 \end{bmatrix}$ e $\overrightarrow{dV}$ = $\begin{bmatrix} u^3 & u^2 & u & 1 \end{bmatrix} * m * \begin{bmatrix} 3v^2 \\ 2v \\ 1 \\ 0 \end{bmatrix}$\\
+nas quais \texttt{m} é igual ao RES apresentado na secção anterior, ou seja:\\
+$m = M * CP * M^T$, sendo que $CP$ representa os pontos de controlo, e $M$ a matriz de Bezier apresentada também anteriormente.\\
+Após este cálculo ser efetuado, basta obter o produto resultante de fazer \textit{cross} deste dois vetores.
 
 \begin{verbatim}
 crossProduct(dV,dU,n);
