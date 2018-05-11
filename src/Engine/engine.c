@@ -193,15 +193,14 @@ int parseModel(xmlNodePtr cur, xmlChar * file, xmlChar *texture, Points *m, int 
             auxM->size=atoi(buffer);
             auxM->points = (float*)malloc(sizeof(float)*auxM->size*3);
             auxM->normals = (float*)malloc(sizeof(float)*auxM->size*3);
+            getColours(cur,&auxM->colours);
             if(texture){ 
                 auxM->textureC = (float*)malloc(sizeof(float)*auxM->size*2);
                 auxM->textureId=loadTexture(texture);
-                auxM->colours=NULL;
             }
             else{ 
                 auxM->textureC=NULL;
                 auxM->textureId=0;
-                getColours(cur,&auxM->colours); 
             }
             auxM->next = NULL;
             while(j++<auxM->size*3 && (x=readln(fd,buffer,213))>0){

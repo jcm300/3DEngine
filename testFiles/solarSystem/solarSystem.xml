@@ -1,6 +1,6 @@
 <scene>
     <lights>
-        <light type="DIRECTIONAL" posX="0" posY="0" posZ="0" diffR="1" diffG="1" diffB="1" diffA="1"/>
+        <light type="POINT" posX="0" posY="0" posZ="0" diffR="1" diffG="1" diffB="1" diffA="1"/>
     </lights>
     <!-- nas translações foi assumido que 1 segundo igual a 1 dia-->
     <group>
@@ -8,7 +8,7 @@
         <group>
             <rotate time="25.38" axisX="0" axisY="1" axisZ="0" />
             <models>
-                <model file="planet.3d" texture="sun.jpg"/>
+                <model file="planet.3d" texture="sun.jpg" emisR="1" emisG="1" emisB="1"/>
             </models>
         </group>
         <!--Mercurio-->
