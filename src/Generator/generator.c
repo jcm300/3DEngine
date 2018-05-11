@@ -593,7 +593,8 @@ void generateBezierPatch(int fd, char *file, char *tessLevel){
                 v=0;
                 for(int q=0; q<tessLvl; q++){
                     calcPoint(u,v,con,points[t][q],normal[t][q]);
-                    //calcular texture:TODO
+                    texture[t][q][0]=u;
+                    texture[t][q][1]=v;
                     v+=(1.f/(tessLvl-1));
                 }
                 u+=(1.f/(tessLvl-1));
