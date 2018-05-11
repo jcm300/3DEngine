@@ -440,6 +440,34 @@ for(int t=0; t<tL-1; t++){
 \end{verbatim}
 
 \subsubsection{Normais}
+Para calcular as normais de um Bezier Patch é iniciada uma matriz de \textit{float's} \texttt{normal[tessLvl][tessLvl][3]} tendo em conta o nível de tesselagem e o número de coordenadas necessárias guardar em cada ponto (3 coordenadas: x, y e z).
+Assim, quando são gerados os pontos para cada patch é utilizada a função \texttt{calcPoint} onde se obtém a normal de cada ponto na mesma.
+
+\begin{verbatim}
+float u=0,v;
+for(int t=0; t<tessLvl; t++){
+    v=0;
+    for(int q=0; q<tessLvl; q++){
+        calcPoint(u,v,con,points[t][q],normal[t][q]);
+        ...
+        v+=(1.f/(tessLvl-1));
+    }
+    u+=(1.f/(tessLvl-1));
+}
+\end{verbatim}
+
+Nesta mesma função, são calculadas as derivadas parciais tanto de \texttt{u} como de \texttt{v}:
+
+\begin{verbatim}
+float dU[3];
+float dV[3];
+\end{verbatim}
+
+Após este cálculo ser efetuado, basta obter o produto resultante de fazer \textit{cross} deste dois \textit{array's}.
+
+\begin{verbatim}
+crossProduct(dV,dU,n);
+\end{verbatim}
 
 \subsubsection{Texturas}
 
