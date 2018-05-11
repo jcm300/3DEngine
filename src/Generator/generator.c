@@ -288,13 +288,13 @@ void generateSphere(int fd, char *rds, char *slc, char *stks){
     char array[213];
     sprintf(array,"%d\n", 6*slices*(2*stacks-1));
     write(fd,array,strlen(array));
-    
+
     for(i=0;i<stacks-1;i++){
         genWalls(fd,slices,radius,curRadius,curHeight,angle,step,-1.f,0,0);
         curRadius-=step;
         curHeight+=step;
     }
-    
+
     genWalls(fd,slices,radius,curRadius,curHeight,angle,step,-1.f,1,0);
 
 
@@ -326,7 +326,7 @@ void generateCone(int fd, char *radiuss , char *heights, char *slicess, char *st
 
     sprintf(array, "%d\n", numVert);
     write(fd,array,strlen(array));
-    
+
     for(i=0,curHeight=0.f;i<stacks-1;i++,curHeight+=deltaH, curRadius-=deltaR){
         genWalls(fd,slices,radius,curRadius,curHeight,deltaAngle,deltaR,deltaH,0,height);
     }
@@ -379,7 +379,6 @@ void sectionWall(int fd, float radius, float pRadius, float y, float angle, floa
         crossProduct(vector,vector2,normal);
         normalize(normal,1);
     }
-    //TODO: calcular texture
     printLine(fd,array,curP,normal,texture);
 }
 
