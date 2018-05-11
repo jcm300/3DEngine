@@ -36,7 +36,7 @@ O projecto em mãos é composto por duas componentes principais:
 
 \section{Generator}
 Esta componente do projeto é responsável por criar ficheiros que representam modelos/objetos em particular, estes objetos variam de acordo com os argumentos passados pelo utilizador. Este ficheiros contêm informação necessária para o Engine conseguir interpretar e "desenhar" os modelos pretendidos nomeadamente as coordenadas dos vértices que constituem o modelo em questão bem como as normais a estes vértices e ainda as coordenadas correspondentes às texturas. 
-O programa está construído de forma a poder responder a pedidos relacionados com 4 objetos:
+O programa está construído de forma a poder responder a pedidos relacionados com 5 objetos:
 \begin{itemize}
     \item Um plano em XZ, que recebe como parâmetros x e z
         \begin{verbatim}
@@ -55,7 +55,7 @@ exº : ./generator sphere 3 10 20 sphere.3d
         \begin{verbatim}
 exº : ./generator cone 2 4 10 20 cone.3d
         \end{verbatim}
-    \item Um conjunto de patches, que recebe o ficheiro com os pontos de controlo e as patches e o nível de tesselagem
+    \item Um conjunto de superficies, que recebe o ficheiro com os pontos de controlo e as patches e recebe o nível de tesselagem
         \begin{verbatim}
 exº : ./generator bezierPatch teapot.patch 10 teapot.3d
         \end{verbatim}
@@ -105,26 +105,26 @@ normal[0]=0.f; normal[1]=1.f; normal[2]=0.f;
 \end{verbatim}
 
 \subsubsection{Texturas}
-As texturas para o plano são calculadas de forma trivial dado as carateríticas deste modelo que tornam o cálculo das texturas imediato bastando, para isso, associar a cada vértice do plano um canto da textura:
+As texturas para o plano são calculadas de forma trivial dado as caracteríticas deste modelo que tornam o cálculo das texturas imediato bastando, para isso, associar a cada vértice do plano um canto da textura:
 
 \begin{verbatim}
 pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
-texture[0]=0.f; texture[1]=0.f;
+texture[0]=0.f; texture[1]=1.f;
 ...
 pos[0]=-lf; pos[1]=0.f; pos[2]=cf;
+texture[0]=0.f; texture[1]=0.f;
+...
+pos[0]=lf; pos[1]=0.f; pos[2]=cf;
+texture[0]=1.f; texture[1]=0.f;
+...
+pos[0]=lf; pos[1]=0.f; pos[2]=-cf;
+texture[0]=1.f; texture[1]=1.f;
+...
+pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
 texture[0]=0.f; texture[1]=1.f;
 ...
 pos[0]=lf; pos[1]=0.f; pos[2]=cf;
-texture[0]=1.f; texture[1]=1.f;
-...
-pos[0]=lf; pos[1]=0.f; pos[2]=-cf;
 texture[0]=1.f; texture[1]=0.f;
-...
-pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
-texture[0]=0.f; texture[1]=0.f;
-...
-pos[0]=lf; pos[1]=0.f; pos[2]=cf;
-texture[0]=1.f; texture[1]=1.f;
 ...
 \end{verbatim}
 
@@ -250,10 +250,8 @@ pos[0]=x; pos[1]=y2; pos[2]=z;
 texture[0]=y2/yLength;texture[1]=1.f;
 ...
 pos[0]=-x; pos[1]=y2; pos[2]=z;
-texture[0]=0.f;texture[1]=y2/yLength;
+texture[0]=y2/yLength;texture[1]=0.f;
 \end{verbatim}
-
-
 
 \subsection{Esfera (Sphere)}
 A esfera é o modelo mais complexo dos envolvidos. Neste modelo, mais uma vez, o centro foi colocado na origem. O número de vértices necessários para a esfera é calculado da seguinte maneira:
@@ -380,7 +378,7 @@ A obtenção dos valores normais do cone para os pontos da sua base é simples, 
 normal[0]=0.f; normal[1]=-1.f; normal[2]=0.f;
 \end{verbatim}
 
-Já no que diz respeito às faces laterais do cone, os valores das normais do pontos inseridos nestas fase são calculados tendo em conta:
+Já no que diz respeito às faces laterais do cone, os valores das normais são calculados tendo em conta:
 
 \begin{figure}[H]
     \centering
@@ -517,7 +515,6 @@ Foi implementado, recorrendo a coordenadas polares, a possibilidade de mover a c
     \item Aproximar: tecla 'w'
     \item Afastar: tecla 's'
 \end{itemize}
-Para além disso, carregando na tecla 'm' é alterado consecutivamente o modo de display dos polígonos, alternando entre FILL (a cheio), LINE (em linhas) e POINT (apenas pontos).
 
 Para além disso, optamos por implementar o modo de \textit{First Person Camera} (FPC). Este sistema de visualização permite observar os modelos construídos de um modo diferente e confere um maior realismo ao \textit{Engine}, tornando o programa um pouco mais completo. A implementação desta mesma câmara foi realizada de modo a que ao clicar na tecla \textit{'t'} se possa alterar entre o modo de vista por nós já implementado anteriormente e este novo modo.
 \newline
@@ -551,6 +548,8 @@ else if(abs(rot)==1){ //yy rotation
 }
 \end{verbatim}
 Sendo que \texttt{betafpc} corresponde ao angulo de rotação. Adicionalmente o movimento da FPC tem agora em conta a direção em que a mesma está a olhar no eixo dos yy para condicionar a posição seguinte.
+
+É também possível, carregando na tecla 'm', alterar consecutivamente o modo de display dos polígonos, alternando entre FILL (a cheio), LINE (em linhas) e POINT (apenas pontos).
 
 \subsection{Transformações geométricas}
 O componente \textit{Engine}, trata também ficheiros \textit{XML} que especificam transformações geométricas aplicadas a um conjunto de modelos que pertençam ao mesmo grupo. 
@@ -659,26 +658,26 @@ A função \textit{draw} decide qual das tranformações/ações tomar tendo com
 No caso do tipo ser 'm' é utilizada a função \textit{drawModels} que desenha os modelos correspondentes:
 \begin{verbatim}
 while(auxM && i<end){
-    ...
-    glBindBuffer(GL_ARRAY_BUFFER,buffers[0]);
-    glVertexPointer(3,GL_FLOAT,0,0);
-    glBufferData(GL_ARRAY_BUFFER,(auxM->size)*3*sizeof(float),auxM->points,GL_STATIC_DRAW);
+...
+  glBindBuffer(GL_ARRAY_BUFFER,buffers[0]);
+  glVertexPointer(3,GL_FLOAT,0,0);
+  glBufferData(GL_ARRAY_BUFFER,(auxM->size)*3*sizeof(float),auxM->points,GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ARRAY_BUFFER,buffers[1]);
-    glNormalPointer(GL_FLOAT,0,0);
-    glBufferData(GL_ARRAY_BUFFER,(auxM->size)*3*sizeof(float),auxM->normals,GL_STATIC_DRAW);
+  glBindBuffer(GL_ARRAY_BUFFER,buffers[1]);
+  glNormalPointer(GL_FLOAT,0,0);
+  glBufferData(GL_ARRAY_BUFFER,(auxM->size)*3*sizeof(float),auxM->normals,GL_STATIC_DRAW);
 
-    if(auxM->textureC){ //se existir textura
-        glBindBuffer(GL_ARRAY_BUFFER,buffers[2]);
-        glTexCoordPointer(2,GL_FLOAT,0,0);
-        glBufferData(GL_ARRAY_BUFFER,auxM->size*2*sizeof(float),auxM->textureC,GL_STATIC_DRAW);
-        glBindTexture(GL_TEXTURE_2D, auxM->textureId);
-    }
+  if(auxM->textureC){ //se existir textura
+    glBindBuffer(GL_ARRAY_BUFFER,buffers[2]);
+    glTexCoordPointer(2,GL_FLOAT,0,0);
+    glBufferData(GL_ARRAY_BUFFER,auxM->size*2*sizeof(float),auxM->textureC,GL_STATIC_DRAW);
+    glBindTexture(GL_TEXTURE_2D, auxM->textureId);
+}
 
-    glDrawArrays(GL_TRIANGLES,0,auxM->size);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    auxM = auxM->next;
-    i++;
+  glDrawArrays(GL_TRIANGLES,0,auxM->size);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  auxM = auxM->next;
+  i++;
 }
 \end{verbatim}
 O número de modelos presente em args quando o tipo é 'm' permite saber que modelos presentes em Points *models deve-se desenhar, visto que os mesmos são guardados na altura do parse pela ordem de receção, basta assim saber em cada grupo models quantos havia. É com o intuito de gerir esta situação que exite a variável local init na função \textit{draw}, no qual guarda a partir de que modelo se deve desenhar no preciso momento.
@@ -820,25 +819,29 @@ Com esta nova funcionalidade é possivel definir as cores dos objetos, seja a co
     \item emissiva: emisR, emisG e emisB
     \item ambiente: ambiR, ambiG e ambiB
 \end{itemize}
-São estes os atributos compreendidos pelo engine ao ler o ficheiro XML, sendo que é necessário existir os atributos correspondentes de modo ao tipo ser considerado, ou seja, por exemplo a cor difusa apenas é considerada se for difinido o diffR, o diffG e o diffB. O mesmo acontece para os outros tipos. É importante referir também que pode-se definir todos os tipos ou apenas alguns ou até apenas um. Estes atributos são guardados junto ao modelo correspondente na estrutura modelPoints em float *colours.
+São estes os atributos compreendidos pelo engine ao ler o ficheiro XML, sendo que é necessário existir os atributos correspondentes de modo ao tipo ser considerado, ou seja, por exemplo a cor difusa apenas é considerada se for definido o diffR, o diffG e o diffB. O mesmo acontece para os outros tipos. É importante referir também que pode-se definir todos os tipos ou apenas alguns ou até apenas um. Estes atributos são guardados junto ao modelo correspondente na estrutura modelPoints em float *colours.
 Já na altura de desenhar os modelos antes de ler este array colours é definida a cor branca e realizado o clean das cores (função colorClear) no eventual caso de nenhum tipo ser definido (ou as luzes não estarem ativadas) e evitando que haja conflitos entre modelos diferentes(um modelo ser pintado com a cor do modelo anterior por exemplo). Após isto são definidas as cores que foram guardadas em memória correspondente a cada modelo:
 \begin{verbatim}
 if(auxM->colours && numLights>0){
     if(auxM->colours[0]!=-1){ // se foi definido
-        float color[4]={auxM->colours[0],auxM->colours[1],auxM->colours[2],auxM->colours[3]};
+        float color[4]={auxM->colours[0],auxM->colours[1],
+                        auxM->colours[2],auxM->colours[3]};
         glMaterialfv(GL_FRONT, GL_DIFFUSE, color);
     }
     if(auxM->colours[4]!=-1){ // se foi definido
-        float color[4]={auxM->colours[4],auxM->colours[5],auxM->colours[6],auxM->colours[7]};
+        float color[4]={auxM->colours[4],auxM->colours[5],
+                        auxM->colours[6],auxM->colours[7]};
         glMaterialf(GL_FRONT,GL_SHININESS,auxM->colours[8]);
         glMaterialfv(GL_FRONT, GL_SPECULAR, color);
     }
     if(auxM->colours[9]!=-1){ // se foi definido
-        float color[4]={auxM->colours[9],auxM->colours[10],auxM->colours[11],auxM->colours[12]};
+        float color[4]={auxM->colours[9],auxM->colours[10],
+                        auxM->colours[11],auxM->colours[12]};
         glMaterialfv(GL_FRONT, GL_EMISSION, color);
     }
     if(auxM->colours[13]!=-1){ // se foi definido
-        float color[4]={auxM->colours[13],auxM->colours[14],auxM->colours[15],auxM->colours[16]};
+        float color[4]={auxM->colours[13],auxM->colours[14],
+                        auxM->colours[15],auxM->colours[16]};
         glMaterialfv(GL_FRONT, GL_AMBIENT, color);
     }
 }
@@ -867,7 +870,7 @@ void colorClear(int t){
 
 \section{Demo Scene - Sistema Solar}
 O Sistema Solar (solarSystem) apresenta o Sol, os 8 planetas(Mercúrio, Vénus, Terra, Marte, Júpiter, Saturno, Neptuno e Urano) e 6 dos principais satélites(Lua, Ganimedes, Io, Europa, Titã e Tritão) bem como o cometa Halley's. Esta cometa é contruído com base no ficheiro fornecido pelo docentes (\textit{teapot.patch} agora chamado de \textit{comet.patch}) em que no mesmo foram apagadas patches e alterados valores de pontos de controlo, permitindo assim gerar o \textit{comet.3d} que possui os triângulos que representa o cometa. Para a criação do caminho e o movimento pelo caminho foi utilizado \textit{Catmull Rom} Translação já referido anteriormente. Foram também criadas as translações de todos os planetas e luas através do mesmo método. Por fim, adicionou-se rotação ao Sol. 
-De modo a dar um ar mais realista ao Sistema Solar, foi adicionado texturas aos planetas, luas, Sol e cometa, para além de uma luz do tipo Point no centro do Sol, graças às normais(importante para iluminar de forma convincente os objetos) e às coordenadas de textura(para as texturas) calculadas.
+De modo a dar um ar mais realista ao Sistema Solar, foi adicionado texturas aos planetas, luas, Sol e cometa, para além de uma luz do tipo Point no centro do Sol, graças às normais(importante para iluminar de forma convincente os objetos) e às coordenadas de textura(para as texturas) calculadas. Para além da textura foi colocado também emissividade ao Sol de cor branca de modo a não ficar sem luz, visto que a luz está no seu interior.
 
 \section{Glossário}
 
