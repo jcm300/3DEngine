@@ -1,14 +1,11 @@
 <scene>
-    <lights>
-        <light type="DIRECTIONAL" posX="0" posY="0" posZ="0" diffR="1" diffG="1" diffB="1" diffA="1"/>
-    </lights>
-    <!-- nas translações foi assumido que 1 segundo igual a 1 dia-->
+   <!-- nas translações foi assumido que 1 segundo igual a 1 dia-->
     <group>
         <!--Sol-->
         <group>
             <rotate time="25.38" axisX="0" axisY="1" axisZ="0" />
             <models>
-                <model file="planet.3d" texture="sun.jpg"/>
+                <model file="planet.3d"/>
             </models>
         </group>
         <!--Mercurio-->
@@ -25,7 +22,7 @@
             </translate>
             <scale X="0.003125" Y="0.003125" Z="0.003125"/>
             <models>
-                <model file="planet.3d" texture="mercury.jpg"/>
+                <model file="planet.3d"/>
             </models>
         </group>
         <!--Venus-->
@@ -42,7 +39,7 @@
             </translate>
             <scale X="0.00859375" Y="0.00859375" Z="0.00859375"/>
             <models>
-                <model file="planet.3d" texture="venus.jpg"/>
+                <model file="planet.3d" />
             </models>
         </group>
         <!--Terra-->
@@ -59,7 +56,7 @@
             </translate>
             <scale X="0.0091125" Y="0.0091125" Z="0.0091125"/>
             <models>
-                <model file="planet.3d" texture="earth.jpg"/>
+                <model file="planet.3d" />
             </models>
             <!--Lua-->
             <group>
@@ -75,7 +72,7 @@
                 </translate>
                 <scale X="0.273" Y="0.273" Z="0.273" />
                 <models>
-                    <model file="planet.3d" texture="moon.jpg"/>
+                    <model file="planet.3d" />
                 </models>
             </group>
         </group>
@@ -93,7 +90,7 @@
             </translate>
             <scale X="0.00495" Y="0.00495" Z="0.00495"/>
             <models>
-                <model file="planet.3d" texture="mars.jpg"/>
+                <model file="planet.3d" />
             </models>
         </group>
         <!--Jupiter-->
@@ -110,7 +107,7 @@
             </translate>
             <scale X="0.101565" Y="0.101565" Z="0.101565"/>
             <models>
-                <model file="planet.3d" texture="jupiter.jpg"/>
+                <model file="planet.3d" />
             </models>
             <!--Lua Ganimedes-->
             <group>
@@ -126,7 +123,7 @@
                 </translate>
                 <scale X="0.0377" Y="0.0377" Z="0.0377" />
                 <models>
-                    <model file="planet.3d" texture="ganymede.jpg"/>
+                    <model file="planet.3d" />
                 </models>    
             </group>
             <!--Lua Io-->
@@ -143,7 +140,7 @@
                 </translate>
                 <scale X="0.0261" Y="0.0261" Z="0.0261" />
                 <models>
-                    <model file="planet.3d" texture="io.jpg"/>
+                    <model file="planet.3d" />
                 </models>
             </group>
             <!--Lua Europa-->
@@ -160,7 +157,7 @@
                 </translate>
                 <scale X="0.0223" Y="0.0223" Z="0.0223" />
                 <models>
-                    <model file="planet.3d" texture="europa.jpg"/>
+                    <model file="planet.3d" />
                 </models>
             </group>
         </group>
@@ -178,7 +175,7 @@
             </translate>
             <scale X="0.067709375" Y="0.067709375" Z="0.067709375"/>
             <models>
-                <model file="planet.3d" texture="saturn.jpg"/>
+                <model file="planet.3d" />
             </models>
             <!--Lua Titã-->
             <group>
@@ -194,7 +191,7 @@
                 </translate>
                 <scale X="0.0442" Y="0.0442" Z="0.0442" />
                 <models>
-                    <model file="planet.3d" texture="titan.jpg"/>
+                    <model file="planet.3d" />
                 </models>
             </group>
         </group>
@@ -212,7 +209,7 @@
             </translate>
             <scale X="0.033853125" Y="0.033853125" Z="0.033853125" />
             <models>
-                <model file="planet.3d" texture="uranus.jpg"/>
+                <model file="planet.3d" />
             </models>
         </group>
         <!--Neptuno-->
@@ -229,7 +226,7 @@
             </translate>
             <scale X="0.044271875" Y="0.044271875" Z="0.044271875" />
             <models>
-                <model file="planet.3d" texture="neptune.jpg"/>
+                <model file="planet.3d" />
             </models>
             <!--Lua Tritão-->
             <group>
@@ -245,7 +242,7 @@
                 </translate>
                 <scale X="0.055" Y="0.055" Z="0.055" />
                 <models>
-                    <model file="planet.3d" texture="triton.png"/>
+                    <model file="planet.3d" />
                 </models>
             </group>
         </group>
@@ -265,7 +262,7 @@
             <scale X="0.05" Y="0.05" Z="0.05" />
             <rotate angle="-90" axisX="0" axisY="1" axisZ="0" /> 
             <models>
-                <model file="comet.3d" texture="halleys.jpg"/>
+                <model file="comet.3d" />
             </models>
         </group>
     </group>

@@ -105,6 +105,28 @@ normal[0]=0.f; normal[1]=1.f; normal[2]=0.f;
 \end{verbatim}
 
 \subsubsection{Texturas}
+As texturas para o plano são calculadas de forma trivial dado as carateríticas deste modelo que tornam o cálculo das texturas imediato bastando, para isso, associar a cada vértice do plano um canto da textura:
+
+\begin{verbatim}
+pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
+texture[0]=0.f; texture[1]=0.f;
+...
+pos[0]=-lf; pos[1]=0.f; pos[2]=cf;
+texture[0]=0.f; texture[1]=1.f;
+...
+pos[0]=lf; pos[1]=0.f; pos[2]=cf;
+texture[0]=1.f; texture[1]=1.f;
+...
+pos[0]=lf; pos[1]=0.f; pos[2]=-cf;
+texture[0]=1.f; texture[1]=0.f;
+...
+pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
+texture[0]=0.f; texture[1]=0.f;
+...
+pos[0]=lf; pos[1]=0.f; pos[2]=cf;
+texture[0]=1.f; texture[1]=1.f;
+...
+\end{verbatim}
 
 \subsection{Caixa (Box)}
 
@@ -218,6 +240,20 @@ Se o ponto pertencer a uma face no plano YZ, então no vetor normal deste ponto 
 Por fim, quanto à face XY, é sabido que no vetor normal x = 0 e y = 0, e o valor de z pode também tomar o valor de 1 ou -1, para o caso de o valor da coordenada z do ponto em causa ser superior ou inferior a 0.
 
 \subsubsection{Texturas}
+O cálculo das texturas para a caixa consistiu em aplicar a textura em causa a cada uma das faces deste modelo. Para cada uma das faces, visto tratar-se de um plano, aplicou-se a mesma lógica anteriomente descrita tendo, no entanto, em conta o facto de que uma caixa pode ser composta por diversas stacks e, como tal, cada face pode ser constituída por mais que quatro vértices. Sendo assim, a textura é mapeada nos vértices que constituam as stacks intermédias dividindo as coordenadas dos mesmos pelo comprimento da face permitindo assim obter o valor entre 0 e 1 caraterístico deste mapeamento.
+
+\begin{verbatim}
+pos[0]=x1; pos[1]=y; pos[2]=-z;
+texture[0]=x1/xLength;texture[1]=0.f;
+...
+pos[0]=x; pos[1]=y2; pos[2]=z;
+texture[0]=y2/yLength;texture[1]=1.f;
+...
+pos[0]=-x; pos[1]=y2; pos[2]=z;
+texture[0]=0.f;texture[1]=y2/yLength;
+\end{verbatim}
+
+
 
 \subsection{Esfera (Sphere)}
 A esfera é o modelo mais complexo dos envolvidos. Neste modelo, mais uma vez, o centro foi colocado na origem. O número de vértices necessários para a esfera é calculado da seguinte maneira:
