@@ -83,27 +83,27 @@ void generatePlane(int fd, char *l, char *c){
     normal[2]=0.f;
 
     pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
-    texture[0]=0.f; texture[1]=0.f;
+    texture[0]=0.f; texture[1]=1.f;
     printLine(fd,arr,pos,normal,texture);
 
     pos[0]=-lf; pos[1]=0.f; pos[2]=cf;
+    texture[0]=0.f; texture[1]=0.f;
+    printLine(fd,arr,pos,normal,texture);
+
+    pos[0]=lf; pos[1]=0.f; pos[2]=cf;
+    texture[0]=1.f; texture[1]=0.f;
+    printLine(fd,arr,pos,normal,texture);
+    
+    pos[0]=lf; pos[1]=0.f; pos[2]=-cf;
+    texture[0]=1.f; texture[1]=1.f;
+    printLine(fd,arr,pos,normal,texture);
+
+    pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
     texture[0]=0.f; texture[1]=1.f;
     printLine(fd,arr,pos,normal,texture);
 
     pos[0]=lf; pos[1]=0.f; pos[2]=cf;
-    texture[0]=1.f; texture[1]=1.f;
-    printLine(fd,arr,pos,normal,texture);
-    
-    pos[0]=lf; pos[1]=0.f; pos[2]=-cf;
     texture[0]=1.f; texture[1]=0.f;
-    printLine(fd,arr,pos,normal,texture);
-
-    pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
-    texture[0]=0.f; texture[1]=0.f;
-    printLine(fd,arr,pos,normal,texture);
-
-    pos[0]=lf; pos[1]=0.f; pos[2]=cf;
-    texture[0]=1.f; texture[1]=1.f;
     printLine(fd,arr,pos,normal,texture);
 }
 
@@ -210,38 +210,38 @@ void faceXY(int fd, char* array, float x, float y1, float y2, float z, float yLe
     else normal[2]=-1.f;
     
     pos[0]=-x; pos[1]=y2; pos[2]=z;
-    texture[0]=0.f;texture[1]=y2/yLength;
+    texture[0]=y2/yLength;texture[1]=0.f;
     printLine(fd,array,pos,normal,texture);
 
     pos[0]=x; pos[1]=y1; pos[2]=z;
-    texture[0]=1.f;texture[1]=y1/yLength;
+    texture[0]=y1/yLength;texture[1]=1.f;
     printLine(fd,array,pos,normal,texture);
 
     if (z>0){
         pos[0]=x; pos[1]=y2; pos[2]=z;
-        texture[0]=1.f;texture[1]=y2/yLength;
+        texture[0]=y2/yLength;texture[1]=1.f;
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=-x; pos[1]=y1; pos[2]=z;
-        texture[0]=0.f;texture[1]=y1/yLength;
+        texture[0]=y1/yLength;texture[1]=0.f;
         printLine(fd,array,pos,normal,texture);
     }
 
     pos[0]=x; pos[1]=y1; pos[2]=z;
-    texture[0]=1.f;texture[1]=y1/yLength;
+    texture[0]=y1/yLength;texture[1]=1.f;
     printLine(fd,array,pos,normal,texture);
 
     pos[0]=-x; pos[1]=y2; pos[2]=z;
-    texture[0]=0.f;texture[1]=y2/yLength;
+    texture[0]=y2/yLength;texture[1]=0.f;
     printLine(fd,array,pos,normal,texture);
 
     if (z>0){
         pos[0]=-x; pos[1]=y1; pos[2]=z;
-        texture[0]=0.f;texture[1]=y1/yLength;
+        texture[0]=y1/yLength;texture[1]=0.f;
         printLine(fd,array,pos,normal,texture);
     }else{
         pos[0]=x; pos[1]=y2; pos[2]=z;
-        texture[0]=1.f;texture[1]=y2/yLength;
+        texture[0]=y2/yLength;texture[1]=1.f;
         printLine(fd,array,pos,normal,texture);
     }
 }
@@ -364,7 +364,7 @@ void sectionWall(int fd, float radius, float pRadius, float y, float angle, floa
         normal[0]=curP[0];
         normal[1]=curP[1];
         normal[2]=curP[2];
-        texture[0]=pAngle/(2*M_PI);
+        texture[0]=(pAngle+angle)/(2*M_PI);
         texture[1]=0.5f+0.5f*y/radius;
     }else{
         vector[0]=radius*sin(pAngle+angle);
