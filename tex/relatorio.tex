@@ -336,7 +336,7 @@ Desta forma, como no problema em questão, o centro das esferas desenhadas toma 
 
 \subsubsection{Texturas}
 O mapeamento de uma textura na esfera pode ser visto como envolver a esfera na textura como se de um embrulho se tratasse.
-A abcissa é calculada tendo em conta o angulo que o vetor formado pelo vértice e o centro forma com o primeiro ponto a ser desenhado, sendo este dividido por 2$\pi$ de modo a obter um valor percentual caraterístico do mapeamento das texturas.
+A abcissa é calculada tendo em conta o ângulo que o vetor formado pelo vértice e o centro forma com o primeiro ponto a ser desenhado, sendo este dividido por 2$\pi$ de modo a obter um valor percentual caraterístico do mapeamento das texturas.
 \begin{verbatim}
 texture[0]=(pAngle+angle)/(2*M_PI);
 \end{verbatim}
@@ -420,11 +420,11 @@ normalize(normal,1);
 \subsubsection{Texturas}
 O mapeamento da texturas no cone foi dividido em duas partes. 
 A primeira parte é responsável por mapear a textura na parte superior do cone sendo que a segunda é reponsável por mapear a textura na base do cone.
-Como tal, a primeira parte calcula a abcissa da textura da mesma maneira que esta é calculada no caso da esfera \textbf{i.e.} tendo em conta o angulo que o vetor formado pelo vértice e o centro forma com o primeiro ponto a ser desenhado, sendo este dividido por 2$\pi$.
+Como tal, a primeira parte calcula a abcissa da textura da mesma maneira que esta é calculada no caso da esfera \textbf{i.e.} tendo em conta o ângulo que o vetor formado pelo vértice e o centro forma com o primeiro ponto a ser desenhado, sendo este dividido por 2$\pi$.
 \begin{verbatim}
 texture[0]=(angle+pAngle)/(2*M_PI);
 \end{verbatim}
-No caso da ordenada o processo também é semelhante ao usado na esfera mas neste caso o referencial é a "base" da imagem. A ordenada é depois calculado com recurso ao valor da mesmo(ordenada) no vértice em causa e normalizando-o ao dividir pelo valor da altura do cone.
+No caso da ordenada o processo também é semelhante ao usado na esfera mas neste caso o referencial é a "base" da imagem. A ordenada é depois calculada com recurso ao valor da mesma(ordenada) no vértice em causa e normalizando-o ao dividir pelo valor da altura do cone.
 \begin{verbatim}
 texture[1]=y/height;
 \end{verbatim}
