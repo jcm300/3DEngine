@@ -23,7 +23,7 @@
 \newpage
 
 \section{Introdução}
-O presente relatório servirá de documentação ao processo de desenvolvimento de um motor gráfico 3D que permita a renderização de diversas cenas, nomeadamente a de um sistema planetário, bem como de um gerador de ficheiros que descrevam modelos individuais.
+O presente relatório serve de documentação ao processo de desenvolvimento de um motor gráfico 3D que permita a renderização de diversas cenas, nomeadamente a de um sistema planetário, bem como de um gerador de ficheiros que descrevam modelos individuais.
 
 \newpage
 
@@ -35,7 +35,7 @@ O projecto em mãos é composto por duas componentes principais:
 \end{description}
 
 \section{Generator}
-Esta componente do projeto é responsável por criar ficheiros que representam modelos/objetos em particular, estes objetos variam de acordo com os argumentos passados pelo utilizador. Este ficheiros contêm informação necessária para o Engine conseguir interpretar e "desenhar" os modelos pretendidos nomeadamente as coordenadas dos vértices que constituem o modelo em questão bem como as normais a estes vértices e ainda as coordenadas correspondentes às texturas. 
+Esta componente do projeto é responsável por criar ficheiros que representam modelos/objetos em particular, estes objetos variam de acordo com os argumentos passados pelo utilizador. A infromação contida nestes ficheiros é a necessária para o Engine conseguir interpretar e "desenhar" os modelos pretendidos, nomeadamente as coordenadas dos vértices que constituem o modelo em questão bem como as normais a estes vértices e ainda as coordenadas correspondentes às texturas. 
 O programa está construído de forma a poder responder a pedidos relacionados com 5 objetos:
 \begin{itemize}
     \item Um plano em XZ, que recebe como parâmetros x e z
@@ -60,7 +60,7 @@ exº : ./generator cone 2 4 10 20 cone.3d
 exº : ./generator bezierPatch teapot.patch 10 teapot.3d
         \end{verbatim}
 \end{itemize}
-Para além disto, optámos por seguir a sugestão do enunciado e imprimir, na primeira linha dos ficheiros (que contém os pontos a desenhar), o número de vértices que este contém. Isto permitirá alocar o espaço necessário aos \textit{arrays} usados para VBO's por forma a aumentar a performance do motor.
+Para além disto, e tendo em conta a sugestão presente no enunciado é impresso, na primeira linha dos ficheiros (que contém os pontos a desenhar), o número de vértices que este contém. Isto permite alocar o espaço necessário aos \textit{arrays} usados para VBO's por forma a aumentar a performance do motor.
 
 \subsection{Plano (Plane)}
 O plano é o modelo mais simples das opções apresentadas, sabendo logo de partida que recebendo apenas os seus dois parâmetros (x e z) apenas é necessário desenhar 2 triângulos para representar o mesmo, ou seja, apenas necessitámos de preencher o ficheiro desejado com 6 pontos, de modo a ser tratado de forma pretendida pelo Engine.
@@ -99,13 +99,13 @@ De modo a desenhar 2 triângulos são necessários 6 pontos:
 \end{figure}
 
 \subsubsection{Normais}
-Sendo que o plano é o objeto mais simples que o programa oferece, também o cálculo das normais dos pontos do plano é trivial. Sendo que o plano é desenhado em XZ, então a normal dos seus pontos será sempre com x = 0, y = 1 e z = 0.
+Dada a simplicidade do plano, o cálculo das normais dos vértices do mesmo é trivial. Sendo que o plano é desenhado em XZ, então a normal dos seus pontos será sempre com x = 0, y = 1 e z = 0.
 \begin{verbatim}
 normal[0]=0.f; normal[1]=1.f; normal[2]=0.f;
 \end{verbatim}
 
 \subsubsection{Texturas}
-As texturas para o plano são calculadas de forma trivial dado as caracteríticas deste modelo que tornam o cálculo das texturas imediato bastando, para isso, associar a cada vértice do plano um canto da textura:
+As texturas para o plano são calculadas de forma imediata bastando, para isso, associar a cada vértice do plano um extremo da textura:
 
 \begin{verbatim}
 pos[0]=-lf; pos[1]=0.f; pos[2]=-cf;
@@ -125,13 +125,12 @@ texture[0]=0.f; texture[1]=1.f;
 ...
 pos[0]=lf; pos[1]=0.f; pos[2]=cf;
 texture[0]=1.f; texture[1]=0.f;
-...
 \end{verbatim}
 
 \subsection{Caixa (Box)}
 
-Na caixa foi feita a assunção de que o seu centro se encontra na origem do gráfico ou seja, no ponto com coordenadas (0,0,0).
-Tendo isto em conta, é-nos útil dividir os parâmetros recebidos das dimensões pretendidas por 2, sendo assim utilizados esses mesmos valores para cada um dos pontos positivos e negativos do eixo em causa.
+Na caixa foi feita a assunção de que o seu centro se encontra na origem do gráfico, ou seja, no ponto com coordenadas (0,0,0).
+Tendo isto em conta, é-nos útil dividir os parâmetros recebidos das dimensões pretendidas por 2, sendo os resultados dessa divisão utilizados como coordenadas para os pontos que constituem os cantos da caixa.
 Interpretamos as divisões opcionais da caixa (d) como sendo utilizadas para dividir as faces laterais da caixa em d divisões (no eixo y), e também em d divisões nas faces inferiores e superiores (no eixo x).
 Tendo uma caixa 6 faces, e considerando que cada face é um paralelogramo cujos lados formam um ângulo de 90º entre si, é fácil calcular qual o número de pontos necessários a imprimir para ser possível desenhar o modelo:
 \begin{itemize}
@@ -240,7 +239,7 @@ Se o ponto pertencer a uma face no plano YZ, então no vetor normal deste ponto 
 Por fim, quanto à face XY, é sabido que no vetor normal x = 0 e y = 0, e o valor de z pode também tomar o valor de 1 ou -1, para o caso de o valor da coordenada z do ponto em causa ser superior ou inferior a 0.
 
 \subsubsection{Texturas}
-O cálculo das texturas para a caixa consistiu em aplicar a textura em causa a cada uma das faces deste modelo. Para cada uma das faces, visto tratar-se de um plano, aplicou-se a mesma lógica anteriomente descrita tendo, no entanto, em conta o facto de que uma caixa pode ser composta por diversas stacks e, como tal, cada face pode ser constituída por mais que quatro vértices. Sendo assim, a textura é mapeada nos vértices que constituam as stacks intermédias dividindo as coordenadas dos mesmos pelo comprimento da face permitindo assim obter o valor entre 0 e 1 caraterístico deste mapeamento.
+O cálculo das texturas para a caixa consistiu em aplicar a textura em causa a cada uma das faces deste modelo. Para cada uma das faces, visto tratar-se de um plano, aplicou-se a mesma lógica anteriomente descrita tendo em conta o facto de que uma caixa pode ser composta por diversas stacks e, como tal, cada face pode ser constituída por mais que quatro vértices. Sendo assim, a textura é mapeada nos vértices que constituam as stacks intermédias dividindo as coordenadas dos mesmos pelo comprimento da face permitindo assim obter o valor entre 0 e 1 caraterístico deste mapeamento.
 
 \begin{verbatim}
 pos[0]=x1; pos[1]=y; pos[2]=-z;
@@ -333,9 +332,19 @@ Este mesmo processo é depois aplicado à metade inferior da esfera, permitindo 
 
 \subsubsection{Normais}
 Para o cálculo das normais nos pontos de uma esfera, apenas é necessário ter em conta que o vetor normal de um determinado ponto numa esfera toma o valor das coordenadas desse mesmo ponto subtraindo as coordenadas do centro da mesma.\\
-Desta forma, como no problema em questão, o centro das esferas desenhadas toma sempre o valor da origem do gráfico (0,0,0), o vetor normal em todos os pontos de uma esfera é o próprio valor das coordenadas do mesmo.
+Desta forma, como no problema em questão, o centro das esferas desenhadas toma sempre o valor da origem do gráfico (0,0,0), o vetor normal em todos os pontos de uma esfera são as coordenadas do mesmo.
 
 \subsubsection{Texturas}
+O mapeamento de uma textura na esfera pode ser visto como envolver a esfera na textura como se de um embrulho se tratasse.
+A abcissa é calculada tendo em conta o angulo que o vetor formado pelo vértice e o centro forma com o primeiro ponto a ser desenhado, sendo este dividido por 2$\pi$ de modo a obter um valor percentual caraterístico do mapeamento das texturas.
+\begin{verbatim}
+texture[0]=(pAngle+angle)/(2*M_PI);
+\end{verbatim}
+
+Por outro lado a ordenada é obtida considerando uma linha horizontal que divide a textura a meio(com ordenada 0.5f) e mapeando-a no plano que divide a esfera a meio. Basta, por isso, aplicar uma variação com base no valor normalizado da ordenada do vértice.
+\begin{verbatim}
+texture[1]=0.5f+0.5f*y/radius;
+\end{verbatim}
 
 \subsection{Cone (Cone)}
 O cone, tal como a esfera, é um dos modelos mais complexos, tanto em termos de cálculo dos pontos necessários como também da quantidade dos mesmos. No caso do cone, o centro da base foi colocado na origem do referencial. O número de pontos necessário à configuração do modelo do cone é calculado da seguinte maneira:
@@ -409,6 +418,28 @@ normalize(normal,1);
 \end{verbatim}
 
 \subsubsection{Texturas}
+O mapeamento da texturas no cone foi dividido em duas partes. 
+A primeira parte é responsável por mapear a textura na parte superior do cone sendo que a segunda é reponsável por mapear a textura na base do cone.
+Como tal, a primeira parte calcula a abcissa da textura da mesma maneira que esta é calculada no caso da esfera \textbf{i.e.} tendo em conta o angulo que o vetor formado pelo vértice e o centro forma com o primeiro ponto a ser desenhado, sendo este dividido por 2$\pi$.
+\begin{verbatim}
+texture[0]=(angle+pAngle)/(2*M_PI);
+\end{verbatim}
+No caso da ordenada o processo também é semelhante ao usado na esfera mas neste caso o referencial é a "base" da imagem. A ordenada é depois calculado com recurso ao valor da mesmo(ordenada) no vértice em causa e normalizando-o ao dividir pelo valor da altura do cone.
+\begin{verbatim}
+texture[1]=y/height;
+\end{verbatim}
+
+No caso da base do cone, um círculo, o cálculo da ordenada é trivial, bastando para isso verificar se o vértice em causa é o centro do círculo ou se este pertence à circunferência do mesmo. No primeiro caso(centro) a ordenada toma o valor de 0.f, no segundo toma o valor de 1.f. A abcissa é calculada da mesma maneira que a abcissa da parte superior do cone.
+
+\begin{verbatim}
+pos[0]=0.f; pos[1]=0.f; pos[2]=0.f;
+texture[0]=curAngle/(2*M_PI); texture[1]=0.f;
+...
+pos[0]=radius*sin(curAngle+deltaAngle); pos[1]=0.f; pos[2]=radius*cos(curAngle+deltaAngle);
+texture[0]=(curAngle+deltaAngle)/(2*M_PI); texture[1]=1.f;
+...
+\end{verbatim}
+
 
 \subsection{Bezier Patches}
 De modo a gerar no generator os triângulos correpondentes à figura presente num ficheiro \textit{.patch} inicialmente é necessário carregar os valores presentes no mesmo para memória daí a existência de \textit{getNumber} que obtém o número de \textit{Patches} ou o número de \textit{Control Points}, de \textit{getPatches} que guarda os índices dos pontos de controlo e por fim de \textit{getControlPoints} que guarda os pontos de controlo.
@@ -480,6 +511,12 @@ crossProduct(dV,dU,n);
 \end{verbatim}
 
 \subsubsection{Texturas}
+O mapeamento de uma textura nas curvas de Bezier é feita de forma "imediata" bastando usar a contribuição de cada ponto (u,v) como valores para mapear a textura num determinado ponto.
+
+\begin{verbatim}
+texture[t][q][0]=u;
+texture[t][q][1]=v;
+\end{verbatim}
 
 \newpage
 
