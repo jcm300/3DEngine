@@ -59,6 +59,10 @@ exº : ./generator cone 2 4 10 20 cone.3d
         \begin{verbatim}
 exº : ./generator bezierPatch teapot.patch 10 teapot.3d
         \end{verbatim}
+    \item Um anel, que recebe o raio menor, o raio maior e o número de slices como parâmetros
+        \begin{verbatim}
+exº : ./generator ring 3 4 100 ring.3d
+        \end{verbatim}
 \end{itemize}
 Para além disto, e tendo em conta a sugestão presente no enunciado é impresso, na primeira linha dos ficheiros (que contém os pontos a desenhar), o número de vértices que este contém. Isto permite alocar o espaço necessário aos \textit{arrays} usados para VBO's por forma a aumentar a performance do motor.
 
@@ -517,6 +521,61 @@ O mapeamento de uma textura nas curvas de Bezier é feita de forma "imediata" ba
 texture[t][q][0]=u;
 texture[t][q][1]=v;
 \end{verbatim}
+
+\subsection{Anel (Ring)}
+Como forma de extendermos o leque de modelos oferecidos pelo Generator e também tendo em conta a construção de um Sistema Solar como objetivo, decidimos adicionar a opção de gerar um anel a este programa. O Generator recebe como parâmetros o raio menor do anel e o raio maior, e utiliza o parâmetro \textit{slices} para desenhar com mais precisão este anel, sendo que constrói dois planos em y = 0, o plano superior e o inferior.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=7cm]{ring.png}
+    \caption{Resultado obtido usando como parâmetros 3 4 10} 
+\end{figure}
+
+\subsubsection{Em termos matemáticos}
+Seja \texttt{slices} o número de slices com que se pretende desenhar o anel, são necessários \texttt{6 * slices * 2} pontos para desenhar este modelo, sendo que:
+
+\begin{itemize}
+	\item cada \textit{slice} contêm dois triângulos
+	\item cada triângulo necessita de 3 pontos, logo 2 * 3 = 6
+	\item o anel é composto por 2 planos, o superior e o inferior, ambos em y = 0, pelo que o número de pontos é igual a \textit{6 * slices * 2}
+\end{itemize}
+
+No início é calculado o valor que o ângulo tem que variar ao desenhar o anel, tendo em conta o número de \textit{slices} (\texttt{float a = (2 * M\_PI) / slices;}), coloca-se a variável \texttt{angle} a 0 (\texttt{float angle = 0;}), e, tendo em conta que:
+
+\begin{itemize}
+	\item \texttt{minR}: o valor do raio menor do anel
+	\item \texttt{maxR}: o valor do raio maior do anel
+\end{itemize}
+
+em cada iteração (cada \textit{slice}) que é processada, são calculados os seguintes valores:
+
+\begin{itemize}
+	\item \texttt{px1}, o valor da coordenada x do ponto a processar no raio menor
+	\item \texttt{pz1}, o valor da coordenada z do ponto a processar no raio menor
+	\item \texttt{pxx1}, o valor da coordenada x do ponto a processar de seguida no raio menor
+	\item \texttt{pzz1}, o valor da coordenada z do ponto a processar de seguida no raio menor
+	\item \texttt{px2}, o valor da coordenada x do ponto a processar no raio maior
+	\item \texttt{pz2}, o valor da coordenada z do ponto a processar no raio maior
+	\item \texttt{pxx2}, o valor da coordenada x do ponto a processar de seguida no raio maior
+	\item \texttt{pzz2}, o valor da coordenada z do ponto a processar de seguida no raio maior
+\end{itemize}
+
+\begin{verbatim}
+px1 = minR * sin(angle);
+pz1 = minR * cos(angle);
+pxx1 = minR * sin(angle+a);
+pzz1 = minR * cos(angle+a);
+px2 = maxR * sin(angle);
+pz2 = maxR * cos(angle);
+pxx2 = maxR * sin(angle+a);
+pzz2 = maxR * cos(angle+a);
+\end{verbatim}
+
+pelo que depois disto temos toda a informação disponível sobre os pontos necessários para desenhar a slice em causa, sendo que a coordenada y destes pontos é sempre igual a 0.
+
+\subsubsection{Normais}
+
+\subsubsection{Texturas}
 
 \newpage
 
