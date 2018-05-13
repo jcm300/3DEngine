@@ -1,14 +1,3 @@
-matrix:
-    include:
-        - os: linux
-          addons:
-              apt:
-                  source:
-                      - ubuntu-toolchain-r-test
-                  packages:
-                      - gcc-4.9
-        env:
-            - MATRIX_EVAL="CC=gcc-4.9"
 before_install:
     - eval "${MATRIX_EVAL}"
 language: c
@@ -28,3 +17,5 @@ script:
     - make
 after_script:
     - bash -c "$(curl -fsSL https://raw.githubusercontent.com/MaT1g3R/travis_discord/master/travis.sh)"
+notifications:
+  email: false
