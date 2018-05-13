@@ -23,6 +23,7 @@ void generateBox(int, char*, char*, char*, char*);
 void generateCone(int, char*, char*, char*, char*);
 void generateSphere(int, char *, char *, char *);
 void generateBezierPatch(int, char *, char *);
+void generateRing(int, char*, char*, char*);
 void printLine(int, char*, float[], float[], float[]);
 void genSlice(int, int,float,float, float, float,int);
 void genWalls(int,int,float,float,float,float,float,float,int,float);
@@ -59,9 +60,14 @@ int writeConfig(int nParams, char **params){
         else if (strcmp(params[0],"cone") == 0){ //cone
             if (nParams==6) generateCone(fd,params[1],params[2],params[3],params[4]);
             else fprintf(stderr,"Incorrect cone parameters\n");
-        }else if(strcmp(params[0],"bezierPatch") == 0){ //bezierPatch
+        }
+        else if (strcmp(params[0],"bezierPatch") == 0){ //bezierPatch
             if (nParams==4) generateBezierPatch(fd,params[1],params[2]);
             else fprintf(stderr,"Incorrect bezier patch parameters\n");
+        }
+        else if (strcmp(params[0],"ring") == 0){ //ring
+            if (nParams==5) generateRing(fd,params[1],params[2],params[3]);
+            else fprintf(stderr,"Incorrect ring parameters\n");
         }
         else fprintf(stderr,"Primitive not recognized\n");
         close(fd);
@@ -630,4 +636,87 @@ void computeNormal(float v1[], float v2[], float v3[], float v4[], float res[]) 
 
     crossProduct(aux1,aux2,res);
     normalize(res,1);
+}
+
+void generateRing(int fd, char* r1, char* r2, char* sl) {
+
+    float minR = (float) atof(r1);
+    float maxR = (float) atof(r2);
+    int slices = atoi(sl);
+
+    float pos[3], normal[3], texture[2];
+    char array[213];
+
+	float a = (2 * M_PI) / slices;
+	float px1,pz1,pxx1,pzz1,px2,pz2,pxx2,pzz2;
+	float angle = 0;
+    float text = (float) 1 / slices;
+    float t = 0.f;
+
+    sprintf(array,"%d\n",6 * slices * 2);
+    write(fd,array,strlen(array));
+
+	for (int i=0;i<slices;i++,angle+=a,t+=text){
+
+		px1 = minR * sin(angle);
+		pz1 = minR * cos(angle);
+		pxx1 = minR * sin(angle+a);
+		pzz1 = minR * cos(angle+a);
+        px2 = maxR * sin(angle);
+		pz2 = maxR * cos(angle);
+		pxx2 = maxR * sin(angle+a);
+		pzz2 = maxR * cos(angle+a);
+
+		//face superior
+        normal[0] = 0.0f; normal[1] = 1.0f; normal[2] = 0.0f;
+        
+        pos[0] = px1; pos[1] = 0 ; pos[2] = pz1;
+        texture[0] = t; texture[1] = 0.f;
+        printLine(fd,array,pos,normal,texture);
+
+        pos[0] = px2; pos[1] = 0 ; pos[2] = pz2;
+        texture[0] = t; texture[1] = 1.f;        
+        printLine(fd,array,pos,normal,texture);
+
+        pos[0] = pxx1; pos[1] = 0 ; pos[2] = pzz1;
+        texture[0] = t + text; texture[1] = 0.f;
+        printLine(fd,array,pos,normal,texture);
+
+        pos[0] = px2; pos[1] = 0 ; pos[2] = pz2;
+        texture[0] = t; texture[1] = 1.f;
+        printLine(fd,array,pos,normal,texture);
+
+        pos[0] = pxx2; pos[1] = 0 ; pos[2] = pzz2;
+        texture[0] = t + text; texture[1] = 1.f;
+        printLine(fd,array,pos,normal,texture);
+
+        pos[0] = pxx1; pos[1] = 0 ; pos[2] = pzz1;
+        texture[0] = t + text; texture[1] = 0.f;
+        printLine(fd,array,pos,normal,texture);
+
+        //face inferior
+        normal[0] = 0.0f; normal[1] = -1.0f; normal[2] = 0.0f;
+
+        pos[0] = px1; pos[1] = 0 ; pos[2] = pz1;
+        texture[0] = t; texture[1] = 0.f;
+        printLine(fd,array,pos,normal,texture);
+
+        pos[0] = pxx1; pos[1] = 0 ; pos[2] = pzz1;
+        texture[0] = t + text; texture[1] = 0.f;
+        printLine(fd,array,pos,normal,texture);
+
+        pos[0] = px2; pos[1] = 0 ; pos[2] = pz2;
+        texture[0] = t; texture[1] = 1.f;  
+        printLine(fd,array,pos,normal,texture);
+
+        printLine(fd,array,pos,normal,texture);
+
+        pos[0] = pxx1; pos[1] = 0 ; pos[2] = pzz1;
+        texture[0] = t + text; texture[1] = 0.f;
+        printLine(fd,array,pos,normal,texture);
+
+        pos[0] = pxx2; pos[1] = 0 ; pos[2] = pzz2;
+        texture[0] = t + text; texture[1] = 1.f;
+        printLine(fd,array,pos,normal,texture);
+    }
 }
