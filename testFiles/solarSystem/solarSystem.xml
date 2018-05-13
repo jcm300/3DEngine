@@ -179,6 +179,7 @@
             <scale X="0.067709375" Y="0.067709375" Z="0.067709375"/>
             <models>
                 <model file="planet.3d" texture="saturn.jpg"/>
+                <model file="ring.3d" texture="saturn.jpg"/>
             </models>
             <!--Lua Titã-->
             <group>
