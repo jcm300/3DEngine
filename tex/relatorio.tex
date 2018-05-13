@@ -75,6 +75,8 @@ O plano é o modelo mais simples das opções apresentadas, sabendo logo de part
 \caption{Resultado obtido passando o ficheiro gerado pelo Generator com os parâmetros x=2 e z=4 ao Engine}
 \end{figure}
 
+\newpage
+
 \subsubsection{Em termos matemáticos}
 Seja:
 \begin{itemize}
@@ -588,6 +590,38 @@ normal[0] = 0.0f; normal[1] = -1.0f; normal[2] = 0.0f;
 \end{itemize}
 
 \subsubsection{Texturas}
+Para calcular o valor das texturas em cada ponto, são iniciadas duas variáveis, \texttt{text} tendo em conta o número de \textit{slices} a construir e \texttt{t}:
+
+\begin{verbatim}
+float text = (float) 1 / slices;
+float t = 0.f;
+\end{verbatim}
+
+Sendo assim, na primeira \textit{slice} (1ª iteração), a variável \texttt{t} tem o valor 0, sendo que no fim de cada uma destas iterações o valor é incrementado em \texttt{text} unidades (\texttt{t+=text}).
+O obetivo deste modo é:
+\begin{itemize}
+	\item associar ao ponto \textit{(px1,0,pz1)} os valores de textura \textit{(t,0)}
+	\item associar ao ponto \textit{(px2,0,pz2)} os valores de textura \textit{(t,1)}
+	\item associar ao ponto \textit{(pxx1,0,pzz1)} os valores de textura \textit{(t+text,0)}
+	\item associar ao ponto \textit{(pxx2,0,pzz2)} os valores de textura \textit{(t+text,1)}
+\end{itemize}
+sempre que estes são utilizados.
+
+\begin{verbatim}
+...
+pos[0] = px1; pos[1] = 0 ; pos[2] = pz1;
+texture[0] = t; texture[1] = 0.f;
+...
+pos[0] = px2; pos[1] = 0 ; pos[2] = pz2;
+texture[0] = t; texture[1] = 1.f;        
+...
+pos[0] = pxx1; pos[1] = 0 ; pos[2] = pzz1;
+texture[0] = t + text; texture[1] = 0.f;
+...
+pos[0] = pxx2; pos[1] = 0 ; pos[2] = pzz2;
+texture[0] = t + text; texture[1] = 1.f;
+...
+\end{verbatim}
 
 \newpage
 
