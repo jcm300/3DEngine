@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
+use_c99()
 
 if(NOT APPLE)
     find_package(GLEW REQUIRED)                                                                                                                                              
