@@ -3,7 +3,7 @@ before_install:
 language: c
 compiler:
     - clang
-    - gcc -std=c99
+    - gcc
 before_script:
     - sudo apt-get install freeglut3-dev libglew-dev libdevil-dev libxml2
 script:
@@ -14,7 +14,5 @@ script:
     - make
     - cd ../Engine
     - make
-after_script:
-    - bash -c "$(curl -fsSL https://raw.githubusercontent.com/MaT1g3R/travis_discord/master/travis.sh)"
 notifications:
   email: false
