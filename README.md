@@ -9,7 +9,11 @@ This project consists of the implementation of a 3D engine using [**OpenGL**](ht
 ## Setup
 
 ### Dependencies
-- OpenGL
+- [OpenGL](https://www.opengl.org/about/)
+- [DevIL](http://openil.sourceforge.net/)
+- [Libxml2](http://www.xmlsoft.org/)
+- [freeGLUT](http://freeglut.sourceforge.net/)
+- [Glew](http://glew.sourceforge.net/) (if not APPLE)
 
 ### Script
 
