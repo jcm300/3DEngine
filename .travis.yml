@@ -5,7 +5,7 @@ compiler:
     - clang
     - gcc
 before_script:
-    - sudo apt-get install freeglut3-dev libglew-dev devil libxml2
+    - sudo apt-get install freeglut3-dev libglew-dev libdevil-dev libxml2
 script:
     - mkdir build
     - cd build
