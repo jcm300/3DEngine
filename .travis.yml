@@ -3,7 +3,7 @@ before_install:
 language: c
 compiler:
     - clang
-    - gcc
+    - gcc -std=c99
 before_script:
     - sudo apt-get install freeglut3-dev libglew-dev libdevil-dev libxml2
 script:
