@@ -1,28 +1,25 @@
 # 3D Engine
 3D graphics engine built for academic purposes using C/C++ and OpenGL. 
-The engine reads scene configuration files (in XML format) and renders models based on corresponding configuration files.
+The engine is capable of rendering scenes based on XML files the specify the configuration of a given scene and the models that are to be rendered.
 
 Project developed in the context of the Computer Graphics course at **Universidade do Minho**.
 
 ## Setup
 
-### Dependencies
+### Dependencies/Prerequisites
 - [OpenGL](https://www.opengl.org/about/)
+- [freeGLUT](http://freeglut.sourceforge.net/)
+- [Glew](http://glew.sourceforge.net/) (non APPLE)
 - [DevIL](http://openil.sourceforge.net/)
 - [Libxml2](http://www.xmlsoft.org/)
-- [freeGLUT](http://freeglut.sourceforge.net/)
-- [Glew](http://glew.sourceforge.net/) (if not APPLE)
-
-### Script
 
 ## Usage
 
+### Build
+
+
 ### Result
-Running:
-``
-followed by
-``
-should result in the following scene:
+Running: `./engine solarSystem.xml` with engine and solarSystem.xml in the directory should result in the following scene:
 ![Solar System Scene](screenshots/solarSystemEx.png "Solar System Scene")
 
 ## Build Status

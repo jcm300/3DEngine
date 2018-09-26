@@ -1,6 +1,9 @@
-# Textures
-- [x] Plane
-- [x] Box
-- [x] Sphere
-- [x] Cone
-- [ ] Patches
+# TODO
+
+## FIX
+
+## Features
+- [ ] Write script to build and run the engine with the Solar System Example
+
+## Documentation
+
