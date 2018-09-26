@@ -4,6 +4,8 @@ The engine reads scene configuration files (in XML format) and renders models ba
 
 Project developed in the context of the Computer Graphics course at **Universidade do Minho**.
 
+![Solar System example on engine](screenshots/solarSystemEx.png "Solar System example on engine")
+
 ## Build Status
 [![Build Status](https://travis-ci.com/jcm300/3DEngine.svg?token=dURZVmBFmMxh7Qb21dmm&branch=master)](https://travis-ci.com/jcm300/3DEngine)
 
