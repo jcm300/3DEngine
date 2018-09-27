@@ -10,12 +10,14 @@
 #ifdef __APPLE__
 #include <GLUT/glut.h>
 #include <unistd.h>
+#include <il.h>
 #endif
 
 #ifdef __linux__
 #include <unistd.h>
 #include <GL/glew.h>
 #include <GL/glut.h>
+#include <IL/il.h>
 #endif
 
 #define _USE_MATH_DEFINES
@@ -24,7 +26,6 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
-#include <IL/il.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
