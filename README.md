@@ -33,4 +33,4 @@ Running: `./engine solarSystem.xml` with engine and solarSystem.xml in the direc
 
 ## License
 
-Licensed under the MIT License, see [LICENSE.md](LICENSE) for more details.
+Licensed under the MIT License, see [LICENSE.md](LICENSE.md) for more details.
