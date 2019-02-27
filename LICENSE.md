@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2018 José Carlos Lima Martins; Miguel Miranda Quaresma
+Copyright (c) 2018 José Carlos Lima Martins; João Pedro Ferreira Vieira; Miguel Miranda Quaresma; Simão Paulo Leal Barbosa
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
