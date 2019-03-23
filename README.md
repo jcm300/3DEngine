@@ -20,7 +20,7 @@ Project developed in the context of the Computer Graphics course at **Universida
 
 ### Result
 Running: `./engine solarSystem.xml` with engine and solarSystem.xml in the directory should result in the following scene:
-![Solar System Scene](screenshots/solarSystemEx.png "Solar System Scene")
+![Solar System Scene](assets/screenshots/solarSystemEx.png "Solar System Scene")
 
 ## Build Status
 [![Build Status](https://travis-ci.com/jcm300/3DEngine.svg?token=dURZVmBFmMxh7Qb21dmm&branch=master)](https://travis-ci.com/jcm300/3DEngine)
