@@ -4,6 +4,8 @@ The engine is capable of rendering scenes based on XML files the specify the con
 
 Project developed in the context of the Computer Graphics course at **Universidade do Minho**.
 
+For more information you can have a look [here (PT version only)](tex).
+
 ## Setup
 
 ### Dependencies/Prerequisites
